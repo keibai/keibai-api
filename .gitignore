@@ -1,3 +1,5 @@
 *.class
+*.iml
 .idea
-target
+/target
+/src/main/webapp/META-INF/context.xml
