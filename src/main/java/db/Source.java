@@ -11,8 +11,12 @@ public class Source {
 
     public Source() {
         try {
-            dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/db");
-        } catch (NamingException e) {
+            InitialContext cxt = new InitialContext();
+            if ( cxt == null ) {
+                throw new Exception("Uh oh -- no context!");
+            }
+            dataSource = (DataSource) new InitialContext().lookup("java:/comp/env/jdbc/postgres");
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
