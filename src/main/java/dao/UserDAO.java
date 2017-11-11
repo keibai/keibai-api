@@ -2,12 +2,10 @@ package main.java.dao;
 
 import main.java.models.User;
 
-import java.sql.SQLException;
-
 public interface UserDAO {
 
     // Create
-    void createUser(User user) throws SQLException;
+    void createUser(User user) throws DAOException;
 
     // Read
     User getUserById(int id);

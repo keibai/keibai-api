@@ -1,7 +1,5 @@
 package main.java.models;
 
-import java.util.Calendar;
-
 public class User {
 
     private int id;
@@ -9,13 +7,9 @@ public class User {
     private String lastName;
     private String password;
     private String email;
-    private String country;
-    private String city;
-    private String address;
-    private String zipCode;
     private double credit;
-    private Calendar createdAt;
-    private Calendar updatedAt;
+    private long createdAt;
+    private long updatedAt;
 
     public int getId() {
         return id;
@@ -41,44 +35,20 @@ public class User {
         this.lastName = lastName;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
     }
 
     public double getCredit() {
@@ -89,27 +59,19 @@ public class User {
         this.credit = credit;
     }
 
-    public Calendar getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Calendar createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Calendar getUpdatedAt() {
+    public long getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Calendar updatedAt) {
+    public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

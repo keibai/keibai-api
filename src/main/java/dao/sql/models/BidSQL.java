@@ -1,4 +1,4 @@
-package main.java.dao.sql;
+package main.java.dao.sql.models;
 
 import main.java.models.Bid;
 
