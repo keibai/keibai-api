@@ -1,3 +1,13 @@
+-- triggers
+------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION update_modified_at()
+  RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 -- user table
 ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS "user"
@@ -6,21 +16,19 @@ CREATE TABLE IF NOT EXISTS "user"
     CONSTRAINT user_pkey
     PRIMARY KEY,
   name      VARCHAR(255)                 NOT NULL,
-  last_name  VARCHAR(255)                 NOT NULL,
+  last_name  VARCHAR(255)                ,
   password  VARCHAR(255)                 NOT NULL,
   email     VARCHAR(255)                 NOT NULL,
-  country   VARCHAR(255)                 NOT NULL,
-  city      VARCHAR(255)                 NOT NULL,
-  address   VARCHAR(255)                 NOT NULL,
-  zip_code   VARCHAR(255)                 NOT NULL,
   credit    DOUBLE PRECISION DEFAULT 0.0 NOT NULL,
-  created_at TIMESTAMP                    NOT NULL,
-  updated_at TIMESTAMP                    NOT NULL
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS user_id_uindex
   ON "user" (id);
 CREATE UNIQUE INDEX IF NOT EXISTS user_email_uindex
   ON "user" (email);
+
+CREATE TRIGGER update_user_modified_at BEFORE UPDATE ON "user" FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- auction_type table
 ------------------------------------------------------------------------------
