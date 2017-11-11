@@ -1,5 +1,7 @@
 package main.java.models;
 
+import java.util.Calendar;
+
 public class User {
 
     private int id;
@@ -8,8 +10,8 @@ public class User {
     private String password;
     private String email;
     private double credit;
-    private long createdAt;
-    private long updatedAt;
+    private Calendar createdAt;
+    private Calendar updatedAt;
 
     public int getId() {
         return id;
@@ -59,19 +61,19 @@ public class User {
         this.credit = credit;
     }
 
-    public long getCreatedAt() {
+    public Calendar getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(long createdAt) {
+    public void setCreatedAt(Calendar createdAt) {
         this.createdAt = createdAt;
     }
 
-    public long getUpdatedAt() {
+    public Calendar getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(long updatedAt) {
+    public void setUpdatedAt(Calendar updatedAt) {
         this.updatedAt = updatedAt;
     }
 }
