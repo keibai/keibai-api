@@ -1,10 +1,8 @@
-package main.java.servlets;
+package main.java.servlets.user;
 
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
-import main.java.db.Source;
 import main.java.models.User;
-import org.postgresql.jdbc2.optional.ConnectionPool;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,15 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Calendar;
 
-@WebServlet(name = "FirstServlet", urlPatterns = {"/"})
-public class FirstServlet extends HttpServlet {
-//    @Resource() private DataSource dataSource;
+@WebServlet(name = "UserNew", urlPatterns = {"/users/new"})
+public class UserNew extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 

@@ -6,26 +6,36 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Source singleton.
+ * - DB connection.
+ */
 public class Source {
-    private DataSource dataSource;
+    private static Source instance;
 
-    public Source() {
-        try {
-            InitialContext cxt = new InitialContext();
-            if ( cxt == null ) {
-                throw new Exception("Uh oh -- no context!");
-            }
-            dataSource = (DataSource) new InitialContext().lookup("java:/comp/env/jdbc/db");
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+    private DataSource dataSource;
+    private Connection connection;
+
+    public static Source getInstance() {
+        if (instance == null) {
+            instance = new Source();
         }
+        return instance;
     }
 
-    public Connection getConnection() {
-        try {
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
+    private Source() {}
+
+    private DataSource getDataSource() throws NamingException {
+        if (dataSource == null) {
+            dataSource = (DataSource) new InitialContext().lookup("java:/comp/env/jdbc/db");
         }
+        return dataSource;
+    }
+
+    public Connection getConnection() throws NamingException, SQLException {
+        if (connection == null) {
+            connection = getDataSource().getConnection();
+        }
+        return connection;
     }
 }
