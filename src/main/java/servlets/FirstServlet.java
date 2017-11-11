@@ -28,7 +28,7 @@ public class FirstServlet extends HttpServlet {
         try {
             Source source = new Source();
             Connection connection = source.getConnection();
-            String sql = "CREATE TABLE IF NOT EXISTS warehouses (\n"
+            String sql = "CREATE TABLE IF NOT EXISTS abc (\n"
                     + "	id integer PRIMARY KEY,\n"
                     + "	name text NOT NULL,\n"
                     + "	capacity real\n"

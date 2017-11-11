@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resource auth="Container"
+              driverClassName="org.postgresql.Driver"
+              factory="org.apache.tomcat.dbcp.dbcp2.BasicDataSourceFactory"
+              maxTotal="50"
+              maxIdle="10"
+              maxWaitMillis="-1"
+              name="jdbc/db"
+              type="javax.sql.DataSource"
+              url="jdbc:postgresql://localhost:5432/postgres"
+              username="postgres"
+              password="" />
+</Context>

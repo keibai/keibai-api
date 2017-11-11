@@ -15,7 +15,7 @@ public class Source {
             if ( cxt == null ) {
                 throw new Exception("Uh oh -- no context!");
             }
-            dataSource = (DataSource) new InitialContext().lookup("java:/comp/env/jdbc/postgres");
+            dataSource = (DataSource) new InitialContext().lookup("java:/comp/env/jdbc/db");
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

@@ -55,7 +55,7 @@ public class postgresServlet extends HttpServlet {
             }
             DataSource ds = null;
             try {
-                ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/postgres");
+                ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/db");
             } catch (NamingException ex) {
                 out.println("<h1>NamingException for context lookup</h1>");
                 out.println(ex.getExplanation() + "<br>Remaining: ");
