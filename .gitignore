@@ -3,3 +3,4 @@
 .idea
 /target
 /src/main/webapp/META-INF/context.xml
+/data
