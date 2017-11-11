@@ -1,0 +1,16 @@
+sudo: required
+
+language: java
+jdk: oraclejdk8
+
+env:
+  global:
+  - secure: "gCm7o2O1KEI7mbK4A5VNnfCKd3GXIPMchrreDCStevboqE5oXtpJ9e2uZkM5QDyxUM4o/v0AeTuBz/ki2xdUXT182bEH8LIbaeQxNOZrmScMprRSD8x+1EkTGCGVI8d3aJtnAqw6GxnybveYmBOjw88ynHdirBDQHIw5cJ1y4b36eb7dtfpSMHb9WRd3q9RmJ/p/o0H++oL3DgO0nY1N0chQFvu6cML2MO2AGP4xGIWMn4yQbXD0vuXTidf/kjiRwojHTNWPTHQ5pXgWxT6jYytz5VU2dcwkafJP60TWLX6b/bUPzvn1y/tyq1XZkZBxw81bd84dQrcyfUCvbQqI+DPGWGNvus20bAYpV0Qrp/AyqHNNWUcEJa7Cu4RiQEx/QctOkwkmhp0Z8TWqx7nEbuRLIUtN9bqT1NprUFHoX/z7W5mU/vmmMLWNsJuZq+t4RkoKN3y+v5DzK6JDfuVXMEGIg87Jg5DEYSSPLmOdd4rDPUvUFFZ3XncbKX8/SLLGC1FBY5PiUVOFt+b9zNa9W4TLTSfLhzyVGCzBxgRX9S7wNOZO3+ULYVoK0qRr4kDeywqjpCDxz5KKoybRjCe6VEcl8JbhzMa3oiFhfqgNow5G3ShvTmJt4octHkgb2dv+OmtqlmoB9IZ/7U/9k147cYH5ENOG/LjFkzkT5e1k4zE="
+
+scripts:
+  - mvn clean
+  - mvn package
+  - mvn test
+
+after_success:
+  - scripts/deploy.sh
