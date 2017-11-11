@@ -7,6 +7,7 @@ public class User {
     private int id;
     private String name;
     private String lastName;
+    private String password;
     private String email;
     private String country;
     private String city;
@@ -102,5 +103,13 @@ public class User {
 
     public void setUpdatedAt(Calendar updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

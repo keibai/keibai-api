@@ -1,6 +1,9 @@
 package main.java.servlets;
 
+import main.java.dao.UserDAO;
+import main.java.dao.sql.UserDAOSQL;
 import main.java.db.Source;
+import main.java.models.User;
 import org.postgresql.jdbc2.optional.ConnectionPool;
 
 import javax.servlet.ServletException;
@@ -14,6 +17,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 
 @WebServlet(name = "FirstServlet", urlPatterns = {"/"})
 public class FirstServlet extends HttpServlet {
@@ -24,19 +28,22 @@ public class FirstServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String msg = "";
+        String msg;
         try {
-            Source source = new Source();
-            Connection connection = source.getConnection();
-            String sql = "CREATE TABLE IF NOT EXISTS abc (\n"
-                    + "	id integer PRIMARY KEY,\n"
-                    + "	name text NOT NULL,\n"
-                    + "	capacity real\n"
-                    + ");";
-
-
-            Statement stmt = connection.createStatement();
-            stmt.execute(sql);
+            User user = new User();
+            user.setName("Gerard");
+            user.setLastName("Rovira");
+            user.setPassword("1234");
+            user.setEmail("example@example.example");
+            user.setCountry("Spain");
+            user.setCity("Lleida");
+            user.setAddress("Fake address");
+            user.setZipCode("1234556");
+            user.setCredit(25.0);
+            user.setCreatedAt(Calendar.getInstance());
+            user.setUpdatedAt(Calendar.getInstance());
+            UserDAO userDAO = UserDAOSQL.getInstance();
+            userDAO.createUser(user);
             msg = "OK";
         } catch (Exception e) {
             throw new IllegalStateException(e);
