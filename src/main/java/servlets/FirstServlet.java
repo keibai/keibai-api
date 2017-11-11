@@ -45,7 +45,7 @@ public class FirstServlet extends HttpServlet {
 //            msg = e.toString();
         }
 
-        String json = "{ hello: \"" + msg + "\"}";
+        String json = "{ \"hello\": \"" + msg + "\"}";
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
