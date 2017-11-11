@@ -11,10 +11,9 @@ public class Auction {
     private boolean is_valid;
 
     private Event event;
-    private Owner owner;
-    private Status status;
-    private Winner winner;
-
+    private User owner;
+    private AuctionStatus status;
+    private User winner;
 
     public int getId() {
         return id;
@@ -64,27 +63,27 @@ public class Auction {
         this.event = event;
     }
 
-    public Owner getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(Owner owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 
-    public Status getStatus() {
+    public AuctionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(AuctionStatus status) {
         this.status = status;
     }
 
-    public Winner getWinner() {
+    public User getWinner() {
         return winner;
     }
 
-    public void setWinner(Winner winner) {
+    public void setWinner(User winner) {
         this.winner = winner;
     }
 }
