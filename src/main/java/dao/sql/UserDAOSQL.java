@@ -30,9 +30,7 @@ public class UserDAOSQL implements UserDAO {
             statement.setString(2, user.getPassword()); // TODO: Hash password.
             statement.setString(3, user.getEmail());
             statement.execute();
-        } catch (NamingException e) {
-            throw new DAOException(e);
-        } catch (SQLException e) {
+        } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
