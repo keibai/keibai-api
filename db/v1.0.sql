@@ -74,11 +74,13 @@ CREATE TABLE IF NOT EXISTS event
   name         VARCHAR(255) NOT NULL,
   auction_time INTEGER DEFAULT 60,
   location     VARCHAR(255) NOT NULL,
-  created_at   TIMESTAMP    NOT NULL,
-  updated_at   TIMESTAMP    NOT NULL
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS event_id_uindex
   ON event (id);
+
+CREATE TRIGGER update_event_modified_at BEFORE UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- auction_status table
 ------------------------------------------------------------------------------
@@ -141,7 +143,7 @@ CREATE TABLE IF NOT EXISTS bid
     CONSTRAINT owner
     REFERENCES "user",
   amount     DOUBLE PRECISION NOT NULL,
-  created_at TIMESTAMP        NOT NULL
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS bid_id_uindex
   ON bid (id);
