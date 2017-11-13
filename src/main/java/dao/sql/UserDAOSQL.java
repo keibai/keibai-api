@@ -23,12 +23,13 @@ public class UserDAOSQL implements UserDAO {
     public void createUser(User user) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.user(name, password, email) VALUES(?, ?, ?)";
+            String query = "INSERT INTO public.user(name, last_name, password, email) VALUES(?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, user.getName());
-            statement.setString(2, user.getPassword()); // TODO: Hash password.
-            statement.setString(3, user.getEmail());
+            statement.setString(2, user.getLastName());
+            statement.setString(3, user.getPassword());
+            statement.setString(4, user.getEmail());
             statement.execute();
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);

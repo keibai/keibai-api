@@ -5,6 +5,7 @@ import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
 import main.java.utils.Logger;
+import main.java.utils.PasswordAuthentication;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,11 +23,13 @@ public class UserNew extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        PasswordAuthentication passwordAuthentication = new PasswordAuthentication();
+
         try {
             User user = new User() {{
                 setName("Erik");
                 setLastName("Green");
-                setPassword("1234");
+                setPassword(passwordAuthentication.hash("1234".toCharArray()));
                 setEmail("hi" + Math.random() + "@example.com");
             }};
             UserDAO userDAO = UserDAOSQL.getInstance();
