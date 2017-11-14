@@ -5,13 +5,12 @@ import java.util.Calendar;
 public class Event {
     private int id;
     private String name;
-    private int auction_time;
+    private int auctionTime;
     private String location;
-    private Calendar created_at;
-    private Calendar updated_at;
-
-    private AuctionType auction_type;
-    private Category category;
+    private Calendar createdAt;
+    private Calendar updatedAt;
+    private String auctionType;
+    private String category;
     private User owner;
 
     public int getId() {
@@ -30,12 +29,12 @@ public class Event {
         this.name = name;
     }
 
-    public int getAuction_time() {
-        return auction_time;
+    public int getAuctionTime() {
+        return auctionTime;
     }
 
-    public void setAuction_time(int auction_time) {
-        this.auction_time = auction_time;
+    public void setAuctionTime(int auctionTime) {
+        this.auctionTime = auctionTime;
     }
 
     public String getLocation() {
@@ -46,35 +45,35 @@ public class Event {
         this.location = location;
     }
 
-    public Calendar getCreated_at() {
-        return created_at;
+    public Calendar getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Calendar created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Calendar createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Calendar getUpdated_at() {
-        return updated_at;
+    public Calendar getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(Calendar updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(Calendar updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    public AuctionType getAuction_type() {
-        return auction_type;
+    public String getAuctionType() {
+        return auctionType;
     }
 
-    public void setAuction_type(AuctionType auction_type) {
-        this.auction_type = auction_type;
+    public void setAuctionType(String auctionType) {
+        this.auctionType = auctionType;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

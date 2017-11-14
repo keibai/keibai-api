@@ -6,14 +6,14 @@ public class Auction {
 
     private int id;
     private String name;
-    private double starting_price;
-    private Calendar start_time;
-    private boolean is_valid;
-
+    private double startingPrice;
+    private Calendar startTime;
+    private boolean isValid;
     private Event event;
     private User owner;
-    private AuctionStatus status;
+    private String status;
     private User winner;
+
 
     public int getId() {
         return id;
@@ -31,28 +31,28 @@ public class Auction {
         this.name = name;
     }
 
-    public double getStarting_price() {
-        return starting_price;
+    public double getStartingPrice() {
+        return startingPrice;
     }
 
-    public void setStarting_price(double starting_price) {
-        this.starting_price = starting_price;
+    public void setStartingPrice(double startingPrice) {
+        this.startingPrice = startingPrice;
     }
 
-    public Calendar getStart_time() {
-        return start_time;
+    public Calendar getStartTime() {
+        return startTime;
     }
 
-    public void setStart_time(Calendar start_time) {
-        this.start_time = start_time;
+    public void setStartTime(Calendar startTime) {
+        this.startTime = startTime;
     }
 
-    public boolean isIs_valid() {
-        return is_valid;
+    public boolean isValid() {
+        return isValid;
     }
 
-    public void setIs_valid(boolean is_valid) {
-        this.is_valid = is_valid;
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 
     public Event getEvent() {
@@ -71,11 +71,11 @@ public class Auction {
         this.owner = owner;
     }
 
-    public AuctionStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(AuctionStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

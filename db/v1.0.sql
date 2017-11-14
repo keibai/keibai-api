@@ -30,34 +30,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS user_email_uindex
 
 CREATE TRIGGER update_user_modified_at BEFORE UPDATE ON "user" FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
--- auction_type table
-------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS auction_type
-(
-  id   SERIAL  NOT NULL
-    CONSTRAINT auction_type_pkey
-    PRIMARY KEY,
-  name INTEGER NOT NULL
-);
-CREATE UNIQUE INDEX IF NOT EXISTS auction_type_id_uindex
-  ON auction_type (id);
-CREATE UNIQUE INDEX IF NOT EXISTS auction_type_name_uindex
-  ON auction_type (name);
-
--- category table
-------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS category
-(
-  id   SERIAL       NOT NULL
-    CONSTRAINT category_pkey
-    PRIMARY KEY,
-  name VARCHAR(255) NOT NULL
-);
-CREATE UNIQUE INDEX IF NOT EXISTS category_id_uindex
-  ON category (id);
-CREATE UNIQUE INDEX IF NOT EXISTS category_name_uindex
-  ON category (name);
-
 -- event table
 ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS event
@@ -65,15 +37,13 @@ CREATE TABLE IF NOT EXISTS event
   id           SERIAL       NOT NULL
     CONSTRAINT event_pkey
     PRIMARY KEY
-    CONSTRAINT auction_type
-    REFERENCES auction_type
-    CONSTRAINT category
-    REFERENCES category
     CONSTRAINT owner
     REFERENCES "user",
   name         VARCHAR(255) NOT NULL,
   auction_time INTEGER DEFAULT 60,
-  location     VARCHAR(255) NOT NULL,
+  location     VARCHAR(255),
+  auction_type VARCHAR(20) NOT NULL,
+  category     VARCHAR(50),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -81,20 +51,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS event_id_uindex
   ON event (id);
 
 CREATE TRIGGER update_event_modified_at BEFORE UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
--- auction_status table
-------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS auction_status
-(
-  id   SERIAL       NOT NULL
-    CONSTRAINT auction_status_pkey
-    PRIMARY KEY,
-  name VARCHAR(255) NOT NULL
-);
-CREATE UNIQUE INDEX IF NOT EXISTS auction_status_id_uindex
-  ON auction_status (id);
-CREATE UNIQUE INDEX IF NOT EXISTS auction_status_name_uindex
-  ON auction_status (name);
 
 -- auction table
 ------------------------------------------------------------------------------
@@ -107,13 +63,12 @@ CREATE TABLE IF NOT EXISTS auction
     REFERENCES event
     CONSTRAINT owner
     REFERENCES "user"
-    CONSTRAINT status
-    REFERENCES auction_status
     CONSTRAINT winner
     REFERENCES "user",
   name           VARCHAR(255)     NOT NULL,
   starting_price DOUBLE PRECISION NOT NULL,
   start_time     TIMESTAMP        NOT NULL,
+  status         VARCHAR(25)      NOT NULL,
   is_valid       BOOLEAN DEFAULT FALSE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS auction_id_uindex
