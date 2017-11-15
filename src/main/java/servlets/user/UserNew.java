@@ -1,6 +1,7 @@
 package main.java.servlets.user;
 
 import main.java.dao.DAOException;
+import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
@@ -18,10 +19,6 @@ import java.io.PrintWriter;
 public class UserNew extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             User user = new User() {{
                 setName("Erik");
@@ -32,6 +29,30 @@ public class UserNew extends HttpServlet {
             UserDAO userDAO = UserDAOSQL.getInstance();
             userDAO.createUser(user);
         } catch (DAOException e) {
+            Logger.error(e.toString());
+            String json = "{ \"error\": \"Internal server error.\" }";
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            PrintWriter out = response.getWriter();
+            out.print(json);
+            out.flush();
+            return;
+        }
+
+        String json = "{ \"msg\": \"OK\"}";
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.print(json);
+        out.flush();
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            UserDAO userDAO = UserDAOSQL.getInstance();
+            User user = userDAO.getUserById(3);
+            System.out.println(user);
+        } catch (DAOException|NotFoundException e) {
             Logger.error(e.toString());
             String json = "{ \"error\": \"Internal server error.\" }";
             response.setContentType("application/json");
