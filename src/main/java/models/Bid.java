@@ -5,7 +5,7 @@ import java.util.Calendar;
 public class Bid {
     private int id;
     private double amount;
-    private Calendar created_at;
+    private Calendar createdAt;
 
     private Auction auction;
     private User owner;
@@ -26,12 +26,12 @@ public class Bid {
         this.amount = amount;
     }
 
-    public Calendar getCreated_at() {
-        return created_at;
+    public Calendar getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Calendar created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Calendar createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Auction getAuction() {
