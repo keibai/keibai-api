@@ -1,6 +1,6 @@
 package main.java.models;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 
 public class User {
 
@@ -10,8 +10,8 @@ public class User {
     private String password;
     private String email;
     private double credit;
-    private Calendar createdAt;
-    private Calendar updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     public int getId() {
         return id;
@@ -61,19 +61,27 @@ public class User {
         this.credit = credit;
     }
 
-    public Calendar getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Calendar createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(Timestamp timestamp) {
+        this.createdAt = timestamp;
     }
 
-    public Calendar getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Calendar updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(Timestamp timestamp) {
+        this.createdAt = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "Name: '" + name + "', Last Name: '" + lastName + "', Password: '" + password +
+                "', Email: '" + email + "', Credit: '" + credit + "', Created At: '" + createdAt +
+                "', Updated At: '" + updatedAt + "'";
+
     }
 }

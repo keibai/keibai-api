@@ -8,7 +8,7 @@ public interface UserDAO {
     void createUser(User user) throws DAOException;
 
     // Read
-    User getUserById(int id);
+    User getUserById(int id) throws DAOException, NotFoundException;
     User getUserByEmail(String email);
 
     // Update
