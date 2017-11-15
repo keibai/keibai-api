@@ -32,7 +32,7 @@ public class UserDAOSQL implements UserDAO {
     public void createUser(User user) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.user(name, password, email) VALUES(?, ?, ?)";
+            String query = "INSERT INTO public.user (name, password, email) VALUES (?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, user.getName());

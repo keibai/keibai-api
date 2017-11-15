@@ -74,7 +74,7 @@ public class User {
     }
 
     public void setUpdatedAt(Timestamp timestamp) {
-        this.createdAt = timestamp;
+        this.updatedAt = timestamp;
     }
 
     @Override
