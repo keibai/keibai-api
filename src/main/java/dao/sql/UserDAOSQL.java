@@ -45,7 +45,7 @@ public class UserDAOSQL implements UserDAO {
         }
     }
 
-    public UserSQL getUserById(int id) throws DAOException, NotFoundException {
+    public User getUserById(int id) throws DAOException, NotFoundException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.user WHERE \"user\".id = ?";
@@ -58,22 +58,29 @@ public class UserDAOSQL implements UserDAO {
                 throw new NotFoundException("User not found");
             }
 
-            UserSQL user = new UserSQL();
-            user.setName(resultSet.getString(DB_NAME));
-            user.setLastName(resultSet.getString(DB_LAST_NAME));
-            user.setPassword(resultSet.getString(DB_PASSWORD));
-            user.setEmail(resultSet.getString(DB_EMAIL));
-            user.setCredit(resultSet.getFloat(DB_CREDIT));
-            user.setCreatedAt(resultSet.getTimestamp(DB_CREATED_AT));
-            user.setUpdatedAt(resultSet.getTimestamp(DB_UPDATED_AT));
-            return user;
+            return createUserFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public UserSQL getUserByEmail(String email) {
-        throw new UnsupportedOperationException();
+    public User getUserByEmail(String email) throws NotFoundException, DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.user WHERE \"user\".email = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new NotFoundException("User not found");
+            }
+
+            return createUserFromResultSet(resultSet);
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
     }
 
     public void updateUser(User user) {
@@ -82,5 +89,17 @@ public class UserDAOSQL implements UserDAO {
 
     public void deleteUser(int id) {
         throw new UnsupportedOperationException();
+    }
+    
+    private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
+        User user = new UserSQL();
+        user.setName(resultSet.getString(DB_NAME));
+        user.setLastName(resultSet.getString(DB_LAST_NAME));
+        user.setPassword(resultSet.getString(DB_PASSWORD));
+        user.setEmail(resultSet.getString(DB_EMAIL));
+        user.setCredit(resultSet.getFloat(DB_CREDIT));
+        user.setCreatedAt(resultSet.getTimestamp(DB_CREATED_AT));
+        user.setUpdatedAt(resultSet.getTimestamp(DB_UPDATED_AT));
+        return user;
     }
 }
