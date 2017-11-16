@@ -12,7 +12,7 @@ public interface UserDAO {
     User getUserByEmail(String email) throws NotFoundException, DAOException;
 
     // Update
-    void updateUser(User user);
+    void updateUser(User user) throws DAOException, NotFoundException;
 
     // Delete
     void deleteUser(int id);
