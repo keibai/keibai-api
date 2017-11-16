@@ -38,4 +38,9 @@ public class Source {
         }
         return connection;
     }
+
+    // For DB integration tests
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 }

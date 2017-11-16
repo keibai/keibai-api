@@ -84,4 +84,38 @@ public class User {
                 "', Updated At: '" + updatedAt + "'";
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+
+        User user = (User) o;
+
+        if (getId() != user.getId()) return false;
+        if (Double.compare(user.getCredit(), getCredit()) != 0) return false;
+        if (!getName().equals(user.getName())) return false;
+        if (getLastName() != null ? !getLastName().equals(user.getLastName()) : user.getLastName() != null)
+            return false;
+        if (!getPassword().equals(user.getPassword())) return false;
+        if (!getEmail().equals(user.getEmail())) return false;
+        if (!getCreatedAt().equals(user.getCreatedAt())) return false;
+        return getUpdatedAt().equals(user.getUpdatedAt());
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = getId();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + (getLastName() != null ? getLastName().hashCode() : 0);
+        result = 31 * result + getPassword().hashCode();
+        result = 31 * result + getEmail().hashCode();
+        temp = Double.doubleToLongBits(getCredit());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + getCreatedAt().hashCode();
+        result = 31 * result + getUpdatedAt().hashCode();
+        return result;
+    }
 }
