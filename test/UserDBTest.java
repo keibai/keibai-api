@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 public class UserDBTest {
 
     private static final String TEST_NAME = "TestName";
+    private static final String TEST_LAST_NAME = "TestLastName";
     private static final String TEST_EMAIL = "TestEmail";
     private static final String TEST_PASSWORD = "TestPassword";
 
@@ -42,6 +43,7 @@ public class UserDBTest {
         UserDAO userDAO = UserDAOSQL.getInstance();
         User insertedUser = new User();
         insertedUser.setName(TEST_NAME);
+        insertedUser.setLastName(TEST_LAST_NAME);
         insertedUser.setEmail(TEST_EMAIL);
         insertedUser.setPassword(TEST_PASSWORD);
         userDAO.createUser(insertedUser);
@@ -49,6 +51,7 @@ public class UserDBTest {
         User retrievedUser;
         retrievedUser = userDAO.getUserById(1);
         assertEquals(retrievedUser.getName(), insertedUser.getName());
+        assertEquals(retrievedUser.getLastName(), insertedUser.getLastName());
         assertEquals(retrievedUser.getEmail(), insertedUser.getEmail());
         assertEquals(retrievedUser.getPassword(), insertedUser.getPassword());
         assertEquals(retrievedUser.getCredit(), 0.0, 0.00001);
