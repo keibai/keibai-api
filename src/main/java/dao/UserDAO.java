@@ -9,7 +9,7 @@ public interface UserDAO {
 
     // Read
     User getUserById(int id) throws DAOException, NotFoundException;
-    User getUserByEmail(String email);
+    User getUserByEmail(String email) throws NotFoundException, DAOException;
 
     // Update
     void updateUser(User user);

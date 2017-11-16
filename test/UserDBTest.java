@@ -39,7 +39,7 @@ public class UserDBTest {
     }
 
     @Test
-    public void test_user_is_inserted_and_retrieved_properly() throws DAOException, NotFoundException {
+    public void test_user_is_inserted_and_retrieved_properly_by_id() throws DAOException, NotFoundException {
         UserDAO userDAO = UserDAOSQL.getInstance();
         User insertedUser = new User();
         insertedUser.setName(TEST_NAME);
@@ -61,9 +61,37 @@ public class UserDBTest {
     }
 
     @Test(expected = NotFoundException.class)
-    public void test_throws_not_found_exception_when_user_not_found() throws NotFoundException, DAOException {
+    public void test_throws_not_found_exception_when_user_not_found_by_id() throws NotFoundException, DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
         userDAO.getUserById(24);
+    }
+
+    @Test
+    public void test_user_is_properly_retrieved_by_email() throws DAOException, NotFoundException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User insertedUser = new User();
+        insertedUser.setName(TEST_NAME);
+        insertedUser.setLastName(TEST_LAST_NAME);
+        insertedUser.setEmail(TEST_EMAIL);
+        insertedUser.setPassword(TEST_PASSWORD);
+        userDAO.createUser(insertedUser);
+
+        User retrievedUser;
+        retrievedUser = userDAO.getUserByEmail(TEST_EMAIL);
+        assertEquals(retrievedUser.getName(), insertedUser.getName());
+        assertEquals(retrievedUser.getLastName(), insertedUser.getLastName());
+        assertEquals(retrievedUser.getEmail(), insertedUser.getEmail());
+        assertEquals(retrievedUser.getPassword(), insertedUser.getPassword());
+        assertEquals(retrievedUser.getCredit(), 0.0, 0.00001);
+        assertEquals(insertedUser.getCredit(), 0.0, 0.00001);
+        assertNotNull(retrievedUser.getCreatedAt());
+        assertNotNull(retrievedUser.getUpdatedAt());
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void test_throws_not_found_exception_when_user_not_found_by_email() throws NotFoundException, DAOException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        userDAO.getUserByEmail(TEST_EMAIL);
     }
 
     @After
