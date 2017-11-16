@@ -178,6 +178,32 @@ public class UserDBTest {
         updatedUser.setPassword(TEST_PASSWORD);
         userDAO.updateUser(updatedUser);
     }
+    
+    @Test(expected = NotFoundException.class)
+    public void test_delete_existent_user() throws DAOException, NotFoundException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+
+        User insertedUser = new User();
+        insertedUser.setName(TEST_NAME);
+        insertedUser.setLastName(TEST_LAST_NAME);
+        insertedUser.setEmail(TEST_EMAIL);
+        insertedUser.setPassword(TEST_PASSWORD);
+        userDAO.createUser(insertedUser);
+
+        try {
+            userDAO.deleteUser(1);
+        } catch (NotFoundException e) {
+            throw new AssertionError("Deletion of user not performed");
+        }
+        
+        userDAO.getUserById(1);
+    }
+    
+    @Test(expected = NotFoundException.class)
+    public void test_delete_inexistent_user_throws_not_found_exception() throws NotFoundException, DAOException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        userDAO.deleteUser(24);
+    }
 
     @After
     public void deleteAllTables() throws FileNotFoundException, SQLException, NamingException {
