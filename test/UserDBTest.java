@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 public class UserDBTest {
 
     private static final String TEST_NAME = "TestName";
+    private static final String TEST_LAST_NAME = "TestLastName";
     private static final String TEST_EMAIL = "TestEmail";
     private static final String TEST_PASSWORD = "TestPassword";
 
@@ -39,9 +40,10 @@ public class UserDBTest {
 
     @Test
     public void test_user_is_inserted_and_retrieved_properly() throws DAOException, NotFoundException {
-        UserDAO userDAO = new UserDAOSQL();
+        UserDAO userDAO = UserDAOSQL.getInstance();
         User insertedUser = new User();
         insertedUser.setName(TEST_NAME);
+        insertedUser.setLastName(TEST_LAST_NAME);
         insertedUser.setEmail(TEST_EMAIL);
         insertedUser.setPassword(TEST_PASSWORD);
         userDAO.createUser(insertedUser);
@@ -49,12 +51,19 @@ public class UserDBTest {
         User retrievedUser;
         retrievedUser = userDAO.getUserById(1);
         assertEquals(retrievedUser.getName(), insertedUser.getName());
+        assertEquals(retrievedUser.getLastName(), insertedUser.getLastName());
         assertEquals(retrievedUser.getEmail(), insertedUser.getEmail());
         assertEquals(retrievedUser.getPassword(), insertedUser.getPassword());
         assertEquals(retrievedUser.getCredit(), 0.0, 0.00001);
         assertEquals(insertedUser.getCredit(), 0.0, 0.00001);
         assertNotNull(retrievedUser.getCreatedAt());
         assertNotNull(retrievedUser.getUpdatedAt());
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void test_throws_not_found_exception_when_user_not_found() throws NotFoundException, DAOException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        userDAO.getUserById(24);
     }
 
     @After
