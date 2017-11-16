@@ -39,7 +39,7 @@ public class UserDBTest {
 
     @Test
     public void test_user_is_inserted_and_retrieved_properly() throws DAOException, NotFoundException {
-        UserDAO userDAO = new UserDAOSQL();
+        UserDAO userDAO = UserDAOSQL.getInstance();
         User insertedUser = new User();
         insertedUser.setName(TEST_NAME);
         insertedUser.setEmail(TEST_EMAIL);
@@ -55,6 +55,12 @@ public class UserDBTest {
         assertEquals(insertedUser.getCredit(), 0.0, 0.00001);
         assertNotNull(retrievedUser.getCreatedAt());
         assertNotNull(retrievedUser.getUpdatedAt());
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void test_throws_not_found_exception_when_user_not_found() throws NotFoundException, DAOException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        userDAO.getUserById(24);
     }
 
     @After
