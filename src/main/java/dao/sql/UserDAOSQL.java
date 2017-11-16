@@ -109,8 +109,21 @@ public class UserDAOSQL implements UserDAO {
         }
     }
 
-    public void deleteUser(int id) {
-        throw new UnsupportedOperationException();
+    public void deleteUser(int id) throws DAOException, NotFoundException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "DELETE FROM public.user WHERE id = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            int nDeleted = statement.executeUpdate();
+
+            if (nDeleted == 0) {
+                throw new NotFoundException("User not found");
+            }
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
     }
     
     private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
