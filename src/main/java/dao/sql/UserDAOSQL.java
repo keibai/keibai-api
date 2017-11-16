@@ -12,6 +12,7 @@ import java.sql.*;
 
 public class UserDAOSQL implements UserDAO {
 
+    public static final String DB_ID = "id";
     public static final String DB_NAME = "name";
     public static final String DB_LAST_NAME = "last_name";
     public static final String DB_PASSWORD = "password";
@@ -83,8 +84,29 @@ public class UserDAOSQL implements UserDAO {
         }
     }
 
-    public void updateUser(User user) {
-        throw new UnsupportedOperationException();
+    public void updateUser(User user) throws DAOException, NotFoundException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "UPDATE public.user " +
+                    "SET name = ?, last_name = ?, " +
+                    "password = ?, email = ?, credit = ? " +
+                    "WHERE id = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getLastName());
+            statement.setString(3, user.getPassword());
+            statement.setString(4, user.getEmail());
+            statement.setDouble(5, user.getCredit());
+            statement.setInt(6, user.getId());
+            int nUpdated = statement.executeUpdate();
+
+            if (nUpdated == 0) {
+                throw new NotFoundException("User not found");
+            }
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
     }
 
     public void deleteUser(int id) {
@@ -93,6 +115,7 @@ public class UserDAOSQL implements UserDAO {
     
     private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
         User user = new UserSQL();
+        user.setId(resultSet.getInt(DB_ID));
         user.setName(resultSet.getString(DB_NAME));
         user.setLastName(resultSet.getString(DB_LAST_NAME));
         user.setPassword(resultSet.getString(DB_PASSWORD));
