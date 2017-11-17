@@ -8,8 +8,22 @@ import java.sql.SQLException;
 
 public class EmbeddedPostgresWrapper {
 
+    private static EmbeddedPostgresWrapper instance;
+
     private EmbeddedPostgres embeddedPostgres;
     private String connectionUrl;
+    private Connection connection;
+
+    private EmbeddedPostgresWrapper() {
+
+    }
+
+    public static EmbeddedPostgresWrapper getInstance() {
+        if (instance == null) {
+            instance = new EmbeddedPostgresWrapper();
+        }
+        return instance;
+    }
 
     public void start() throws IOException {
         if (embeddedPostgres == null) {
@@ -31,7 +45,10 @@ public class EmbeddedPostgresWrapper {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(this.connectionUrl);
+        if (connection == null) {
+            connection = DriverManager.getConnection(this.connectionUrl);
+        }
+        return connection;
     }
 
     private static int getFreePort() throws IOException {

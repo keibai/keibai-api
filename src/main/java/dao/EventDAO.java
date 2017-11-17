@@ -4,7 +4,7 @@ import main.java.models.Event;
 
 public interface EventDAO {
     // Create
-    void createEvent(Event Event);
+    void createEvent(Event Event) throws DAOException;
 
     // Read
     Event getEventById(int id);

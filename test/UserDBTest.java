@@ -2,22 +2,14 @@ import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
-import main.java.db.Source;
 import main.java.models.User;
-import main.java.utils.SQLFileExecutor;
 import org.junit.*;
-
-import javax.naming.NamingException;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class UserDBTest {
+public class UserDBTest extends AbstractDBTest {
 
     private static final String TEST_NAME = "TestName";
     private static final String TEST_LAST_NAME = "TestLastName";
@@ -28,21 +20,6 @@ public class UserDBTest {
     private static final String TEST_NEW_LAST_NAME = "TestNewLastName";
     private static final String TEST_NEW_EMAIL = "TestNewEmail";
     private static final String TEST_NEW_PASSWORD = "TestNewPassword";
-
-    private static EmbeddedPostgresWrapper embeddedDb;
-
-    @BeforeClass
-    public static void changeDBConnection() throws IOException, SQLException {
-        embeddedDb = new EmbeddedPostgresWrapper();
-        embeddedDb.start();
-        Source.getInstance().setConnection(embeddedDb.getConnection());
-    }
-
-    @Before
-    public void createAllTables() throws IOException, SQLException, NamingException {
-        SQLFileExecutor.executeSQLFile(Source.getInstance().getConnection(),
-                new FileInputStream("db/v1.0.sql"));
-    }
 
     @Test
     public void test_user_is_inserted_and_retrieved_properly_by_id() throws DAOException, NotFoundException {
@@ -203,17 +180,5 @@ public class UserDBTest {
     public void test_delete_inexistent_user_throws_not_found_exception() throws NotFoundException, DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
         userDAO.deleteUser(24);
-    }
-
-    @After
-    public void deleteAllTables() throws FileNotFoundException, SQLException, NamingException {
-        SQLFileExecutor.executeSQLFile(Source.getInstance().getConnection(),
-                new FileInputStream("db/__reset__/reset-db.sql"));
-    }
-
-    @AfterClass
-    public static void reestablishDBConnection() {
-        embeddedDb.stop();
-        Source.getInstance().setConnection(null);
     }
 }
