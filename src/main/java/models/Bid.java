@@ -1,11 +1,11 @@
 package main.java.models;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 
 public class Bid {
     private int id;
     private double amount;
-    private Calendar createdAt;
+    private Timestamp createdAt;
 
     private Auction auction;
     private User owner;
@@ -26,11 +26,11 @@ public class Bid {
         this.amount = amount;
     }
 
-    public Calendar getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Calendar createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 

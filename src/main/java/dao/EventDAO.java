@@ -7,11 +7,11 @@ public interface EventDAO {
     void createEvent(Event Event) throws DAOException;
 
     // Read
-    Event getEventById(int id);
+    Event getEventById(int id) throws DAOException, NotFoundException;
 
     // Update
-    void updateEvent(Event Event);
+    void updateEvent(Event Event) throws DAOException, NotFoundException;
 
     // Delete
-    void deleteEvent(int id);
+    void deleteEvent(int id) throws DAOException, NotFoundException;
 }
