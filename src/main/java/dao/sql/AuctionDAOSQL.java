@@ -3,9 +3,6 @@ package main.java.dao.sql;
 import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
-import main.java.dao.sql.models.AuctionSQL;
-import main.java.dao.sql.models.EventSQL;
-import main.java.dao.sql.models.UserSQL;
 import main.java.db.Source;
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -16,12 +13,13 @@ import java.sql.*;
 
 public class AuctionDAOSQL implements AuctionDAO {
 
-    public static final String DB_ID = "id";
-    public static final String DB_NAME = "name";
-    public static final Double DB_STARTING_PRICE = 100.00;
-    public static final Timestamp DB_START_TIME = null;
-    public static final Boolean DB_IS_VALID = true;
-    public static final String DB_STATUS = "status";
+    private static final String DB_ID = "id";
+    private static final String DB_NAME = "name";
+    private static final String DB_STARTING_PRICE = "starting_price";
+    private static final String DB_START_TIME = "start_time";
+    private static final String DB_IS_VALID = "is_valid";
+    private static final String DB_STATUS = "status";
+
     private static AuctionDAO instance;
 
     private AuctionDAOSQL() {
@@ -121,15 +119,15 @@ public class AuctionDAOSQL implements AuctionDAO {
     }
 
     private Auction createAuctionFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new UserSQL();
-        User winner = new UserSQL();
-        Event event = new EventSQL();
-        Auction auction = new AuctionSQL();
+        User user = new User();
+        User winner = new User();
+        Event event = new Event();
+        Auction auction = new Auction();
 
         auction.setId(resultSet.getInt(DB_ID));
         auction.setName(resultSet.getString(DB_NAME));
         auction.setStartingPrice(resultSet.getDouble(String.valueOf(DB_STARTING_PRICE)));
-        auction.setStartTime(DB_START_TIME);
+        auction.setStartTime(resultSet.getTimestamp(DB_START_TIME));
         auction.setValid(resultSet.getBoolean(String.valueOf(DB_IS_VALID)));
         auction.setEvent(event);
         auction.setOwner(user);

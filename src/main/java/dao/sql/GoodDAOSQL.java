@@ -3,8 +3,6 @@ package main.java.dao.sql;
 import main.java.dao.GoodDAO;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
-import main.java.dao.sql.models.AuctionSQL;
-import main.java.dao.sql.models.GoodSQL;
 import main.java.db.Source;
 import main.java.models.Auction;
 import main.java.models.Good;
@@ -17,9 +15,9 @@ import java.sql.SQLException;
 
 public class GoodDAOSQL implements GoodDAO {
 
-    public static final String DB_ID = "id";
-    public static final String DB_NAME = "name";
-    public static final String DB_IMAGE = "image";
+    private static final String DB_ID = "id";
+    private static final String DB_NAME = "name";
+    private static final String DB_IMAGE = "image";
 
     private static GoodDAO instance;
 
@@ -109,8 +107,8 @@ public class GoodDAOSQL implements GoodDAO {
     }
 
     private Good createGoodFromResultSet(ResultSet resultSet) throws SQLException {
-        Auction auction = new AuctionSQL();
-        Good good = new GoodSQL();
+        Auction auction = new Auction();
+        Good good = new Good();
 
         good.setId(resultSet.getInt(DB_ID));
         good.setName(resultSet.getString(DB_NAME));

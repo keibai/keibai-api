@@ -1,13 +1,8 @@
 package main.java.dao.sql;
 
 import main.java.dao.BidDAO;
-import main.java.dao.BidDAO;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
-import main.java.dao.sql.models.AuctionSQL;
-import main.java.dao.sql.models.BidSQL;
-import main.java.dao.sql.models.EventSQL;
-import main.java.dao.sql.models.UserSQL;
 import main.java.db.Source;
 import main.java.models.*;
 import main.java.models.Bid;
@@ -17,12 +12,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 
 public class BidDAOSQL implements BidDAO {
 
-    public static final String DB_ID = "id";
-    public static final Double DB_AMOUNT = 100.00;
+    private static final String DB_ID = "id";
+    private static final String DB_AMOUNT = "amount";
 
     private static BidDAO instance;
 
@@ -112,12 +106,12 @@ public class BidDAOSQL implements BidDAO {
     }
 
     private Bid createBidFromResultSet(ResultSet resultSet) throws SQLException {
-        User owner = new UserSQL();
-        Auction auction = new AuctionSQL();
-        Bid bid = new BidSQL();
+        User owner = new User();
+        Auction auction = new Auction();
+        Bid bid = new Bid();
 
         bid.setId(resultSet.getInt(DB_ID));
-        bid.setAmount(resultSet.getDouble(String.valueOf(DB_AMOUNT)));
+        bid.setAmount(resultSet.getDouble(DB_AMOUNT));
         bid.setAuction(auction);
         bid.setOwner(owner);
         return bid;

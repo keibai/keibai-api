@@ -3,8 +3,6 @@ package main.java.dao.sql;
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.NotFoundException;
-import main.java.dao.sql.models.EventSQL;
-import main.java.dao.sql.models.UserSQL;
 import main.java.db.Source;
 import main.java.models.Event;
 import main.java.models.User;
@@ -17,12 +15,13 @@ import java.sql.SQLException;
 
 public class EventDAOSQL implements EventDAO {
 
-    public static final String DB_ID = "id";
-    public static final String DB_NAME = "name";
-    public static final Integer DB_AUCTION_TIME = 100;
-    public static final String DB_LOCATION = "location";
-    public static final String DB_AUCTION_TYPE = "auction_type";
-    public static final String DB_CATEGORY = "caegory";
+    private static final String DB_ID = "id";
+    private static final String DB_NAME = "name";
+    private static final String DB_AUCTION_TIME = "auction_type";
+    private static final String DB_LOCATION = "location";
+    private static final String DB_AUCTION_TYPE = "auction_type";
+    private static final String DB_CATEGORY = "category";
+
     private static EventDAO instance;
 
     private EventDAOSQL() {
@@ -118,8 +117,8 @@ public class EventDAOSQL implements EventDAO {
     }
 
     private Event createEventFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new UserSQL();
-        Event event = new EventSQL();
+        User user = new User();
+        Event event = new Event();
         event.setId(resultSet.getInt(DB_ID));
         event.setName(resultSet.getString(DB_NAME));
         event.setAuctionTime(resultSet.getInt(DB_AUCTION_TIME));

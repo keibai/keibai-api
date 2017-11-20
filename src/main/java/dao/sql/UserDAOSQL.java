@@ -3,7 +3,6 @@ package main.java.dao.sql;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
-import main.java.dao.sql.models.UserSQL;
 import main.java.db.Source;
 import main.java.models.User;
 
@@ -12,14 +11,14 @@ import java.sql.*;
 
 public class UserDAOSQL implements UserDAO {
 
-    public static final String DB_ID = "id";
-    public static final String DB_NAME = "name";
-    public static final String DB_LAST_NAME = "last_name";
-    public static final String DB_PASSWORD = "password";
-    public static final String DB_EMAIL = "email";
-    public static final String DB_CREDIT = "credit";
-    public static final String DB_CREATED_AT = "created_at";
-    public static final String DB_UPDATED_AT = "updated_at";
+    private static final String DB_ID = "id";
+    private static final String DB_NAME = "name";
+    private static final String DB_LAST_NAME = "last_name";
+    private static final String DB_PASSWORD = "password";
+    private static final String DB_EMAIL = "email";
+    private static final String DB_CREDIT = "credit";
+    private static final String DB_CREATED_AT = "created_at";
+    private static final String DB_UPDATED_AT = "updated_at";
 
     private static UserDAO instance;
 
@@ -127,7 +126,7 @@ public class UserDAOSQL implements UserDAO {
     }
     
     private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new UserSQL();
+        User user = new User();
         user.setId(resultSet.getInt(DB_ID));
         user.setName(resultSet.getString(DB_NAME));
         user.setLastName(resultSet.getString(DB_LAST_NAME));
