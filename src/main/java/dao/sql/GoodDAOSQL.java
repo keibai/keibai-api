@@ -41,7 +41,7 @@ public class GoodDAOSQL implements GoodDAO {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, good.getName());
             statement.setString(2, good.getImage());
-            statement.setInt(3, good.getAuction().getId());
+            statement.setInt(3, good.getAuction().id);
             statement.execute();
         } catch (NamingException |SQLException e) {
             throw new DAOException(e);
@@ -78,7 +78,7 @@ public class GoodDAOSQL implements GoodDAO {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, good.getName());
             statement.setString(2, good.getImage());
-            statement.setInt(3, good.getAuction().getId());
+            statement.setInt(3, good.getAuction().id);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {

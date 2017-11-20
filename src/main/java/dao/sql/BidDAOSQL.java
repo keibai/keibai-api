@@ -39,7 +39,7 @@ public class BidDAOSQL implements BidDAO {
 
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setDouble(1, bid.getAmount());
-            statement.setInt(2, bid.getAuction().getId());
+            statement.setInt(2, bid.getAuction().id);
             statement.setInt(3, bid.getOwner().id);
             statement.execute();
         } catch (NamingException |SQLException e) {
@@ -76,7 +76,7 @@ public class BidDAOSQL implements BidDAO {
 
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setDouble(1, bid.getAmount());
-            statement.setInt(2, bid.getAuction().getId());
+            statement.setInt(2, bid.getAuction().id);
             statement.setInt(3, bid.getOwner().id);
             int nUpdated = statement.executeUpdate();
 

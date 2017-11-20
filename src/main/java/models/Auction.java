@@ -4,86 +4,14 @@ import java.sql.Timestamp;
 
 public class Auction {
 
-    private int id;
-    private String name;
-    private double startingPrice;
-    private Timestamp startTime;
-    private boolean isValid;
-    private Event event;
-    private User owner;
-    private String status;
-    private User winner;
+    public int id;
+    public String name;
+    public double startingPrice;
+    public Timestamp startTime;
+    public boolean isValid;
+    public int eventId;
+    public int ownerId;
+    public String status;
+    public int winnerId;
 
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getStartingPrice() {
-        return startingPrice;
-    }
-
-    public void setStartingPrice(double startingPrice) {
-        this.startingPrice = startingPrice;
-    }
-
-    public Timestamp getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Timestamp startTime) {
-        this.startTime = startTime;
-    }
-
-    public boolean isValid() {
-        return isValid;
-    }
-
-    public void setValid(boolean valid) {
-        isValid = valid;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public User getWinner() {
-        return winner;
-    }
-
-    public void setWinner(User winner) {
-        this.winner = winner;
-    }
 }
