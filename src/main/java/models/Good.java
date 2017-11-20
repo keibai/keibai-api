@@ -1,41 +1,30 @@
 package main.java.models;
 
 public class Good {
-    private int id;
-    private String name;
-    private String image;
+    public int id;
+    public String name;
+    public String image;
+    public int auctionId;
 
-    private Auction auction;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Good)) return false;
 
-    public int getId() {
-        return id;
+        Good good = (Good) o;
+
+        if (id != good.id) return false;
+        if (auctionId != good.auctionId) return false;
+        if (!name.equals(good.name)) return false;
+        return image != null ? image.equals(good.image) : good.image == null;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public Auction getAuction() {
-        return auction;
-    }
-
-    public void setAuction(Auction auction) {
-        this.auction = auction;
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + auctionId;
+        return result;
     }
 }
