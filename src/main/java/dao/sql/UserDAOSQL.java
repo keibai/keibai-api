@@ -3,7 +3,6 @@ package main.java.dao.sql;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
-import main.java.dao.sql.models.UserSQL;
 import main.java.db.Source;
 import main.java.models.User;
 
@@ -12,14 +11,14 @@ import java.sql.*;
 
 public class UserDAOSQL implements UserDAO {
 
-    public static final String DB_ID = "id";
-    public static final String DB_NAME = "name";
-    public static final String DB_LAST_NAME = "last_name";
-    public static final String DB_PASSWORD = "password";
-    public static final String DB_EMAIL = "email";
-    public static final String DB_CREDIT = "credit";
-    public static final String DB_CREATED_AT = "created_at";
-    public static final String DB_UPDATED_AT = "updated_at";
+    private static final String DB_ID = "id";
+    private static final String DB_NAME = "name";
+    private static final String DB_LAST_NAME = "last_name";
+    private static final String DB_PASSWORD = "password";
+    private static final String DB_EMAIL = "email";
+    private static final String DB_CREDIT = "credit";
+    private static final String DB_CREATED_AT = "created_at";
+    private static final String DB_UPDATED_AT = "updated_at";
 
     private static UserDAO instance;
 
@@ -36,10 +35,10 @@ public class UserDAOSQL implements UserDAO {
             String query = "INSERT INTO public.user (name, last_name, password, email) VALUES (?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, user.getName());
-            statement.setString(2, user.getLastName());
-            statement.setString(3, user.getPassword());  // TODO: Hash password.
-            statement.setString(4, user.getEmail());
+            statement.setString(1, user.name);
+            statement.setString(2, user.lastName);
+            statement.setString(3, user.password);  // TODO: Hash password.
+            statement.setString(4, user.email);
             statement.execute();
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
@@ -93,12 +92,12 @@ public class UserDAOSQL implements UserDAO {
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, user.getName());
-            statement.setString(2, user.getLastName());
-            statement.setString(3, user.getPassword());
-            statement.setString(4, user.getEmail());
-            statement.setDouble(5, user.getCredit());
-            statement.setInt(6, user.getId());
+            statement.setString(1, user.name);
+            statement.setString(2, user.lastName);
+            statement.setString(3, user.password);
+            statement.setString(4, user.email);
+            statement.setDouble(5, user.credit);
+            statement.setInt(6, user.id);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {
@@ -127,15 +126,15 @@ public class UserDAOSQL implements UserDAO {
     }
     
     private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new UserSQL();
-        user.setId(resultSet.getInt(DB_ID));
-        user.setName(resultSet.getString(DB_NAME));
-        user.setLastName(resultSet.getString(DB_LAST_NAME));
-        user.setPassword(resultSet.getString(DB_PASSWORD));
-        user.setEmail(resultSet.getString(DB_EMAIL));
-        user.setCredit(resultSet.getFloat(DB_CREDIT));
-        user.setCreatedAt(resultSet.getTimestamp(DB_CREATED_AT));
-        user.setUpdatedAt(resultSet.getTimestamp(DB_UPDATED_AT));
+        User user = new User();
+        user.id = resultSet.getInt(DB_ID);
+        user.name = resultSet.getString(DB_NAME);
+        user.lastName = resultSet.getString(DB_LAST_NAME);
+        user.password = resultSet.getString(DB_PASSWORD);
+        user.email = resultSet.getString(DB_EMAIL);
+        user.credit = resultSet.getFloat(DB_CREDIT);
+        user.createdAt = resultSet.getTimestamp(DB_CREATED_AT);
+        user.updatedAt = resultSet.getTimestamp(DB_UPDATED_AT);
         return user;
     }
 }

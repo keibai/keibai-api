@@ -25,25 +25,23 @@ public class UserDBTest extends AbstractDBTest {
     public void test_user_is_inserted_and_retrieved_properly_by_id() throws DAOException, NotFoundException {
         UserDAO userDAO = UserDAOSQL.getInstance();
         User insertedUser = new User();
-        insertedUser.setName(TEST_NAME);
-        insertedUser.setLastName(TEST_LAST_NAME);
-        insertedUser.setEmail(TEST_EMAIL);
-        insertedUser.setPassword(TEST_PASSWORD);
+        insertedUser.name = TEST_NAME;
+        insertedUser.lastName = TEST_LAST_NAME;
+        insertedUser.email = TEST_EMAIL;
+        insertedUser.password = TEST_PASSWORD;
         userDAO.createUser(insertedUser);
 
         User retrievedUser;
         retrievedUser = userDAO.getUserById(1);
 
-        assertEquals(retrievedUser.getId(), 1);
-        assertEquals(retrievedUser.getName(), insertedUser.getName());
-        assertEquals(retrievedUser.getLastName(), insertedUser.getLastName());
-        assertEquals(retrievedUser.getEmail(), insertedUser.getEmail());
-        assertEquals(retrievedUser.getPassword(), insertedUser.getPassword());
-        assertEquals(retrievedUser.getCredit(), 0.0, 0.00001);
-        assertEquals(insertedUser.getCredit(), 0.0, 0.00001);
-        assertNotNull(retrievedUser.getCreatedAt());
-        assertNotNull(retrievedUser.getUpdatedAt());
-        assertEquals(retrievedUser.getCreatedAt(), retrievedUser.getUpdatedAt());
+        assertNotEquals(0, retrievedUser.id);
+        assertEquals(insertedUser.name, retrievedUser.name);
+        assertEquals(insertedUser.lastName, retrievedUser.lastName);
+        assertEquals(insertedUser.email, retrievedUser.email);
+        assertEquals(insertedUser.password, retrievedUser.password);
+        assertNotNull(retrievedUser.createdAt);
+        assertNotNull(retrievedUser.updatedAt);
+        assertEquals(retrievedUser.createdAt, retrievedUser.updatedAt);
     }
 
     @Test(expected = NotFoundException.class)
@@ -56,23 +54,23 @@ public class UserDBTest extends AbstractDBTest {
     public void test_user_is_properly_retrieved_by_email() throws DAOException, NotFoundException {
         UserDAO userDAO = UserDAOSQL.getInstance();
         User insertedUser = new User();
-        insertedUser.setName(TEST_NAME);
-        insertedUser.setLastName(TEST_LAST_NAME);
-        insertedUser.setEmail(TEST_EMAIL);
-        insertedUser.setPassword(TEST_PASSWORD);
+        insertedUser.name = TEST_NAME;
+        insertedUser.lastName = TEST_LAST_NAME;
+        insertedUser.email = TEST_EMAIL;
+        insertedUser.password = TEST_PASSWORD;
         userDAO.createUser(insertedUser);
 
         User retrievedUser;
         retrievedUser = userDAO.getUserByEmail(TEST_EMAIL);
 
-        assertEquals(retrievedUser.getName(), insertedUser.getName());
-        assertEquals(retrievedUser.getLastName(), insertedUser.getLastName());
-        assertEquals(retrievedUser.getEmail(), insertedUser.getEmail());
-        assertEquals(retrievedUser.getPassword(), insertedUser.getPassword());
-        assertEquals(retrievedUser.getCredit(), 0.0, 0.00001);
-        assertEquals(insertedUser.getCredit(), 0.0, 0.00001);
-        assertNotNull(retrievedUser.getCreatedAt());
-        assertNotNull(retrievedUser.getUpdatedAt());
+        assertNotEquals(0, retrievedUser.id);
+        assertEquals(insertedUser.name, retrievedUser.name);
+        assertEquals(insertedUser.lastName, retrievedUser.lastName);
+        assertEquals(insertedUser.email, retrievedUser.email);
+        assertEquals(insertedUser.password, retrievedUser.password);
+        assertNotNull(retrievedUser.createdAt);
+        assertNotNull(retrievedUser.updatedAt);
+        assertEquals(retrievedUser.createdAt, retrievedUser.updatedAt);
     }
 
     @Test(expected = NotFoundException.class)
@@ -86,29 +84,29 @@ public class UserDBTest extends AbstractDBTest {
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         User insertedUser = new User();
-        insertedUser.setName(TEST_NAME);
-        insertedUser.setLastName(TEST_LAST_NAME);
-        insertedUser.setEmail(TEST_EMAIL);
-        insertedUser.setPassword(TEST_PASSWORD);
+        insertedUser.name = TEST_NAME;
+        insertedUser.lastName = TEST_LAST_NAME;
+        insertedUser.email = TEST_EMAIL;
+        insertedUser.password = TEST_PASSWORD;
         userDAO.createUser(insertedUser);
 
         User updatedUser = new User();
-        updatedUser.setId(1);
-        updatedUser.setName(TEST_NEW_NAME);
-        updatedUser.setLastName(TEST_LAST_NAME);
-        updatedUser.setEmail(TEST_EMAIL);
-        updatedUser.setPassword(TEST_PASSWORD);
+        updatedUser.id = 1;
+        updatedUser.name = TEST_NEW_NAME;
+        updatedUser.lastName = TEST_LAST_NAME;
+        updatedUser.email = TEST_EMAIL;
+        updatedUser.password = TEST_PASSWORD;
         userDAO.updateUser(updatedUser);
 
         User retrievedUser = userDAO.getUserByEmail(TEST_EMAIL);
 
-        assertEquals(updatedUser.getName(), retrievedUser.getName());
-        assertEquals(updatedUser.getLastName(), retrievedUser.getLastName());
-        assertEquals(updatedUser.getEmail(), retrievedUser.getEmail());
-        assertEquals(updatedUser.getPassword(), retrievedUser.getPassword());
-        assertEquals(updatedUser.getCredit(), 0.0, 0.00001);
-        assertEquals(retrievedUser.getCredit(), 0.0, 0.00001);
-        assertNotEquals(retrievedUser.getCreatedAt(), retrievedUser.getUpdatedAt());
+        assertEquals(updatedUser.name, retrievedUser.name);
+        assertEquals(updatedUser.lastName, retrievedUser.lastName);
+        assertEquals(updatedUser.email, retrievedUser.email);
+        assertEquals(updatedUser.password, retrievedUser.password);
+        assertEquals(updatedUser.credit, 0.0, 0.00001);
+        assertEquals(retrievedUser.credit, 0.0, 0.00001);
+        assertNotEquals(retrievedUser.createdAt, retrievedUser.updatedAt);
     }
 
     @Test
@@ -116,31 +114,31 @@ public class UserDBTest extends AbstractDBTest {
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         User insertedUser = new User();
-        insertedUser.setName(TEST_NAME);
-        insertedUser.setLastName(TEST_LAST_NAME);
-        insertedUser.setEmail(TEST_EMAIL);
-        insertedUser.setPassword(TEST_PASSWORD);
+        insertedUser.name = TEST_NAME;
+        insertedUser.lastName = TEST_LAST_NAME;
+        insertedUser.email = TEST_EMAIL;
+        insertedUser.password = TEST_PASSWORD;
         userDAO.createUser(insertedUser);
 
         User updatedUser = new User();
-        updatedUser.setId(1);
-        updatedUser.setName(TEST_NEW_NAME);
-        updatedUser.setLastName(TEST_NEW_LAST_NAME);
-        updatedUser.setEmail(TEST_NEW_EMAIL);
-        updatedUser.setPassword(TEST_NEW_PASSWORD);
-        updatedUser.setCredit(100.0);
+        updatedUser.id = 1;
+        updatedUser.name = TEST_NEW_NAME;
+        updatedUser.lastName = TEST_NEW_LAST_NAME;
+        updatedUser.email = TEST_NEW_EMAIL;
+        updatedUser.password = TEST_NEW_PASSWORD;
+        updatedUser.credit = 100.0;
         userDAO.updateUser(updatedUser);
 
         User retrievedUser = userDAO.getUserById(1);
 
-        assertEquals(updatedUser.getId(), retrievedUser.getId());
-        assertEquals(updatedUser.getName(), retrievedUser.getName());
-        assertEquals(updatedUser.getLastName(), retrievedUser.getLastName());
-        assertEquals(updatedUser.getEmail(), retrievedUser.getEmail());
-        assertEquals(updatedUser.getPassword(), retrievedUser.getPassword());
-        assertEquals(updatedUser.getCredit(), retrievedUser.getCredit(), 0.0000000001);
-        assertNotEquals(retrievedUser.getCreatedAt(), retrievedUser.getUpdatedAt());
-        assertNotEquals(updatedUser.getUpdatedAt(), retrievedUser.getUpdatedAt());
+        assertEquals(updatedUser.id, retrievedUser.id);
+        assertEquals(updatedUser.name, retrievedUser.name);
+        assertEquals(updatedUser.lastName, retrievedUser.lastName);
+        assertEquals(updatedUser.email, retrievedUser.email);
+        assertEquals(updatedUser.password, retrievedUser.password);
+        assertEquals(updatedUser.credit, retrievedUser.credit, 0.0000000001);
+        assertNotEquals(retrievedUser.createdAt, retrievedUser.updatedAt);
+        assertNotEquals(updatedUser.updatedAt, retrievedUser.updatedAt);
     }
 
     @Test(expected = NotFoundException.class)
@@ -148,11 +146,11 @@ public class UserDBTest extends AbstractDBTest {
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         User updatedUser = new User();
-        updatedUser.setId(1);
-        updatedUser.setName(TEST_NEW_NAME);
-        updatedUser.setLastName(TEST_LAST_NAME);
-        updatedUser.setEmail(TEST_EMAIL);
-        updatedUser.setPassword(TEST_PASSWORD);
+        updatedUser.id = 1;
+        updatedUser.name = TEST_NEW_NAME;
+        updatedUser.lastName = TEST_LAST_NAME;
+        updatedUser.email = TEST_EMAIL;
+        updatedUser.password = TEST_PASSWORD;
         userDAO.updateUser(updatedUser);
     }
     
@@ -161,10 +159,10 @@ public class UserDBTest extends AbstractDBTest {
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         User insertedUser = new User();
-        insertedUser.setName(TEST_NAME);
-        insertedUser.setLastName(TEST_LAST_NAME);
-        insertedUser.setEmail(TEST_EMAIL);
-        insertedUser.setPassword(TEST_PASSWORD);
+        insertedUser.name = TEST_NAME;
+        insertedUser.lastName = TEST_LAST_NAME;
+        insertedUser.email = TEST_EMAIL;
+        insertedUser.password = TEST_PASSWORD;
         userDAO.createUser(insertedUser);
 
         try {

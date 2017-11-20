@@ -43,17 +43,16 @@ public class EventDBTest extends AbstractDBTest {
         EventDAO eventDAO = EventDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
 
-        User user = new User() {{
-            setName(TEST_USER_NAME);
-            setLastName(TEST_USER_LAST_NAME);
-            setEmail(TEST_USER_EMAIL);
-            setPassword(TEST_USER_PASSWORD);
-        }};
+        User user = new User();
+        user.name =TEST_USER_NAME;
+        user.lastName = TEST_USER_LAST_NAME;
+        user.email = TEST_USER_EMAIL;
+        user.password = TEST_USER_PASSWORD;
 
         userDAO.createUser(user);
 
         // TODO: createUser should return the created user
-        user.setId(1);
+        user.id = 1;
 
         Event event = new Event() {{
             setName(TEST_NAME);

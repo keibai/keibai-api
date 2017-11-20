@@ -20,12 +20,12 @@ public class UserNew extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            User user = new User() {{
-                setName("Erik");
-                setLastName("Green");
-                setPassword("1234");
-                setEmail("hi" + Math.random() + "@example.com");
-            }};
+            User user = new User();
+            user.name = "Erik";
+            user.lastName = "Green";
+            user.email = "hi" + Math.random() + "@example.com";
+            user.password = "1234";
+
             UserDAO userDAO = UserDAOSQL.getInstance();
             userDAO.createUser(user);
         } catch (DAOException e) {

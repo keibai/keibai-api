@@ -4,78 +4,14 @@ import java.sql.Timestamp;
 
 public class User {
 
-    private int id;
-    private String name;
-    private String lastName;
-    private String password;
-    private String email;
-    private double credit;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public double getCredit() {
-        return credit;
-    }
-
-    public void setCredit(double credit) {
-        this.credit = credit;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp timestamp) {
-        this.createdAt = timestamp;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp timestamp) {
-        this.updatedAt = timestamp;
-    }
+    public int id;
+    public String name;
+    public String lastName;
+    public String password;
+    public String email;
+    public double credit;
+    public Timestamp createdAt;
+    public Timestamp updatedAt;
 
     @Override
     public String toString() {
@@ -92,30 +28,29 @@ public class User {
 
         User user = (User) o;
 
-        if (getId() != user.getId()) return false;
-        if (Double.compare(user.getCredit(), getCredit()) != 0) return false;
-        if (!getName().equals(user.getName())) return false;
-        if (getLastName() != null ? !getLastName().equals(user.getLastName()) : user.getLastName() != null)
-            return false;
-        if (!getPassword().equals(user.getPassword())) return false;
-        if (!getEmail().equals(user.getEmail())) return false;
-        if (!getCreatedAt().equals(user.getCreatedAt())) return false;
-        return getUpdatedAt().equals(user.getUpdatedAt());
+        if (id != user.id) return false;
+        if (Double.compare(user.credit, credit) != 0) return false;
+        if (!name.equals(user.name)) return false;
+        if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
+        if (!password.equals(user.password)) return false;
+        if (!email.equals(user.email)) return false;
+        if (createdAt != null ? !createdAt.equals(user.createdAt) : user.createdAt != null) return false;
+        return updatedAt != null ? updatedAt.equals(user.updatedAt) : user.updatedAt == null;
     }
 
     @Override
     public int hashCode() {
         int result;
         long temp;
-        result = getId();
-        result = 31 * result + getName().hashCode();
-        result = 31 * result + (getLastName() != null ? getLastName().hashCode() : 0);
-        result = 31 * result + getPassword().hashCode();
-        result = 31 * result + getEmail().hashCode();
-        temp = Double.doubleToLongBits(getCredit());
+        result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + password.hashCode();
+        result = 31 * result + email.hashCode();
+        temp = Double.doubleToLongBits(credit);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + getCreatedAt().hashCode();
-        result = 31 * result + getUpdatedAt().hashCode();
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
         return result;
     }
 }

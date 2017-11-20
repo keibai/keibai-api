@@ -1,13 +1,13 @@
 package main.java.models;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 
 public class Auction {
 
     private int id;
     private String name;
     private double startingPrice;
-    private Calendar startTime;
+    private Timestamp startTime;
     private boolean isValid;
     private Event event;
     private User owner;
@@ -39,11 +39,11 @@ public class Auction {
         this.startingPrice = startingPrice;
     }
 
-    public Calendar getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Calendar startTime) {
+    public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
 
