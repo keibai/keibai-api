@@ -5,9 +5,7 @@ import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
 import org.junit.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class UserDBTest extends AbstractDBTest {
 
@@ -29,10 +27,10 @@ public class UserDBTest extends AbstractDBTest {
         insertedUser.lastName = TEST_LAST_NAME;
         insertedUser.email = TEST_EMAIL;
         insertedUser.password = TEST_PASSWORD;
-        userDAO.createUser(insertedUser);
+        userDAO.create(insertedUser);
 
         User retrievedUser;
-        retrievedUser = userDAO.getUserById(1);
+        retrievedUser = userDAO.getById(1);
 
         assertNotEquals(0, retrievedUser.id);
         assertEquals(insertedUser.name, retrievedUser.name);
@@ -44,10 +42,11 @@ public class UserDBTest extends AbstractDBTest {
         assertEquals(retrievedUser.createdAt, retrievedUser.updatedAt);
     }
 
-    @Test(expected = NotFoundException.class)
-    public void test_throws_not_found_exception_when_user_not_found_by_id() throws NotFoundException, DAOException {
+    @Test
+    public void test_when_user_not_found_by_id() throws NotFoundException, DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
-        userDAO.getUserById(24);
+        User user = userDAO.getById(24);
+        assertNull(user);
     }
 
     @Test
@@ -58,10 +57,10 @@ public class UserDBTest extends AbstractDBTest {
         insertedUser.lastName = TEST_LAST_NAME;
         insertedUser.email = TEST_EMAIL;
         insertedUser.password = TEST_PASSWORD;
-        userDAO.createUser(insertedUser);
+        userDAO.create(insertedUser);
 
         User retrievedUser;
-        retrievedUser = userDAO.getUserByEmail(TEST_EMAIL);
+        retrievedUser = userDAO.getByEmail(TEST_EMAIL);
 
         assertNotEquals(0, retrievedUser.id);
         assertEquals(insertedUser.name, retrievedUser.name);
@@ -73,10 +72,11 @@ public class UserDBTest extends AbstractDBTest {
         assertEquals(retrievedUser.createdAt, retrievedUser.updatedAt);
     }
 
-    @Test(expected = NotFoundException.class)
-    public void test_throws_not_found_exception_when_user_not_found_by_email() throws NotFoundException, DAOException {
+    @Test
+    public void test_user_not_found_by_email() throws NotFoundException, DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
-        userDAO.getUserByEmail(TEST_EMAIL);
+        User user = userDAO.getByEmail(TEST_EMAIL);
+        assertNull(user);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class UserDBTest extends AbstractDBTest {
         insertedUser.lastName = TEST_LAST_NAME;
         insertedUser.email = TEST_EMAIL;
         insertedUser.password = TEST_PASSWORD;
-        userDAO.createUser(insertedUser);
+        userDAO.create(insertedUser);
 
         User updatedUser = new User();
         updatedUser.id = 1;
@@ -96,9 +96,9 @@ public class UserDBTest extends AbstractDBTest {
         updatedUser.lastName = TEST_LAST_NAME;
         updatedUser.email = TEST_EMAIL;
         updatedUser.password = TEST_PASSWORD;
-        userDAO.updateUser(updatedUser);
+        userDAO.update(updatedUser);
 
-        User retrievedUser = userDAO.getUserByEmail(TEST_EMAIL);
+        User retrievedUser = userDAO.getByEmail(TEST_EMAIL);
 
         assertEquals(updatedUser.name, retrievedUser.name);
         assertEquals(updatedUser.lastName, retrievedUser.lastName);
@@ -118,7 +118,7 @@ public class UserDBTest extends AbstractDBTest {
         insertedUser.lastName = TEST_LAST_NAME;
         insertedUser.email = TEST_EMAIL;
         insertedUser.password = TEST_PASSWORD;
-        userDAO.createUser(insertedUser);
+        userDAO.create(insertedUser);
 
         User updatedUser = new User();
         updatedUser.id = 1;
@@ -127,9 +127,9 @@ public class UserDBTest extends AbstractDBTest {
         updatedUser.email = TEST_NEW_EMAIL;
         updatedUser.password = TEST_NEW_PASSWORD;
         updatedUser.credit = 100.0;
-        userDAO.updateUser(updatedUser);
+        userDAO.update(updatedUser);
 
-        User retrievedUser = userDAO.getUserById(1);
+        User retrievedUser = userDAO.getById(1);
 
         assertEquals(updatedUser.id, retrievedUser.id);
         assertEquals(updatedUser.name, retrievedUser.name);
@@ -141,8 +141,8 @@ public class UserDBTest extends AbstractDBTest {
         assertNotEquals(updatedUser.updatedAt, retrievedUser.updatedAt);
     }
 
-    @Test(expected = NotFoundException.class)
-    public void test_update_in_non_existing_user_throws_not_found_exception() throws NotFoundException, DAOException {
+    @Test
+    public void test_update_in_non_existing_user() throws DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         User updatedUser = new User();
@@ -151,11 +151,12 @@ public class UserDBTest extends AbstractDBTest {
         updatedUser.lastName = TEST_LAST_NAME;
         updatedUser.email = TEST_EMAIL;
         updatedUser.password = TEST_PASSWORD;
-        userDAO.updateUser(updatedUser);
+        User modifiedUser = userDAO.update(updatedUser);
+        assertNull(modifiedUser);
     }
-    
-    @Test(expected = NotFoundException.class)
-    public void test_delete_existent_user() throws DAOException, NotFoundException {
+
+    @Test
+    public void test_delete_existent_user() throws DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         User insertedUser = new User();
@@ -163,20 +164,18 @@ public class UserDBTest extends AbstractDBTest {
         insertedUser.lastName = TEST_LAST_NAME;
         insertedUser.email = TEST_EMAIL;
         insertedUser.password = TEST_PASSWORD;
-        userDAO.createUser(insertedUser);
+        userDAO.create(insertedUser);
 
-        try {
-            userDAO.deleteUser(1);
-        } catch (NotFoundException e) {
-            throw new AssertionError("Deletion of user not performed");
-        }
+        boolean deleted = userDAO.delete(1);
+        assertTrue(deleted);
         
-        userDAO.getUserById(1);
+        assertNull(userDAO.getById(1));
     }
-    
-    @Test(expected = NotFoundException.class)
-    public void test_delete_inexistent_user_throws_not_found_exception() throws NotFoundException, DAOException {
+
+    @Test
+    public void test_delete_inexistent_user() throws DAOException {
         UserDAO userDAO = UserDAOSQL.getInstance();
-        userDAO.deleteUser(24);
+        boolean deleted = userDAO.delete(24);
+        assertFalse(deleted);
     }
 }

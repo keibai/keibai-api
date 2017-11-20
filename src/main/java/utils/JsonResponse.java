@@ -24,7 +24,11 @@ public class JsonResponse {
     }
 
     public void unauthorized() throws IOException {
-        this.error("Unauthorized");
+        this.error("Unauthorized.");
+    }
+
+    public void invalidRequest() throws IOException {
+        this.error("Invalid request.");
     }
 
     /* Generic */

@@ -5,15 +5,15 @@ import main.java.models.User;
 public interface UserDAO {
 
     // Create
-    void createUser(User user) throws DAOException;
+    User create(User user) throws DAOException;
 
     // Read
-    User getUserById(int id) throws DAOException, NotFoundException;
-    User getUserByEmail(String email) throws NotFoundException, DAOException;
+    User getById(int id) throws DAOException;
+    User getByEmail(String email) throws DAOException;
 
     // Update
-    void updateUser(User user) throws DAOException, NotFoundException;
+    User update(User user) throws DAOException;
 
     // Delete
-    void deleteUser(int id) throws DAOException, NotFoundException;
+    boolean delete(int id) throws DAOException;
 }
