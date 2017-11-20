@@ -5,6 +5,7 @@ import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
+import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
 
 import javax.servlet.ServletException;
@@ -19,32 +20,33 @@ import java.io.PrintWriter;
 public class UserNew extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            User user = new User();
-            user.name = "Erik";
-            user.lastName = "Green";
-            user.email = "hi" + Math.random() + "@example.com";
-            user.password = "1234";
-
-            UserDAO userDAO = UserDAOSQL.getInstance();
-            userDAO.createUser(user);
-        } catch (DAOException e) {
-            Logger.error(e.toString());
-            String json = "{ \"error\": \"Internal server error.\" }";
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            PrintWriter out = response.getWriter();
-            out.print(json);
-            out.flush();
-            return;
-        }
-
-        String json = "{ \"msg\": \"OK\"}";
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter out = response.getWriter();
-        out.print(json);
-        out.flush();
+        new JsonResponse(response).internalServerError();
+//        try {
+//            User user = new User();
+//            user.name = "Erik";
+//            user.lastName = "Green";
+//            user.email = "hi" + Math.random() + "@example.com";
+//            user.password = "1234";
+//
+//            UserDAO userDAO = UserDAOSQL.getInstance();
+//            userDAO.createUser(user);
+//        } catch (DAOException e) {
+//            Logger.error(e.toString());
+//            String json = "{ \"error\": \"Internal server error.\" }";
+//            response.setContentType("application/json");
+//            response.setCharacterEncoding("UTF-8");
+//            PrintWriter out = response.getWriter();
+//            out.print(json);
+//            out.flush();
+//            return;
+//        }
+//
+//        String json = "{ \"msg\": \"OK\"}";
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        PrintWriter out = response.getWriter();
+//        out.print(json);
+//        out.flush();
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
