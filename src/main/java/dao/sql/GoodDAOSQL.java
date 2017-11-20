@@ -4,7 +4,6 @@ import main.java.dao.GoodDAO;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.db.Source;
-import main.java.models.Auction;
 import main.java.models.Good;
 
 import javax.naming.NamingException;
@@ -18,6 +17,7 @@ public class GoodDAOSQL implements GoodDAO {
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
     private static final String DB_IMAGE = "image";
+    private static final String DB_AUCTION_ID = "auction_id";
 
     private static GoodDAO instance;
 
@@ -39,9 +39,9 @@ public class GoodDAOSQL implements GoodDAO {
                     "VALUES (?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, good.getName());
-            statement.setString(2, good.getImage());
-            statement.setInt(3, good.getAuction().id);
+            statement.setString(1, good.name);
+            statement.setString(2, good.image);
+            statement.setInt(3, good.auctionId);
             statement.execute();
         } catch (NamingException |SQLException e) {
             throw new DAOException(e);
@@ -76,9 +76,9 @@ public class GoodDAOSQL implements GoodDAO {
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, good.getName());
-            statement.setString(2, good.getImage());
-            statement.setInt(3, good.getAuction().id);
+            statement.setString(1, good.name);
+            statement.setString(2, good.image);
+            statement.setInt(3, good.auctionId);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {
@@ -107,13 +107,12 @@ public class GoodDAOSQL implements GoodDAO {
     }
 
     private Good createGoodFromResultSet(ResultSet resultSet) throws SQLException {
-        Auction auction = new Auction();
         Good good = new Good();
 
-        good.setId(resultSet.getInt(DB_ID));
-        good.setName(resultSet.getString(DB_NAME));
-        good.setImage(resultSet.getString(DB_IMAGE));
-        good.setAuction(auction);
+        good.id = resultSet.getInt(DB_ID);
+        good.name = resultSet.getString(DB_NAME);
+        good.image = resultSet.getString(DB_IMAGE);
+        good.auctionId = resultSet.getInt(DB_AUCTION_ID);
         return good;
     }
 }
