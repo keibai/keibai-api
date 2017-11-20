@@ -14,4 +14,38 @@ public class Auction {
     public String status;
     public int winnerId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Auction)) return false;
+
+        Auction auction = (Auction) o;
+
+        if (id != auction.id) return false;
+        if (Double.compare(auction.startingPrice, startingPrice) != 0) return false;
+        if (isValid != auction.isValid) return false;
+        if (eventId != auction.eventId) return false;
+        if (ownerId != auction.ownerId) return false;
+        if (winnerId != auction.winnerId) return false;
+        if (!name.equals(auction.name)) return false;
+        if (!startTime.equals(auction.startTime)) return false;
+        return status.equals(auction.status);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = id;
+        result = 31 * result + name.hashCode();
+        temp = Double.doubleToLongBits(startingPrice);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + startTime.hashCode();
+        result = 31 * result + (isValid ? 1 : 0);
+        result = 31 * result + eventId;
+        result = 31 * result + ownerId;
+        result = 31 * result + status.hashCode();
+        result = 31 * result + winnerId;
+        return result;
+    }
 }
