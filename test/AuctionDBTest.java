@@ -77,8 +77,8 @@ public class AuctionDBTest extends AbstractDBTest {
         insertedAuction.status = TEST_STATUS;
         insertedAuction.isValid = TEST_IS_VALID;
         insertedAuction.ownerId = 1;
-        insertedAuction.winnerId = 2;
-        insertedAuction.eventId = 4;
+        insertedAuction.winnerId = 1;
+        insertedAuction.eventId = 1;
         auctionDAO.createAuction(insertedAuction);
         insertedAuction.id = 1;
 

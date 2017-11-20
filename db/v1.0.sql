@@ -86,7 +86,8 @@ CREATE TABLE IF NOT EXISTS public.good
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(255) NOT NULL,
   image BYTEA,
-  CONSTRAINT auction FOREIGN KEY (id) REFERENCES auction (id)
+  CONSTRAINT auction FOREIGN KEY (id) REFERENCES auction (id),
+  auction INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS good_id_uindex ON public.good (id);
 
