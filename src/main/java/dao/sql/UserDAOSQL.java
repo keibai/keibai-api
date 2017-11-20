@@ -35,10 +35,10 @@ public class UserDAOSQL implements UserDAO {
             String query = "INSERT INTO public.user (name, last_name, password, email) VALUES (?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, user.getName());
-            statement.setString(2, user.getLastName());
-            statement.setString(3, user.getPassword());  // TODO: Hash password.
-            statement.setString(4, user.getEmail());
+            statement.setString(1, user.name);
+            statement.setString(2, user.lastName);
+            statement.setString(3, user.password);  // TODO: Hash password.
+            statement.setString(4, user.email);
             statement.execute();
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
@@ -92,12 +92,12 @@ public class UserDAOSQL implements UserDAO {
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, user.getName());
-            statement.setString(2, user.getLastName());
-            statement.setString(3, user.getPassword());
-            statement.setString(4, user.getEmail());
-            statement.setDouble(5, user.getCredit());
-            statement.setInt(6, user.getId());
+            statement.setString(1, user.name);
+            statement.setString(2, user.lastName);
+            statement.setString(3, user.password);
+            statement.setString(4, user.email);
+            statement.setDouble(5, user.credit);
+            statement.setInt(6, user.id);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {
@@ -127,14 +127,14 @@ public class UserDAOSQL implements UserDAO {
     
     private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId(resultSet.getInt(DB_ID));
-        user.setName(resultSet.getString(DB_NAME));
-        user.setLastName(resultSet.getString(DB_LAST_NAME));
-        user.setPassword(resultSet.getString(DB_PASSWORD));
-        user.setEmail(resultSet.getString(DB_EMAIL));
-        user.setCredit(resultSet.getFloat(DB_CREDIT));
-        user.setCreatedAt(resultSet.getTimestamp(DB_CREATED_AT));
-        user.setUpdatedAt(resultSet.getTimestamp(DB_UPDATED_AT));
+        user.id = resultSet.getInt(DB_ID);
+        user.name = resultSet.getString(DB_NAME);
+        user.lastName = resultSet.getString(DB_LAST_NAME);
+        user.password = resultSet.getString(DB_PASSWORD);
+        user.email = resultSet.getString(DB_EMAIL);
+        user.credit = resultSet.getFloat(DB_CREDIT);
+        user.createdAt = resultSet.getTimestamp(DB_CREATED_AT);
+        user.updatedAt = resultSet.getTimestamp(DB_UPDATED_AT);
         return user;
     }
 }

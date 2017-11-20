@@ -45,9 +45,9 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setTimestamp(3, auction.getStartTime());
             statement.setBoolean(4, auction.isValid());
             statement.setInt(5, auction.getEvent().getId());
-            statement.setInt(6, auction.getOwner().getId());
+            statement.setInt(6, auction.getOwner().id);
             statement.setString(7, auction.getStatus());
-            statement.setInt(8, auction.getWinner().getId());
+            statement.setInt(8, auction.getWinner().id);
             statement.execute();
         } catch (NamingException |SQLException e) {
             throw new DAOException(e);
@@ -88,9 +88,9 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setTimestamp(3, auction.getStartTime());
             statement.setBoolean(4, auction.isValid());
             statement.setInt(5, auction.getEvent().getId());
-            statement.setInt(6, auction.getOwner().getId());
+            statement.setInt(6, auction.getOwner().id);
             statement.setString(7, auction.getStatus());
-            statement.setInt(8, auction.getWinner().getId());
+            statement.setInt(8, auction.getWinner().id);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {

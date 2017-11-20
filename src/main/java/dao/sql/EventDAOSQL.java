@@ -47,7 +47,7 @@ public class EventDAOSQL implements EventDAO {
             statement.setString(3, event.getLocation());
             statement.setString(4, event.getAuctionType());
             statement.setString(5, event.getCategory());
-            statement.setInt(6, event.getOwner().getId());
+            statement.setInt(6, event.getOwner().id);
             statement.execute();
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
@@ -88,7 +88,7 @@ public class EventDAOSQL implements EventDAO {
             statement.setString(3, event.getLocation());
             statement.setString(4, event.getAuctionType());
             statement.setString(5, event.getCategory());
-            statement.setInt(6, event.getOwner().getId());
+            statement.setInt(6, event.getOwner().id);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {
