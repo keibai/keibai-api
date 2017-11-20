@@ -17,7 +17,7 @@ public class GoodDAOSQL implements GoodDAO {
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
     private static final String DB_IMAGE = "image";
-    private static final String DB_AUCTION_ID = "auction_id";
+    private static final String DB_AUCTION_ID = "auction";
 
     private static GoodDAO instance;
 
@@ -40,7 +40,7 @@ public class GoodDAOSQL implements GoodDAO {
 
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, good.name);
-            statement.setString(2, good.image);
+            statement.setBytes(2, good.image.getBytes());
             statement.setInt(3, good.auctionId);
             statement.execute();
         } catch (NamingException |SQLException e) {
@@ -111,7 +111,7 @@ public class GoodDAOSQL implements GoodDAO {
 
         good.id = resultSet.getInt(DB_ID);
         good.name = resultSet.getString(DB_NAME);
-        good.image = resultSet.getString(DB_IMAGE);
+        good.image = new String(resultSet.getBytes(DB_IMAGE));
         good.auctionId = resultSet.getInt(DB_AUCTION_ID);
         return good;
     }
