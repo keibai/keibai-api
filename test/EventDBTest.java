@@ -25,16 +25,13 @@ public class EventDBTest extends AbstractDBTest {
     public void test_insertion_of_event_with_missing_user_throws_DAO_exception() throws DAOException {
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
-        Event event = new Event() {{
-            setName(TEST_NAME);
-            setAuctionTime(TEST_AUCTION_TIME);
-            setLocation(TEST_LOCATION);
-            setAuctionType(TEST_AUCTION_TYPE);
-            setCategory(TEST_CATEGORY);
-            setOwner(new User() {{
-                setId(1);
-            }});
-        }};
+        Event event = new Event();
+        event.name = TEST_NAME;
+        event.auctionTime = TEST_AUCTION_TIME;
+        event.location = TEST_LOCATION;
+        event.auctionType = TEST_AUCTION_TYPE;
+        event.category = TEST_CATEGORY;
+        event.ownerId = 1;
         eventDAO.createEvent(event);
     }
 
@@ -54,14 +51,13 @@ public class EventDBTest extends AbstractDBTest {
         // TODO: createUser should return the created user
         user.id = 1;
 
-        Event event = new Event() {{
-            setName(TEST_NAME);
-            setAuctionTime(TEST_AUCTION_TIME);
-            setLocation(TEST_LOCATION);
-            setAuctionType(TEST_AUCTION_TYPE);
-            setCategory(TEST_CATEGORY);
-            setOwner(user);
-        }};
+        Event event = new Event();
+        event.name = TEST_NAME;
+        event.auctionTime = TEST_AUCTION_TIME;
+        event.location = TEST_LOCATION;
+        event.auctionType = TEST_AUCTION_TYPE;
+        event.category = TEST_CATEGORY;
+        event.ownerId = 1;
         eventDAO.createEvent(event);
     }
 }

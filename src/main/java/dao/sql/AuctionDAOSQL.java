@@ -44,7 +44,7 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setDouble(2, auction.getStartingPrice());
             statement.setTimestamp(3, auction.getStartTime());
             statement.setBoolean(4, auction.isValid());
-            statement.setInt(5, auction.getEvent().getId());
+            statement.setInt(5, auction.getEvent().id);
             statement.setInt(6, auction.getOwner().id);
             statement.setString(7, auction.getStatus());
             statement.setInt(8, auction.getWinner().id);
@@ -87,7 +87,7 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setDouble(2, auction.getStartingPrice());
             statement.setTimestamp(3, auction.getStartTime());
             statement.setBoolean(4, auction.isValid());
-            statement.setInt(5, auction.getEvent().getId());
+            statement.setInt(5, auction.getEvent().id);
             statement.setInt(6, auction.getOwner().id);
             statement.setString(7, auction.getStatus());
             statement.setInt(8, auction.getWinner().id);

@@ -5,7 +5,6 @@ import main.java.dao.EventDAO;
 import main.java.dao.NotFoundException;
 import main.java.db.Source;
 import main.java.models.Event;
-import main.java.models.User;
 
 import javax.naming.NamingException;
 import java.sql.Connection;
@@ -21,6 +20,7 @@ public class EventDAOSQL implements EventDAO {
     private static final String DB_LOCATION = "location";
     private static final String DB_AUCTION_TYPE = "auction_type";
     private static final String DB_CATEGORY = "category";
+    private static final String DB_OWNER_ID = "owner";
 
     private static EventDAO instance;
 
@@ -42,12 +42,12 @@ public class EventDAOSQL implements EventDAO {
                     "VALUES (?, ?, ?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, event.getName());
-            statement.setInt(2, event.getAuctionTime());
-            statement.setString(3, event.getLocation());
-            statement.setString(4, event.getAuctionType());
-            statement.setString(5, event.getCategory());
-            statement.setInt(6, event.getOwner().id);
+            statement.setString(1, event.name);
+            statement.setInt(2, event.auctionTime);
+            statement.setString(3, event.location);
+            statement.setString(4, event.auctionType);
+            statement.setString(5, event.category);
+            statement.setInt(6, event.ownerId);
             statement.execute();
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
@@ -83,12 +83,12 @@ public class EventDAOSQL implements EventDAO {
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, event.getName());
-            statement.setInt(2, event.getAuctionTime());
-            statement.setString(3, event.getLocation());
-            statement.setString(4, event.getAuctionType());
-            statement.setString(5, event.getCategory());
-            statement.setInt(6, event.getOwner().id);
+            statement.setString(1, event.name);
+            statement.setInt(2, event.auctionTime);
+            statement.setString(3, event.location);
+            statement.setString(4, event.auctionType);
+            statement.setString(5, event.category);
+            statement.setInt(6, event.ownerId);
             int nUpdated = statement.executeUpdate();
 
             if (nUpdated == 0) {
@@ -117,15 +117,14 @@ public class EventDAOSQL implements EventDAO {
     }
 
     private Event createEventFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new User();
         Event event = new Event();
-        event.setId(resultSet.getInt(DB_ID));
-        event.setName(resultSet.getString(DB_NAME));
-        event.setAuctionTime(resultSet.getInt(DB_AUCTION_TIME));
-        event.setLocation(resultSet.getString(DB_LOCATION));
-        event.setAuctionType(resultSet.getString(DB_AUCTION_TYPE));
-        event.setCategory(resultSet.getString(DB_CATEGORY));
-        event.setOwner(user);
+        event.id = resultSet.getInt(DB_ID);
+        event.name = resultSet.getString(DB_NAME);
+        event.auctionTime = resultSet.getInt(DB_AUCTION_TIME);
+        event.location = resultSet.getString(DB_LOCATION);
+        event.auctionType = resultSet.getString(DB_AUCTION_TYPE);
+        event.category = resultSet.getString(DB_CATEGORY);
+        event.ownerId = resultSet.getInt(DB_OWNER_ID);
         return event;
     }
 }
