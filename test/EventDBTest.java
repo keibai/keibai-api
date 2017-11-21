@@ -107,8 +107,19 @@ public class EventDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_delete_existent_event()  {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public void test_delete_existent_event() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        User user = DummyGenerator.getDummyUser();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User insertedUser = userDAO.create(user);
+
+        Event event = DummyGenerator.getDummyEvent();
+        Event insertedEvent = eventDAO.create(event);
+        event.ownerId = insertedUser.id;
+        boolean deleted = eventDAO.delete(insertedEvent.id);
+        assertTrue(deleted);
+
+        assertNull(eventDAO.getById(1));
     }
 
     @Test
