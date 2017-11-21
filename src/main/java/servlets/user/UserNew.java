@@ -25,6 +25,7 @@ public class UserNew extends HttpServlet {
         JsonResponse jsonResponse = new JsonResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
 
+        // Retrieve body data.
         User unsafeUser;
         try {
             unsafeUser = new HttpRequest(request).extractPostRequestBody(User.class);
