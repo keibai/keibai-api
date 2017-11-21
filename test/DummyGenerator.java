@@ -44,6 +44,12 @@ class DummyGenerator {
     private static final String TEST_EVENT_AUCTION_TYPE = "TestAuctionType";
     private static final String TEST_EVENT_CATEGORY = "TestCategory";
 
+    private static final String TEST_EVENT_OTHER_NAME = "TestOtherName";
+    private static final int TEST_EVENT_OTHER_AUCTION_TIME = 100;
+    private static final String TEST_EVENT_OTHER_LOCATION = "TestLocation";
+    private static final String TEST_EVENT_OTHER_AUCTION_TYPE = "TestAuctionType";
+    private static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
+
     static Event getDummyEvent() {
         Event event = new Event();
         event.name = TEST_EVENT_NAME;
@@ -81,5 +87,16 @@ class DummyGenerator {
         user.email = TEST_USER_OTHER_EMAIL;
         user.password = TEST_USER_OTHER_PASSWORD;
         return user;
+    }
+
+    public static Event getOtherDummyEvent() {
+        Event event = new Event();
+        event.name = TEST_EVENT_OTHER_NAME;
+        event.category = TEST_EVENT__OTHER_CATEGORY;
+        event.auctionTime = TEST_EVENT_OTHER_AUCTION_TIME;
+        event.auctionType = TEST_EVENT_OTHER_AUCTION_TYPE;
+        event.location = TEST_EVENT_OTHER_LOCATION;
+        event.ownerId = 1;
+        return event;
     }
 }
