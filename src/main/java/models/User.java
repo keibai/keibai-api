@@ -2,9 +2,8 @@ package main.java.models;
 
 import java.sql.Timestamp;
 
-public class User {
+public class User extends ModelAbstract {
 
-    public int id;
     public String name;
     public String lastName;
     public String password;

@@ -49,7 +49,7 @@ public class EventDBTest extends AbstractDBTest {
         user.email = TEST_USER_EMAIL;
         user.password = TEST_USER_PASSWORD;
 
-        userDAO.createUser(user);
+        userDAO.create(user);
 
         // TODO: createUser should return the created user
         user.id = 1;

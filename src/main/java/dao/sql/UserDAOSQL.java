@@ -9,7 +9,7 @@ import main.java.models.User;
 import javax.naming.NamingException;
 import java.sql.*;
 
-public class UserDAOSQL implements UserDAO {
+public class UserDAOSQL extends SQLDAOAbstract<User> implements UserDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
@@ -20,32 +20,35 @@ public class UserDAOSQL implements UserDAO {
     private static final String DB_CREATED_AT = "created_at";
     private static final String DB_UPDATED_AT = "updated_at";
 
-    private static UserDAO instance;
+    private static UserDAOSQL instance;
 
-    public static UserDAO getInstance() {
+    public static UserDAOSQL getInstance() {
         if (instance == null) {
             instance = new UserDAOSQL();
         }
         return instance;
     }
 
-    public void createUser(User user) throws DAOException {
+    public User create(User user) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.user (name, last_name, password, email) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO public.user (name, last_name, password, email, credit) " +
+                    "VALUES (?, ?, ?, ?, ?)";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, user.name);
             statement.setString(2, user.lastName);
-            statement.setString(3, user.password);  // TODO: Hash password.
+            statement.setString(3, user.password);
             statement.setString(4, user.email);
-            statement.execute();
+            statement.setDouble(5, user.credit);
+            statement.executeUpdate();
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public User getUserById(int id) throws DAOException, NotFoundException {
+    public User getById(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.user WHERE \"user\".id = ?";
@@ -55,16 +58,16 @@ public class UserDAOSQL implements UserDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("User not found");
+                return null;
             }
 
-            return createUserFromResultSet(resultSet);
+            return objectFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public User getUserByEmail(String email) throws NotFoundException, DAOException {
+    public User getByEmail(String email) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.user WHERE \"user\".email = ?";
@@ -74,16 +77,16 @@ public class UserDAOSQL implements UserDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("User not found");
+                return null;
             }
 
-            return createUserFromResultSet(resultSet);
+            return objectFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void updateUser(User user) throws DAOException, NotFoundException {
+    public User update(User user) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.user " +
@@ -98,34 +101,30 @@ public class UserDAOSQL implements UserDAO {
             statement.setString(4, user.email);
             statement.setDouble(5, user.credit);
             statement.setInt(6, user.id);
-            int nUpdated = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (nUpdated == 0) {
-                throw new NotFoundException("User not found");
-            }
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void deleteUser(int id) throws DAOException, NotFoundException {
+    public boolean delete(int userId) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.user WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, id);
+            statement.setInt(1, userId);
             int nDeleted = statement.executeUpdate();
 
-            if (nDeleted == 0) {
-                throw new NotFoundException("User not found");
-            }
+            return nDeleted != 0;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
-    
-    private User createUserFromResultSet(ResultSet resultSet) throws SQLException {
+
+    User objectFromResultSet(ResultSet resultSet) throws SQLException {
         User user = new User();
         user.id = resultSet.getInt(DB_ID);
         user.name = resultSet.getString(DB_NAME);
