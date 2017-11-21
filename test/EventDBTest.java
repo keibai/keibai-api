@@ -44,8 +44,10 @@ public class EventDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_when_user_not_found_by_id() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public void test_when_user_not_found_by_id() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        Event event = eventDAO.getById(24);
+        assertNull(event);
     }
 
 
