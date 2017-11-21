@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EventDAOSQL implements EventDAO {
+public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
@@ -35,7 +35,7 @@ public class EventDAOSQL implements EventDAO {
         return instance;
     }
 
-    public void createEvent(Event event) throws DAOException {
+    public Event create(Event event) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "INSERT INTO public.event (name, auction_time, location, auction_type, category, owner) " +
@@ -48,13 +48,14 @@ public class EventDAOSQL implements EventDAO {
             statement.setString(4, event.auctionType);
             statement.setString(5, event.category);
             statement.setInt(6, event.ownerId);
-            statement.execute();
+            statement.executeUpdate();
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public Event getEventById(int id) throws DAOException, NotFoundException {
+    public Event getById(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.event WHERE \"event\".id = ?";
@@ -64,16 +65,16 @@ public class EventDAOSQL implements EventDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("Event not found");
+                return null;
             }
 
-            return createEventFromResultSet(resultSet);
+            return objectFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void updateEvent(Event event) throws DAOException, NotFoundException {
+    public Event update(Event event) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.event " +
@@ -89,17 +90,15 @@ public class EventDAOSQL implements EventDAO {
             statement.setString(4, event.auctionType);
             statement.setString(5, event.category);
             statement.setInt(6, event.ownerId);
-            int nUpdated = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (nUpdated == 0) {
-                throw new NotFoundException("Event not found");
-            }
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void deleteEvent(int id) throws DAOException, NotFoundException {
+    public boolean delete(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.event WHERE id = ?";
@@ -108,15 +107,14 @@ public class EventDAOSQL implements EventDAO {
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 
-            if (nDeleted == 0) {
-                throw new NotFoundException("Event not found");
-            }
+            return nDeleted != 0;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    private Event createEventFromResultSet(ResultSet resultSet) throws SQLException {
+    @Override
+    Event objectFromResultSet(ResultSet resultSet) throws SQLException {
         Event event = new Event();
         event.id = resultSet.getInt(DB_ID);
         event.name = resultSet.getString(DB_NAME);

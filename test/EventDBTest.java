@@ -32,7 +32,7 @@ public class EventDBTest extends AbstractDBTest {
         event.auctionType = TEST_AUCTION_TYPE;
         event.category = TEST_CATEGORY;
         event.ownerId = 1;
-        eventDAO.createEvent(event);
+        eventDAO.create(event);
     }
 
     @Test
@@ -58,6 +58,6 @@ public class EventDBTest extends AbstractDBTest {
         event.auctionType = TEST_AUCTION_TYPE;
         event.category = TEST_CATEGORY;
         event.ownerId = 1;
-        eventDAO.createEvent(event);
+        eventDAO.create(event);
     }
 }

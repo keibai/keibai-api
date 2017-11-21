@@ -67,7 +67,7 @@ public class AuctionDBTest extends AbstractDBTest {
         event.location = TEST_EVENT_LOCATION;
         event.auctionType = TEST_AUCTION_TYPE;
         event.category = TEST_EVENT_CATEGORY;
-        eventDAO.createEvent(event);
+        eventDAO.create(event);
         event.id = 1;
 
         Auction insertedAuction = new Auction();
