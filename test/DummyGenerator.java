@@ -1,4 +1,3 @@
-import main.java.dao.UserDAO;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.Good;

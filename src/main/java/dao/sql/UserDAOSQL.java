@@ -1,7 +1,6 @@
 package main.java.dao.sql;
 
 import main.java.dao.DAOException;
-import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
 import main.java.db.Source;
 import main.java.models.User;
@@ -53,7 +52,7 @@ public class UserDAOSQL extends SQLDAOAbstract<User> implements UserDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.user WHERE \"user\".id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
@@ -72,7 +71,7 @@ public class UserDAOSQL extends SQLDAOAbstract<User> implements UserDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.user WHERE \"user\".email = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
 
@@ -94,7 +93,7 @@ public class UserDAOSQL extends SQLDAOAbstract<User> implements UserDAO {
                     "password = ?, email = ?, credit = ? " +
                     "WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, user.name);
             statement.setString(2, user.lastName);
             statement.setString(3, user.password);
@@ -114,7 +113,7 @@ public class UserDAOSQL extends SQLDAOAbstract<User> implements UserDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.user WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, userId);
             int nDeleted = statement.executeUpdate();
 
