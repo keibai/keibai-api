@@ -97,8 +97,13 @@ public class EventDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_update_in_non_existent_event() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public void test_update_in_non_existent_event() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        Event updatedEvent = DummyGenerator.getDummyEvent();
+        updatedEvent.id = 1;
+        Event modifiedEvent = eventDAO.update(updatedEvent);
+        assertNull(modifiedEvent);
     }
 
     @Test
