@@ -2,8 +2,8 @@ package main.java.models;
 
 import java.util.Calendar;
 
-public class Event {
-    public int id;
+public class Event extends ModelAbstract {
+
     public String name;
     public int auctionTime;
     public String location;

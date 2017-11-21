@@ -1,7 +1,7 @@
 package main.java.models;
 
-public class Good {
-    public int id;
+public class Good extends ModelAbstract {
+
     public String name;
     public String image;
     public int auctionId;

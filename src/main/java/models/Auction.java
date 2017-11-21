@@ -2,9 +2,8 @@ package main.java.models;
 
 import java.sql.Timestamp;
 
-public class Auction {
+public class Auction extends ModelAbstract {
 
-    public int id;
     public String name;
     public double startingPrice;
     public Timestamp startTime;

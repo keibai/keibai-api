@@ -49,7 +49,7 @@ public class AuctionDBTest extends AbstractDBTest {
         owner.password = TEST_OWNER_PASSWORD;
         owner.email = TEST_OWNER_EMAIL;
         owner.credit = TEST_OWNER_CREDIT;
-        userDAO.createUser(owner);
+        userDAO.create(owner);
         owner.id = 1;
 
         User winner = new User();
@@ -58,7 +58,7 @@ public class AuctionDBTest extends AbstractDBTest {
         winner.password = TEST_WINNER_PASSWORD;
         winner.email = TEST_WINNER_EMAIL;
         winner.credit = TEST_WINNER_CREDIT;
-        userDAO.createUser(winner);
+        userDAO.create(winner);
         winner.id = 1;
 
         Event event = new Event();
