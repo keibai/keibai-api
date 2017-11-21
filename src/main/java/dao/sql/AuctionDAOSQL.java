@@ -9,7 +9,7 @@ import main.java.models.Auction;
 import javax.naming.NamingException;
 import java.sql.*;
 
-public class AuctionDAOSQL implements AuctionDAO {
+public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
@@ -34,7 +34,7 @@ public class AuctionDAOSQL implements AuctionDAO {
         return instance;
     }
     
-    public void createAuction(Auction auction) throws DAOException {
+    public Auction create(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "INSERT INTO public.auction (name, starting_price, start_time, is_valid, event, owner, status, winner) " +
@@ -49,13 +49,14 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
             statement.setInt(8, auction.winnerId);
-            statement.execute();
+            statement.executeUpdate();
+            return recentlyUpdated(statement);
         } catch (NamingException |SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public Auction getAuctionById(int id) throws DAOException, NotFoundException {
+    public Auction getById(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.auction WHERE \"auction\".id = ?";
@@ -65,16 +66,16 @@ public class AuctionDAOSQL implements AuctionDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("Auction not found");
+                return null;
             }
 
-            return createAuctionFromResultSet(resultSet);
+            return objectFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void updateAuction(Auction auction) throws DAOException, NotFoundException {
+    public Auction update(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.auction " +
@@ -92,17 +93,15 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
             statement.setInt(8, auction.winnerId);
-            int nUpdated = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (nUpdated == 0) {
-                throw new NotFoundException("Auction not found");
-            }
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void deleteAuction(int id) throws DAOException, NotFoundException {
+    public boolean delete(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.auction WHERE id = ?";
@@ -111,15 +110,14 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 
-            if (nDeleted == 0) {
-                throw new NotFoundException("Auction not found");
-            }
+            return nDeleted != 0;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    private Auction createAuctionFromResultSet(ResultSet resultSet) throws SQLException {
+    @Override
+    Auction objectFromResultSet(ResultSet resultSet) throws SQLException {
         Auction auction = new Auction();
 
         auction.id = resultSet.getInt(DB_ID);
@@ -133,4 +131,5 @@ public class AuctionDAOSQL implements AuctionDAO {
         auction.winnerId = resultSet.getInt(DB_WINNER_ID);
         return auction;
     }
+
 }

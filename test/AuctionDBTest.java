@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class AuctionDBTest extends AbstractDBTest {
 
@@ -79,17 +80,18 @@ public class AuctionDBTest extends AbstractDBTest {
         insertedAuction.ownerId = 1;
         insertedAuction.winnerId = 1;
         insertedAuction.eventId = 1;
-        auctionDAO.createAuction(insertedAuction);
+        auctionDAO.create(insertedAuction);
         insertedAuction.id = 1;
 
-        Auction retrievedAuction = auctionDAO.getAuctionById(1);
+        Auction retrievedAuction = auctionDAO.getById(1);
 
         assertEquals(insertedAuction, retrievedAuction);
     }
 
-    @Test(expected = NotFoundException.class)
-    public void test_get_inexistent_auction_throws_not_found_exception() throws NotFoundException, DAOException {
+    @Test
+    public void test_get_inexistent_auction() throws DAOException {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
-        auctionDAO.getAuctionById(34);
+        Auction auction = auctionDAO.getById(34);
+        assertNull(auction);
     }
 }
