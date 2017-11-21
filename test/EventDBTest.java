@@ -123,8 +123,10 @@ public class EventDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_delete_inexistent_event() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public void test_delete_inexistent_event() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        boolean deleted = eventDAO.delete(24);
+        assertFalse(deleted);
     }
 
 }
