@@ -16,11 +16,13 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
-    private static final String DB_AUCTION_TIME = "auction_type";
+    private static final String DB_AUCTION_TIME = "auction_time";
     private static final String DB_LOCATION = "location";
     private static final String DB_AUCTION_TYPE = "auction_type";
     private static final String DB_CATEGORY = "category";
     private static final String DB_OWNER_ID = "owner";
+    private static final String DB_CREATED_AT = "created_at";
+    private static final String DB_UPDATED_AT = "updated_at";
 
     private static EventDAO instance;
 
@@ -41,7 +43,7 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
             String query = "INSERT INTO public.event (name, auction_time, location, auction_type, category, owner) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, event.name);
             statement.setInt(2, event.auctionTime);
             statement.setString(3, event.location);
@@ -60,7 +62,7 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.event WHERE \"event\".id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
@@ -83,13 +85,14 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
                     "owner = ? " +
                     "WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, event.name);
             statement.setInt(2, event.auctionTime);
             statement.setString(3, event.location);
             statement.setString(4, event.auctionType);
             statement.setString(5, event.category);
             statement.setInt(6, event.ownerId);
+            statement.setInt(7, event.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -103,7 +106,7 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.event WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 
@@ -123,6 +126,8 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
         event.auctionType = resultSet.getString(DB_AUCTION_TYPE);
         event.category = resultSet.getString(DB_CATEGORY);
         event.ownerId = resultSet.getInt(DB_OWNER_ID);
+        event.createdAt = resultSet.getTimestamp(DB_CREATED_AT);
+        event.updatedAt = resultSet.getTimestamp(DB_UPDATED_AT);
         return event;
     }
 }
