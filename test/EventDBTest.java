@@ -7,10 +7,9 @@ import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Event;
 import main.java.models.User;
 import org.junit.Test;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class EventDBTest extends AbstractDBTest {
 
@@ -45,6 +44,11 @@ public class EventDBTest extends AbstractDBTest {
         assertEquals(insertedEvent.createdAt, insertedEvent.updatedAt);
     }
 
+    @Test
+    public void test_when_user_not_found_by_id() {
+        throw new NotImplementedException();
+    }
+
 
     @Test
     public void test_event_update_name() throws DAOException, NotFoundException {
@@ -68,4 +72,25 @@ public class EventDBTest extends AbstractDBTest {
         assertNotEquals(retrievedEvent.updatedAt, retrievedEvent.createdAt);
 
     }
+
+    @Test
+    public void test_full_event_update() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void test_update_in_non_existent_event() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void test_delete_existent_event()  {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void test_delete_inexistent_event() {
+        throw new NotImplementedException();
+    }
+
 }
