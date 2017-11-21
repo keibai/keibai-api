@@ -7,7 +7,6 @@ import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Event;
 import main.java.models.User;
 import org.junit.Test;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static org.junit.Assert.*;
 
@@ -46,7 +45,7 @@ public class EventDBTest extends AbstractDBTest {
 
     @Test
     public void test_when_user_not_found_by_id() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 
@@ -74,23 +73,42 @@ public class EventDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_full_event_update() {
-        throw new NotImplementedException();
+    public void test_full_event_update() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        User user = DummyGenerator.getDummyUser();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User insertUser = userDAO.create(user);
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertUser.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        Event event2 = DummyGenerator.getOtherDummyEvent();
+        event2.id = insertedEvent.id;
+        event2.createdAt = insertedEvent.createdAt;
+        event2.updatedAt = insertedEvent.updatedAt;
+        Event updatedEvent = eventDAO.update(event2);
+
+        Event retrievedEvent = eventDAO.getById(updatedEvent.id);
+
+        assertEquals(updatedEvent, retrievedEvent);
+        assertNotEquals(insertedEvent, retrievedEvent);
+        assertNotEquals(retrievedEvent.createdAt, retrievedEvent.updatedAt);
+        assertNotEquals(insertedEvent.updatedAt, retrievedEvent.updatedAt);
     }
 
     @Test
     public void test_update_in_non_existent_event() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Test
     public void test_delete_existent_event()  {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Test
     public void test_delete_inexistent_event() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 }
