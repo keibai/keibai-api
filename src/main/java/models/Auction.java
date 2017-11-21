@@ -2,88 +2,49 @@ package main.java.models;
 
 import java.sql.Timestamp;
 
-public class Auction {
+public class Auction extends ModelAbstract {
 
-    private int id;
-    private String name;
-    private double startingPrice;
-    private Timestamp startTime;
-    private boolean isValid;
-    private Event event;
-    private User owner;
-    private String status;
-    private User winner;
+    public String name;
+    public double startingPrice;
+    public Timestamp startTime;
+    public boolean isValid;
+    public int eventId;
+    public int ownerId;
+    public String status;
+    public int winnerId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Auction)) return false;
 
-    public int getId() {
-        return id;
+        Auction auction = (Auction) o;
+
+        if (id != auction.id) return false;
+        if (Double.compare(auction.startingPrice, startingPrice) != 0) return false;
+        if (isValid != auction.isValid) return false;
+        if (eventId != auction.eventId) return false;
+        if (ownerId != auction.ownerId) return false;
+        if (winnerId != auction.winnerId) return false;
+        if (!name.equals(auction.name)) return false;
+        if (!startTime.equals(auction.startTime)) return false;
+        return status.equals(auction.status);
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getStartingPrice() {
-        return startingPrice;
-    }
-
-    public void setStartingPrice(double startingPrice) {
-        this.startingPrice = startingPrice;
-    }
-
-    public Timestamp getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Timestamp startTime) {
-        this.startTime = startTime;
-    }
-
-    public boolean isValid() {
-        return isValid;
-    }
-
-    public void setValid(boolean valid) {
-        isValid = valid;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public User getWinner() {
-        return winner;
-    }
-
-    public void setWinner(User winner) {
-        this.winner = winner;
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = id;
+        result = 31 * result + name.hashCode();
+        temp = Double.doubleToLongBits(startingPrice);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + startTime.hashCode();
+        result = 31 * result + (isValid ? 1 : 0);
+        result = 31 * result + eventId;
+        result = 31 * result + ownerId;
+        result = 31 * result + status.hashCode();
+        result = 31 * result + winnerId;
+        return result;
     }
 }

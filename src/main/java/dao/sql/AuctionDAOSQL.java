@@ -5,13 +5,11 @@ import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.db.Source;
 import main.java.models.Auction;
-import main.java.models.Event;
-import main.java.models.User;
 
 import javax.naming.NamingException;
 import java.sql.*;
 
-public class AuctionDAOSQL implements AuctionDAO {
+public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
@@ -19,6 +17,9 @@ public class AuctionDAOSQL implements AuctionDAO {
     private static final String DB_START_TIME = "start_time";
     private static final String DB_IS_VALID = "is_valid";
     private static final String DB_STATUS = "status";
+    private static final String DB_EVENT_ID = "event";
+    private static final String DB_OWNER_ID = "owner";
+    private static final String DB_WINNER_ID = "winner";
 
     private static AuctionDAO instance;
 
@@ -33,28 +34,29 @@ public class AuctionDAOSQL implements AuctionDAO {
         return instance;
     }
     
-    public void createAuction(Auction auction) throws DAOException {
+    public Auction create(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "INSERT INTO public.auction (name, starting_price, start_time, is_valid, event, owner, status, winner) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, auction.getName());
-            statement.setDouble(2, auction.getStartingPrice());
-            statement.setTimestamp(3, auction.getStartTime());
-            statement.setBoolean(4, auction.isValid());
-            statement.setInt(5, auction.getEvent().getId());
-            statement.setInt(6, auction.getOwner().id);
-            statement.setString(7, auction.getStatus());
-            statement.setInt(8, auction.getWinner().id);
-            statement.execute();
+            statement.setString(1, auction.name);
+            statement.setDouble(2, auction.startingPrice);
+            statement.setTimestamp(3, auction.startTime);
+            statement.setBoolean(4, auction.isValid);
+            statement.setInt(5, auction.eventId);
+            statement.setInt(6, auction.ownerId);
+            statement.setString(7, auction.status);
+            statement.setInt(8, auction.winnerId);
+            statement.executeUpdate();
+            return recentlyUpdated(statement);
         } catch (NamingException |SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public Auction getAuctionById(int id) throws DAOException, NotFoundException {
+    public Auction getById(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.auction WHERE \"auction\".id = ?";
@@ -64,16 +66,16 @@ public class AuctionDAOSQL implements AuctionDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("Auction not found");
+                return null;
             }
 
-            return createAuctionFromResultSet(resultSet);
+            return objectFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void updateAuction(Auction auction) throws DAOException, NotFoundException {
+    public Auction update(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.auction " +
@@ -83,25 +85,23 @@ public class AuctionDAOSQL implements AuctionDAO {
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, auction.getName());
-            statement.setDouble(2, auction.getStartingPrice());
-            statement.setTimestamp(3, auction.getStartTime());
-            statement.setBoolean(4, auction.isValid());
-            statement.setInt(5, auction.getEvent().getId());
-            statement.setInt(6, auction.getOwner().id);
-            statement.setString(7, auction.getStatus());
-            statement.setInt(8, auction.getWinner().id);
-            int nUpdated = statement.executeUpdate();
+            statement.setString(1, auction.name);
+            statement.setDouble(2, auction.startingPrice);
+            statement.setTimestamp(3, auction.startTime);
+            statement.setBoolean(4, auction.isValid);
+            statement.setInt(5, auction.eventId);
+            statement.setInt(6, auction.ownerId);
+            statement.setString(7, auction.status);
+            statement.setInt(8, auction.winnerId);
+            statement.executeUpdate();
 
-            if (nUpdated == 0) {
-                throw new NotFoundException("Auction not found");
-            }
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void deleteAuction(int id) throws DAOException, NotFoundException {
+    public boolean delete(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.auction WHERE id = ?";
@@ -110,29 +110,26 @@ public class AuctionDAOSQL implements AuctionDAO {
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 
-            if (nDeleted == 0) {
-                throw new NotFoundException("Auction not found");
-            }
+            return nDeleted != 0;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    private Auction createAuctionFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new User();
-        User winner = new User();
-        Event event = new Event();
+    @Override
+    Auction objectFromResultSet(ResultSet resultSet) throws SQLException {
         Auction auction = new Auction();
 
-        auction.setId(resultSet.getInt(DB_ID));
-        auction.setName(resultSet.getString(DB_NAME));
-        auction.setStartingPrice(resultSet.getDouble(String.valueOf(DB_STARTING_PRICE)));
-        auction.setStartTime(resultSet.getTimestamp(DB_START_TIME));
-        auction.setValid(resultSet.getBoolean(String.valueOf(DB_IS_VALID)));
-        auction.setEvent(event);
-        auction.setOwner(user);
-        auction.setStatus(resultSet.getString(DB_STATUS));
-        auction.setWinner(winner);
+        auction.id = resultSet.getInt(DB_ID);
+        auction.name = resultSet.getString(DB_NAME);
+        auction.startingPrice = resultSet.getDouble(DB_STARTING_PRICE);
+        auction.startTime = resultSet.getTimestamp(DB_START_TIME);
+        auction.isValid = resultSet.getBoolean(DB_IS_VALID);
+        auction.eventId = resultSet.getInt(DB_EVENT_ID);
+        auction.ownerId = resultSet.getInt(DB_OWNER_ID);
+        auction.status = resultSet.getString(DB_STATUS);
+        auction.winnerId = resultSet.getInt(DB_WINNER_ID);
         return auction;
     }
+
 }
