@@ -1,87 +1,62 @@
 package main.java.models;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 
-public class Event {
-    private int id;
-    private String name;
-    private int auctionTime;
-    private String location;
-    private Calendar createdAt;
-    private Calendar updatedAt;
-    private String auctionType;
-    private String category;
-    private User owner;
+public class Event extends ModelAbstract {
 
-    public int getId() {
-        return id;
+    public String name;
+    public int auctionTime;
+    public String location;
+    public Timestamp createdAt;
+    public Timestamp updatedAt;
+    public String auctionType;
+    public String category;
+    public int ownerId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Event)) return false;
+
+        Event event = (Event) o;
+
+        if (auctionTime != event.auctionTime) return false;
+        if (ownerId != event.ownerId) return false;
+        if (!name.equals(event.name)) return false;
+        if (!location.equals(event.location)) return false;
+        if (createdAt != null ? !createdAt.equals(event.createdAt) : event.createdAt != null) return false;
+        if (updatedAt != null ? !updatedAt.equals(event.updatedAt) : event.updatedAt != null) return false;
+        if (!auctionType.equals(event.auctionType)) return false;
+        return category != null ? category.equals(event.category) : event.category == null;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + auctionTime;
+        result = 31 * result + location.hashCode();
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
+        result = 31 * result + auctionType.hashCode();
+        result = 31 * result + (category != null ? category.hashCode() : 0);
+        result = 31 * result + ownerId;
+        return result;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getAuctionTime() {
-        return auctionTime;
-    }
-
-    public void setAuctionTime(int auctionTime) {
-        this.auctionTime = auctionTime;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Calendar getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Calendar createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Calendar getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Calendar updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getAuctionType() {
-        return auctionType;
-    }
-
-    public void setAuctionType(String auctionType) {
-        this.auctionType = auctionType;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
+    @Override
+    public String toString() {
+        return "Event{" +
+                "name='" + name + '\'' +
+                ", auctionTime=" + auctionTime +
+                ", location='" + location + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", auctionType='" + auctionType + '\'' +
+                ", category='" + category + '\'' +
+                ", ownerId=" + ownerId +
+                ", id=" + id +
+                '}';
     }
 }
+
+

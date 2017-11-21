@@ -70,7 +70,10 @@ CREATE TABLE IF NOT EXISTS auction
   starting_price DOUBLE PRECISION NOT NULL,
   start_time     TIMESTAMP        NOT NULL,
   status         VARCHAR(25)      NOT NULL,
-  is_valid       BOOLEAN DEFAULT FALSE
+  is_valid       BOOLEAN DEFAULT FALSE,
+  event          INTEGER NOT NULL,
+  owner          INTEGER NOT NULL,
+  winner         INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS auction_id_uindex
   ON auction (id);
@@ -83,7 +86,8 @@ CREATE TABLE IF NOT EXISTS public.good
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(255) NOT NULL,
   image BYTEA,
-  CONSTRAINT auction FOREIGN KEY (id) REFERENCES auction (id)
+  CONSTRAINT auction FOREIGN KEY (id) REFERENCES auction (id),
+  auction INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS good_id_uindex ON public.good (id);
 
