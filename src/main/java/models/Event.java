@@ -1,14 +1,14 @@
 package main.java.models;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 
 public class Event extends ModelAbstract {
 
     public String name;
     public int auctionTime;
     public String location;
-    public Calendar createdAt;
-    public Calendar updatedAt;
+    public Timestamp createdAt;
+    public Timestamp updatedAt;
     public String auctionType;
     public String category;
     public int ownerId;
@@ -41,6 +41,21 @@ public class Event extends ModelAbstract {
         result = 31 * result + (category != null ? category.hashCode() : 0);
         result = 31 * result + ownerId;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "name='" + name + '\'' +
+                ", auctionTime=" + auctionTime +
+                ", location='" + location + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", auctionType='" + auctionType + '\'' +
+                ", category='" + category + '\'' +
+                ", ownerId=" + ownerId +
+                ", id=" + id +
+                '}';
     }
 }
 
