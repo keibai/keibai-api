@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class GoodDAOSQL implements GoodDAO {
+public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
@@ -32,7 +32,7 @@ public class GoodDAOSQL implements GoodDAO {
         return instance;
     }
 
-    public void createGood(Good good) throws DAOException {
+    public Good create(Good good) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "INSERT INTO public.good (name, image, auction) " +
@@ -42,13 +42,14 @@ public class GoodDAOSQL implements GoodDAO {
             statement.setString(1, good.name);
             statement.setBytes(2, good.image.getBytes());
             statement.setInt(3, good.auctionId);
-            statement.execute();
+            statement.executeUpdate();
+            return recentlyUpdated(statement);
         } catch (NamingException |SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public Good getGoodById(int id) throws DAOException, NotFoundException {
+    public Good getById(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.good WHERE \"good\".id = ?";
@@ -58,16 +59,16 @@ public class GoodDAOSQL implements GoodDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("Good not found");
+                return null;
             }
 
-            return createGoodFromResultSet(resultSet);
+            return objectFromResultSet(resultSet);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void updateGood(Good good) throws DAOException, NotFoundException {
+    public Good update(Good good) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.good " +
@@ -79,17 +80,15 @@ public class GoodDAOSQL implements GoodDAO {
             statement.setString(1, good.name);
             statement.setString(2, good.image);
             statement.setInt(3, good.auctionId);
-            int nUpdated = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (nUpdated == 0) {
-                throw new NotFoundException("Good not found");
-            }
+            return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void deleteGood(int id) throws DAOException, NotFoundException {
+    public boolean delete(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.good WHERE id = ?";
@@ -98,15 +97,14 @@ public class GoodDAOSQL implements GoodDAO {
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 
-            if (nDeleted == 0) {
-                throw new NotFoundException("Good not found");
-            }
+            return nDeleted != 0;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    private Good createGoodFromResultSet(ResultSet resultSet) throws SQLException {
+    @Override
+    Good objectFromResultSet(ResultSet resultSet) throws SQLException {
         Good good = new Good();
 
         good.id = resultSet.getInt(DB_ID);
