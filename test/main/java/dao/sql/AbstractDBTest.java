@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.Mockito;
 
 import javax.naming.NamingException;
 import java.io.FileInputStream;
@@ -14,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public abstract class AbstractDBTest {
+public abstract class AbstractDBTest extends Mockito {
 
     private static EmbeddedPostgresWrapper embeddedDb;
 

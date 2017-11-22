@@ -1,4 +1,4 @@
-package main.java.dao.sql;
+package main.java.models;
 
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -7,13 +7,13 @@ import main.java.models.User;
 
 import java.sql.Timestamp;
 
-class DummyGenerator {
+public class DummyGenerator {
 
     private static final String TEST_GOOD_NAME = "TestGoodName";
     private static final String TEST_GOOD_IMAGE = "TestGoodImage";
     private static final int TEST_GOOD_AUCTION_ID = 1;
 
-    static Good getDummyGood() {
+    public static Good getDummyGood() {
         Good good = new Good();
         good.name = TEST_GOOD_NAME;
         good.image = TEST_GOOD_IMAGE;
@@ -33,7 +33,7 @@ class DummyGenerator {
     private static final String TEST_AUCTION_OTHER_STATUS = "TestOtherStatus";
     private static final boolean TEST_AUCTION_OTHER_IS_VALID = true;
 
-    static Auction getDummyAuction() {
+    public static Auction getDummyAuction() {
         Auction auction = new Auction();
         auction.name = TEST_AUCTION_NAME;
         auction.startingPrice = TEST_AUCTION_STARTING_PRICE;
@@ -43,7 +43,7 @@ class DummyGenerator {
         return auction;
     }
 
-    static Auction getOtherDummyAuction() {
+    public static Auction getOtherDummyAuction() {
         Auction auction = new Auction();
         auction.name = TEST_AUCTION_OTHER_NAME;
         auction.startingPrice = TEST_AUCTION_OTHER_STARTING_PRICE;
@@ -65,7 +65,7 @@ class DummyGenerator {
     private static final String TEST_EVENT_OTHER_AUCTION_TYPE = "TestAuctionType";
     private static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
 
-    static Event getDummyEvent() {
+    public static Event getDummyEvent() {
         Event event = new Event();
         event.name = TEST_EVENT_NAME;
         event.auctionTime = TEST_EVENT_AUCTION_TIME;
@@ -76,17 +76,17 @@ class DummyGenerator {
         return event;
     }
 
-    private static final String TEST_USER_NAME = "TestName";
-    private static final String TEST_USER_LAST_NAME = "TestLastName";
-    private static final String TEST_USER_EMAIL = "TestEmail";
-    private static final String TEST_USER_PASSWORD = "TestPassword";
+    private static final String TEST_USER_NAME = "Erik";
+    private static final String TEST_USER_LAST_NAME = "Green";
+    private static final String TEST_USER_EMAIL = "hi@example.com";
+    private static final String TEST_USER_PASSWORD = "1234";
 
     private static final String TEST_USER_OTHER_NAME = "TestOtherName";
     private static final String TEST_USER_OTHER_LAST_NAME = "TestOtherLastName";
     private static final String TEST_USER_OTHER_EMAIL = "TestOtherEmail";
     private static final String TEST_USER_OTHER_PASSWORD = "TestOtherPassword";
 
-    static User getDummyUser() {
+    public static User getDummyUser() {
         User user = new User();
         user.name = TEST_USER_NAME;
         user.lastName = TEST_USER_LAST_NAME;
@@ -95,7 +95,7 @@ class DummyGenerator {
         return user;
     }
 
-    static User getOtherDummyUser() {
+    public static User getOtherDummyUser() {
         User user = new User();
         user.name = TEST_USER_OTHER_NAME;
         user.lastName = TEST_USER_OTHER_LAST_NAME;

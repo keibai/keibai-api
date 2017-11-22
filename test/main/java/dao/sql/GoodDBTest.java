@@ -15,16 +15,16 @@ public class GoodDBTest extends AbstractDBTest {
 //        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 //        GoodDAO goodDAO = GoodDAOSQL.getInstance();
 //
-//        User owner = main.java.dao.sql.DummyGenerator.getDummyUser();
-//        User winner = main.java.dao.sql.DummyGenerator.getOtherDummyUser();
+//        User owner = main.java.models.DummyGenerator.getDummyUser();
+//        User winner = main.java.models.DummyGenerator.getOtherDummyUser();
 //        userDAO.createUser(owner);
 //        userDAO.createUser(winner);
 //
-//        Event event = main.java.dao.sql.DummyGenerator.getDummyEvent();
+//        Event event = main.java.models.DummyGenerator.getDummyEvent();
 //        eventDAO.createEvent(event);
 //
-//        Auction auction = main.java.dao.sql.DummyGenerator.getDummyAuction();
-//        Good insertedGood = main.java.dao.sql.DummyGenerator.getDummyGood();
+//        Auction auction = main.java.models.DummyGenerator.getDummyAuction();
+//        Good insertedGood = main.java.models.DummyGenerator.getDummyGood();
 //
 //        auctionDAO.createAuction(auction);
 //        goodDAO.createGood(insertedGood);

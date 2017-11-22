@@ -1,11 +1,8 @@
 package main.java.dao.sql;
 
 import main.java.dao.*;
-import main.java.dao.sql.AbstractDBTest;
-import main.java.dao.sql.AuctionDAOSQL;
-import main.java.dao.sql.EventDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Auction;
+import main.java.models.DummyGenerator;
 import main.java.models.Event;
 import main.java.models.User;
 import org.junit.Test;
