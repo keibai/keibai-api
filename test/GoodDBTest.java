@@ -46,4 +46,34 @@ public class GoodDBTest extends AbstractDBTest {
         Good good = DummyGenerator.getDummyGood();
         Good insertedGood = goodDAO.create(good);
     }
+
+    @Test
+    public void test_when_good_not_found_by_id() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_good_update_name() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_full_good_update() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_update_in_non_existing_good() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_delete_existent_good() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_delete_inexistent_user() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
 }
