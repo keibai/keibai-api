@@ -39,4 +39,11 @@ public class GoodDBTest extends AbstractDBTest {
         Good retrievedGood = goodDAO.getById(insertedGood.id);
         assertEquals(insertedGood, retrievedGood);
     }
+
+    @Test(expected = DAOException.class)
+    public void test_good_insertion_fails_if_auction_not_exists() throws DAOException {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good good = DummyGenerator.getDummyGood();
+        Good insertedGood = goodDAO.create(good);
+    }
 }
