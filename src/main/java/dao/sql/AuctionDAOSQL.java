@@ -48,7 +48,11 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setInt(5, auction.eventId);
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
-            statement.setInt(8, auction.winnerId);
+            if (auction.winnerId == 0) {
+                statement.setNull(8, 0);
+            } else {
+                statement.setInt(8, auction.winnerId);
+            }
             statement.executeUpdate();
             return recentlyUpdated(statement);
         } catch (NamingException |SQLException e) {
@@ -92,7 +96,12 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setInt(5, auction.eventId);
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
-            statement.setInt(8, auction.winnerId);
+            if (auction.winnerId == 0) {
+                statement.setNull(8, 0);
+            } else {
+                statement.setInt(8, auction.winnerId);
+            }
+            statement.setInt(9, auction.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);

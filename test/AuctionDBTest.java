@@ -7,37 +7,11 @@ import main.java.models.Event;
 import main.java.models.User;
 import org.junit.Test;
 
-import java.sql.Timestamp;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class AuctionDBTest extends AbstractDBTest {
 
-    private static final String TEST_NAME = "TestName";
-    private static final double TEST_STARTING_PRICE = 1.0;
-    private static final Timestamp TEST_START_TIME = new Timestamp(System.currentTimeMillis());
-    private static final String TEST_STATUS = "TestStatus";
-    private static final boolean TEST_IS_VALID = false;
-
-    private static final String TEST_OWNER_NAME = "TestOwnerName";
-    private static final String TEST_OWNER_LAST_NAME = "TestOwnerLastName";
-    private static final String TEST_OWNER_PASSWORD = "TestOwnerPassword";
-    private static final String TEST_OWNER_EMAIL = "TestOwnerEmail";
-    private static final double TEST_OWNER_CREDIT = 100.0;
-
-    private static final String TEST_WINNER_NAME = "TestWinnerName";
-    private static final String TEST_WINNER_LAST_NAME = "TestWinnerLastName";
-    private static final String TEST_WINNER_PASSWORD = "TestWinnerPassword";
-    private static final String TEST_WINNER_EMAIL = "TestWinnerEmail";
-    private static final double TEST_WINNER_CREDIT = 1.0;
-
-    private static final String TEST_EVENT_NAME = "TestEventName";
-    private static final int TEST_AUCTION_TIME = 100;
-    private static final String TEST_EVENT_LOCATION = "TestEventLocation";
-    private static final String TEST_EVENT_CATEGORY = "TestEventCategory";
-    private static final String TEST_AUCTION_TYPE = "TestAuctionType";
+    private static final String TEST_NEW_NAME = "TestNewName";
 
     @Test
     public void test_auction_is_properly_inserted_and_retrieved_from_db() throws DAOException, NotFoundException {
@@ -118,7 +92,172 @@ public class AuctionDBTest extends AbstractDBTest {
         Auction auction = DummyGenerator.getDummyAuction();
         auction.eventId = insertedEvent.id;
         auction.winnerId = insertedWinner.id;
-        auction.ownerId = 3000;
         Auction insertedAuction = auctionDAO.create(auction);
     }
+
+    @Test
+    public void test_insert_of_auction_without_winner() throws DAOException {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+        assertNotNull(insertedOwner);
+
+        User winner = DummyGenerator.getOtherDummyUser();
+        User insertedWinner = userDAO.create(winner);
+        assertNotNull(insertedWinner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+        assertNotNull(insertedEvent);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.eventId = insertedEvent.id;
+        auction.ownerId = insertedOwner.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+        assertTrue(insertedAuction.winnerId == 0);
+    }
+
+    @Test
+    public void test_update_auction_winner_id() throws DAOException {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+        assertNotNull(insertedOwner);
+
+        User winner = DummyGenerator.getOtherDummyUser();
+        User insertedWinner = userDAO.create(winner);
+        assertNotNull(insertedWinner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+        assertNotNull(insertedEvent);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.eventId = insertedEvent.id;
+        auction.ownerId = insertedOwner.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+        assertNotNull(insertedAuction);
+        assertTrue(insertedAuction.winnerId == 0);
+
+        insertedAuction.winnerId = insertedWinner.id;
+        Auction updatedAuction = auctionDAO.update(insertedAuction);
+        assertNotNull(updatedAuction);
+        assertEquals(updatedAuction.winnerId, insertedWinner.id);
+    }
+
+    @Test
+    public void test_auction_name_update() throws DAOException {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+        assertNotNull(insertedOwner);
+
+        User winner = DummyGenerator.getOtherDummyUser();
+        User insertedWinner = userDAO.create(winner);
+        assertNotNull(insertedWinner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+        assertNotNull(insertedEvent);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.eventId = insertedEvent.id;
+        auction.ownerId = insertedOwner.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+        assertNotNull(insertedAuction);
+        assertTrue(insertedAuction.winnerId == 0);
+
+        insertedAuction.name = TEST_NEW_NAME;
+        Auction updatedAuction = auctionDAO.update(insertedAuction);
+        assertNotNull(updatedAuction);
+        assertEquals(updatedAuction.winnerId, 0);
+        assertEquals(updatedAuction.name, insertedAuction.name);
+    }
+
+    @Test
+    public void test_auction_full_update() throws DAOException {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+        assertNotNull(insertedOwner);
+
+        User winner = DummyGenerator.getOtherDummyUser();
+        User insertedWinner = userDAO.create(winner);
+        assertNotNull(insertedWinner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+        assertNotNull(insertedEvent);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.eventId = insertedEvent.id;
+        auction.ownerId = insertedOwner.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+
+        Auction auction2 = DummyGenerator.getOtherDummyAuction();
+        auction2.id = insertedAuction.id;
+        auction2.eventId = insertedEvent.id;
+        auction2.ownerId = insertedOwner.id;
+        auction2.winnerId = insertedWinner.id;
+        Auction updatedAuction = auctionDAO.update(auction2);
+
+        assertEquals(auction2, updatedAuction);
+    }
+
+    @Test
+    public void test_delete_existent_auction() throws DAOException {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+        assertNotNull(insertedOwner);
+
+        User winner = DummyGenerator.getOtherDummyUser();
+        User insertedWinner = userDAO.create(winner);
+        assertNotNull(insertedWinner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+        assertNotNull(insertedEvent);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.eventId = insertedEvent.id;
+        auction.ownerId = insertedOwner.id;
+        auction.winnerId = insertedWinner.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+        assertNotNull(insertedAuction);
+
+
+        boolean deleted = auctionDAO.delete(insertedAuction.id);
+        assertTrue(deleted);
+
+        assertNull(auctionDAO.getById(insertedAuction.id));
+    }
+
+    @Test
+    public void test_delete_inexistent_auction() throws DAOException {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        boolean isDeleted = auctionDAO.delete(1234);
+        assertFalse(isDeleted);
+    }
+
 }
