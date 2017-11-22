@@ -1,9 +1,13 @@
+package main.java.dao.sql;
+
+import main.java.EmbeddedPostgresWrapper;
 import main.java.db.Source;
 import main.java.utils.SQLFileExecutor;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.Mockito;
 
 import javax.naming.NamingException;
 import java.io.FileInputStream;

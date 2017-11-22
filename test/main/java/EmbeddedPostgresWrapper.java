@@ -1,3 +1,5 @@
+package main.java;
+
 import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
 
 import java.io.IOException;
