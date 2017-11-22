@@ -40,7 +40,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             String query = "INSERT INTO public.auction (name, starting_price, start_time, is_valid, event, owner, status, winner) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
@@ -61,7 +61,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.auction WHERE \"auction\".id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
@@ -84,7 +84,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
                     "owner = ?, status = ?, winner = ? " +
                     "WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
@@ -106,7 +106,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.auction WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 

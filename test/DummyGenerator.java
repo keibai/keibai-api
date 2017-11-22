@@ -32,9 +32,6 @@ class DummyGenerator {
         auction.startTime = TEST_AUCTION_START_TIME;
         auction.status = TEST_AUCTION_STATUS;
         auction.isValid = TEST_AUCTION_IS_VALID;
-        auction.ownerId = 1;
-        auction.winnerId = 2;
-        auction.eventId = 1;
         return auction;
     }
 
