@@ -15,26 +15,28 @@ public class GoodDBTest extends AbstractDBTest {
 
     @Test
     public void test_good_is_properly_inserted_and_retrieved_from_db() throws DAOException, NotFoundException {
-//        UserDAO userDAO = UserDAOSQL.getInstance();
-//        EventDAO eventDAO = EventDAOSQL.getInstance();
-//        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
-//        GoodDAO goodDAO = GoodDAOSQL.getInstance();
-//
-//        User owner = DummyGenerator.getDummyUser();
-//        User winner = DummyGenerator.getOtherDummyUser();
-//        userDAO.createUser(owner);
-//        userDAO.createUser(winner);
-//
-//        Event event = DummyGenerator.getDummyEvent();
-//        eventDAO.createEvent(event);
-//
-//        Auction auction = DummyGenerator.getDummyAuction();
-//        Good insertedGood = DummyGenerator.getDummyGood();
-//
-//        auctionDAO.createAuction(auction);
-//        goodDAO.createGood(insertedGood);
-//
-//        Good retrievedGood = goodDAO.getGoodById(1);
-//        assertEquals(insertedGood, retrievedGood);
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.ownerId = insertedOwner.id;
+        auction.eventId = insertedEvent.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+
+        Good good = DummyGenerator.getDummyGood();
+        good.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(good);
+
+        Good retrievedGood = goodDAO.getById(insertedGood.id);
+        assertEquals(insertedGood, retrievedGood);
     }
 }
