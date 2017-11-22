@@ -40,7 +40,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             String query = "INSERT INTO public.auction (name, starting_price, start_time, is_valid, event, owner, status, winner) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
@@ -48,7 +48,11 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setInt(5, auction.eventId);
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
-            statement.setInt(8, auction.winnerId);
+            if (auction.winnerId == 0) {
+                statement.setNull(8, 0);
+            } else {
+                statement.setInt(8, auction.winnerId);
+            }
             statement.executeUpdate();
             return recentlyUpdated(statement);
         } catch (NamingException |SQLException e) {
@@ -61,7 +65,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.auction WHERE \"auction\".id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
@@ -84,7 +88,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
                     "owner = ?, status = ?, winner = ? " +
                     "WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
@@ -92,7 +96,12 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setInt(5, auction.eventId);
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
-            statement.setInt(8, auction.winnerId);
+            if (auction.winnerId == 0) {
+                statement.setNull(8, 0);
+            } else {
+                statement.setInt(8, auction.winnerId);
+            }
+            statement.setInt(9, auction.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -106,7 +115,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.auction WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 

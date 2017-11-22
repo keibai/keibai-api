@@ -25,6 +25,12 @@ class DummyGenerator {
     private static final String TEST_AUCTION_STATUS = "TestStatus";
     private static final boolean TEST_AUCTION_IS_VALID = false;
 
+    private static final String TEST_AUCTION_OTHER_NAME = "TestOtherName";
+    private static final double TEST_AUCTION_OTHER_STARTING_PRICE = 2.0;
+    private static final Timestamp TEST_AUCTION_OTHER_START_TIME = new Timestamp(System.currentTimeMillis());
+    private static final String TEST_AUCTION_OTHER_STATUS = "TestOtherStatus";
+    private static final boolean TEST_AUCTION_OTHER_IS_VALID = true;
+
     static Auction getDummyAuction() {
         Auction auction = new Auction();
         auction.name = TEST_AUCTION_NAME;
@@ -32,9 +38,16 @@ class DummyGenerator {
         auction.startTime = TEST_AUCTION_START_TIME;
         auction.status = TEST_AUCTION_STATUS;
         auction.isValid = TEST_AUCTION_IS_VALID;
-        auction.ownerId = 1;
-        auction.winnerId = 2;
-        auction.eventId = 1;
+        return auction;
+    }
+
+    static Auction getOtherDummyAuction() {
+        Auction auction = new Auction();
+        auction.name = TEST_AUCTION_OTHER_NAME;
+        auction.startingPrice = TEST_AUCTION_OTHER_STARTING_PRICE;
+        auction.startTime = TEST_AUCTION_OTHER_START_TIME;
+        auction.status = TEST_AUCTION_OTHER_STATUS;
+        auction.isValid = TEST_AUCTION_OTHER_IS_VALID;
         return auction;
     }
 
