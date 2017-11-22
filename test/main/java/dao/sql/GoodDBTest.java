@@ -1,12 +1,7 @@
+package main.java.dao.sql;
+
 import main.java.dao.*;
-import main.java.dao.sql.AuctionDAOSQL;
-import main.java.dao.sql.EventDAOSQL;
-import main.java.dao.sql.GoodDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
-import main.java.models.Auction;
-import main.java.models.Event;
-import main.java.models.Good;
-import main.java.models.User;
+import main.java.dao.sql.*;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -20,16 +15,16 @@ public class GoodDBTest extends AbstractDBTest {
 //        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 //        GoodDAO goodDAO = GoodDAOSQL.getInstance();
 //
-//        User owner = DummyGenerator.getDummyUser();
-//        User winner = DummyGenerator.getOtherDummyUser();
+//        User owner = main.java.dao.sql.DummyGenerator.getDummyUser();
+//        User winner = main.java.dao.sql.DummyGenerator.getOtherDummyUser();
 //        userDAO.createUser(owner);
 //        userDAO.createUser(winner);
 //
-//        Event event = DummyGenerator.getDummyEvent();
+//        Event event = main.java.dao.sql.DummyGenerator.getDummyEvent();
 //        eventDAO.createEvent(event);
 //
-//        Auction auction = DummyGenerator.getDummyAuction();
-//        Good insertedGood = DummyGenerator.getDummyGood();
+//        Auction auction = main.java.dao.sql.DummyGenerator.getDummyAuction();
+//        Good insertedGood = main.java.dao.sql.DummyGenerator.getDummyGood();
 //
 //        auctionDAO.createAuction(auction);
 //        goodDAO.createGood(insertedGood);

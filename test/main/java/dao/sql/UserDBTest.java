@@ -1,6 +1,10 @@
+package main.java.dao.sql;
+
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
+import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.DummyGenerator;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
 import org.junit.*;

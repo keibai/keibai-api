@@ -1,3 +1,5 @@
+package main.java.dao.sql;
+
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.Good;

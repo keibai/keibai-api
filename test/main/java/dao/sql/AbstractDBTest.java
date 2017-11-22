@@ -1,3 +1,6 @@
+package main.java.dao.sql;
+
+import main.java.EmbeddedPostgresWrapper;
 import main.java.db.Source;
 import main.java.utils.SQLFileExecutor;
 import org.junit.After;
