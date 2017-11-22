@@ -3,7 +3,7 @@ package main.java.servlets.user;
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.HttpServletStubber;
-import main.java.models.DummyGenerator;
+import main.java.utils.DummyGenerator;
 import main.java.models.User;
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 public class UserNewTest extends AbstractDBTest {
     @Test
-    public void doPost() throws Exception {
+    public void should_create_new_user() throws Exception {
         User dummyUser = DummyGenerator.getDummyUser();
         String dummyUserJson = new Gson().toJson(dummyUser);
 

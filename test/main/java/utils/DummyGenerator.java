@@ -1,4 +1,4 @@
-package main.java.models;
+package main.java.utils;
 
 import main.java.models.Auction;
 import main.java.models.Event;

@@ -1,9 +1,5 @@
 package main.java.mocks;
 
-import com.google.gson.Gson;
-import main.java.models.DummyGenerator;
-import main.java.models.User;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
