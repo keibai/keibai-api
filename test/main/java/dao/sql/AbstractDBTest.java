@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public abstract class AbstractDBTest extends Mockito {
+public abstract class AbstractDBTest {
 
     private static EmbeddedPostgresWrapper embeddedDb;
 
