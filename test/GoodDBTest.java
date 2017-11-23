@@ -10,6 +10,7 @@ import main.java.models.User;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class GoodDBTest extends AbstractDBTest {
 
@@ -48,8 +49,10 @@ public class GoodDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_when_good_not_found_by_id() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_when_good_not_found_by_id()  throws  DAOException{
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good good = goodDAO.getById(24);
+        assertNull(good);
     }
 
     @Test
