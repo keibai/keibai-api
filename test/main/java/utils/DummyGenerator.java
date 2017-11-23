@@ -9,9 +9,9 @@ import java.sql.Timestamp;
 
 public class DummyGenerator {
 
-    private static final String TEST_GOOD_NAME = "TestGoodName";
-    private static final String TEST_GOOD_IMAGE = "TestGoodImage";
-    private static final int TEST_GOOD_AUCTION_ID = 1;
+    public static final String TEST_GOOD_NAME = "TestGoodName";
+    public static final String TEST_GOOD_IMAGE = "TestGoodImage";
+    public static final int TEST_GOOD_AUCTION_ID = 1;
 
     public static Good getDummyGood() {
         Good good = new Good();
@@ -21,17 +21,17 @@ public class DummyGenerator {
         return good;
     }
 
-    private static final String TEST_AUCTION_NAME = "TestName";
-    private static final double TEST_AUCTION_STARTING_PRICE = 1.0;
-    private static final Timestamp TEST_AUCTION_START_TIME = new Timestamp(System.currentTimeMillis());
-    private static final String TEST_AUCTION_STATUS = "TestStatus";
-    private static final boolean TEST_AUCTION_IS_VALID = false;
+    public static final String TEST_AUCTION_NAME = "TestName";
+    public static final double TEST_AUCTION_STARTING_PRICE = 1.0;
+    public static final Timestamp TEST_AUCTION_START_TIME = new Timestamp(System.currentTimeMillis());
+    public static final String TEST_AUCTION_STATUS = "TestStatus";
+    public static final boolean TEST_AUCTION_IS_VALID = false;
 
-    private static final String TEST_AUCTION_OTHER_NAME = "TestOtherName";
-    private static final double TEST_AUCTION_OTHER_STARTING_PRICE = 2.0;
-    private static final Timestamp TEST_AUCTION_OTHER_START_TIME = new Timestamp(System.currentTimeMillis());
-    private static final String TEST_AUCTION_OTHER_STATUS = "TestOtherStatus";
-    private static final boolean TEST_AUCTION_OTHER_IS_VALID = true;
+    public static final String TEST_AUCTION_OTHER_NAME = "TestOtherName";
+    public static final double TEST_AUCTION_OTHER_STARTING_PRICE = 2.0;
+    public static final Timestamp TEST_AUCTION_OTHER_START_TIME = new Timestamp(System.currentTimeMillis());
+    public static final String TEST_AUCTION_OTHER_STATUS = "TestOtherStatus";
+    public static final boolean TEST_AUCTION_OTHER_IS_VALID = true;
 
     public static Auction getDummyAuction() {
         Auction auction = new Auction();
@@ -53,17 +53,17 @@ public class DummyGenerator {
         return auction;
     }
 
-    private static final String TEST_EVENT_NAME = "TestName";
-    private static final int TEST_EVENT_AUCTION_TIME = 100;
-    private static final String TEST_EVENT_LOCATION = "TestLocation";
-    private static final String TEST_EVENT_AUCTION_TYPE = "TestAuctionType";
-    private static final String TEST_EVENT_CATEGORY = "TestCategory";
+    public static final String TEST_EVENT_NAME = "TestName";
+    public static final int TEST_EVENT_AUCTION_TIME = 100;
+    public static final String TEST_EVENT_LOCATION = "TestLocation";
+    public static final String TEST_EVENT_AUCTION_TYPE = "TestAuctionType";
+    public static final String TEST_EVENT_CATEGORY = "TestCategory";
 
-    private static final String TEST_EVENT_OTHER_NAME = "TestOtherName";
-    private static final int TEST_EVENT_OTHER_AUCTION_TIME = 100;
-    private static final String TEST_EVENT_OTHER_LOCATION = "TestLocation";
-    private static final String TEST_EVENT_OTHER_AUCTION_TYPE = "TestAuctionType";
-    private static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
+    public static final String TEST_EVENT_OTHER_NAME = "TestOtherName";
+    public static final int TEST_EVENT_OTHER_AUCTION_TIME = 100;
+    public static final String TEST_EVENT_OTHER_LOCATION = "TestLocation";
+    public static final String TEST_EVENT_OTHER_AUCTION_TYPE = "TestAuctionType";
+    public static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
 
     public static Event getDummyEvent() {
         Event event = new Event();
@@ -76,15 +76,15 @@ public class DummyGenerator {
         return event;
     }
 
-    private static final String TEST_USER_NAME = "Erik";
-    private static final String TEST_USER_LAST_NAME = "Green";
-    private static final String TEST_USER_EMAIL = "hi@example.com";
-    private static final String TEST_USER_PASSWORD = "1234";
+    public static final String TEST_USER_NAME = "Erik";
+    public static final String TEST_USER_LAST_NAME = "Green";
+    public static final String TEST_USER_EMAIL = "hi@example.com";
+    public static final String TEST_USER_PASSWORD = "1234";
 
-    private static final String TEST_USER_OTHER_NAME = "TestOtherName";
-    private static final String TEST_USER_OTHER_LAST_NAME = "TestOtherLastName";
-    private static final String TEST_USER_OTHER_EMAIL = "TestOtherEmail";
-    private static final String TEST_USER_OTHER_PASSWORD = "TestOtherPassword";
+    public static final String TEST_USER_OTHER_NAME = "TestOtherName";
+    public static final String TEST_USER_OTHER_LAST_NAME = "TestOtherLastName";
+    public static final String TEST_USER_OTHER_EMAIL = "TestOtherEmail";
+    public static final String TEST_USER_OTHER_PASSWORD = "TestOtherPassword";
 
     public static User getDummyUser() {
         User user = new User();
