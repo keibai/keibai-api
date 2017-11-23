@@ -52,7 +52,7 @@ public class GoodDBTest extends AbstractDBTest {
     public void test_when_good_not_found_by_id()  throws  DAOException{
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
         Good good = goodDAO.getById(24);
-        assertNull(good)+;
+        assertNull(good);
     }
 
     @Test
