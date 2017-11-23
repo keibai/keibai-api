@@ -9,10 +9,11 @@ import main.java.models.Good;
 import main.java.models.User;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class GoodDBTest extends AbstractDBTest {
+
+    private static final String TEST_NEW_NAME = "TestNewName";
 
     @Test
     public void test_good_is_properly_inserted_and_retrieved_from_db() throws DAOException, NotFoundException {
@@ -56,8 +57,9 @@ public class GoodDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_good_update_name() {
+    public void test_good_update_name()  {
         throw new UnsupportedOperationException("TODO: Implement this");
+
     }
 
     @Test
@@ -76,7 +78,9 @@ public class GoodDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_delete_inexistent_user() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_delete_inexistent_user() throws DAOException {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        boolean deleted = goodDAO.delete(24);
+        assertFalse(deleted);
     }
 }
