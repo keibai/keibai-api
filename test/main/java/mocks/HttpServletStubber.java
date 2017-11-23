@@ -51,6 +51,15 @@ public class HttpServletStubber {
         return this;
     }
 
+    /**
+     * Authenticate as a user.
+     * This function makes use of the mocked session storage to fake the data that it is stored in it. Hence, passing a
+     * userId will store it as if the user had been authenticated already.
+     * Beware! The user with the userId you're passing into the function must already exist for the test to work
+     * properly.
+     * @param userId Preferably, a existing user identifier that you want to be signed in as.
+     * @return
+     */
     public HttpServletStubber authenticate(int userId) {
         mockHttpSession.setAttribute(main.java.utils.HttpSession.USER_ID_KEY, userId);
 
