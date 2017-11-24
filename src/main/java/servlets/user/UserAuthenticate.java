@@ -17,6 +17,12 @@ import java.io.IOException;
 @WebServlet(name = "UserAuthenticate", urlPatterns = {"/users/authenticate"})
 public class UserAuthenticate extends HttpServlet {
 
+    public static final String EMAIL_BLANK = "Email cannot be blank.";
+    public static final String EMAIL_INVALID = "Email is invalid.";
+    public static final String EMAIL_NOT_FOUND = "Email is not registered in the system";
+    public static final String PASSWORD_BLANK = "Password cannot be blank.";
+    public static final String PASSWORD_INVALID = "Invalid password.";
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
@@ -32,13 +38,13 @@ public class UserAuthenticate extends HttpServlet {
 
         // Do a little validation (rest will be handled by comparing with user DAO).
         if (unsafeUser.email == null) {
-            jsonResponse.error("Email cannot be blank.");
+            jsonResponse.error(EMAIL_BLANK);
             return;
         } else if (!Validator.isEmail(unsafeUser.email)) {
-            jsonResponse.error("Email is invalid");
+            jsonResponse.error(EMAIL_INVALID);
             return;
         } else if (unsafeUser.password == null) {
-            jsonResponse.error("Password cannot be blank.");
+            jsonResponse.error(PASSWORD_BLANK);
             return;
         }
 
@@ -51,14 +57,14 @@ public class UserAuthenticate extends HttpServlet {
             return;
         }
         if (dbUser == null) {
-            jsonResponse.error("Email is not registered on the system.");
+            jsonResponse.error(EMAIL_NOT_FOUND);
             return;
         }
 
         // Compare password.
         boolean passwordMatches = new PasswordAuthentication().authenticate(unsafeUser.password.toCharArray(), dbUser.password);
         if (!passwordMatches) {
-            jsonResponse.error("Invalid password.");
+            jsonResponse.error(PASSWORD_INVALID);
             return;
         }
 

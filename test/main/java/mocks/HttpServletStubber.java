@@ -67,6 +67,15 @@ public class HttpServletStubber {
     }
 
     /**
+     * Returns the userId of who we are authenticated as.
+     * @return
+     */
+    public int authenticated() {
+        Object object = this.mockHttpSession.getAttribute(main.java.utils.HttpSession.USER_ID_KEY);
+        return object == null ? -1 : (int) object;
+    }
+
+    /**
      * Body data used when POSTing.
      * You'll most likely be sending an object, so convert it first to string.
      * @param body String-based data that you're sending the servlet.

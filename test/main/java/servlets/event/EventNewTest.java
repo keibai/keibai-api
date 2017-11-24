@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.DAOException;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.HttpServletStubber;
-import main.java.models.Error;
+import main.java.models.meta.Error;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.utils.DBFeeder;
