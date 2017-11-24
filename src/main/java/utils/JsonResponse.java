@@ -15,6 +15,10 @@ public class JsonResponse {
 
     /* Predefined responses */
 
+    public void empty() throws IOException {
+        this.response("{}");
+    }
+
     public void ok() throws IOException {
         this.msg("OK");
     }
