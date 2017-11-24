@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 public class Event extends ModelAbstract {
 
+    public static final String[] AUCTION_TYPES = {"English", "Dutch", "Combinatorial"};
+
     public String name;
     public int auctionTime;
     public String location;
