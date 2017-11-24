@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import static jdk.nashorn.internal.objects.Global.print;
+
 public class EmbeddedPostgresWrapper {
 
     private static EmbeddedPostgresWrapper instance;
@@ -31,6 +33,7 @@ public class EmbeddedPostgresWrapper {
         if (embeddedPostgres == null) {
             int port = getFreePort();
             embeddedPostgres = new EmbeddedPostgres();
+            System.out.print(port);
             connectionUrl = embeddedPostgres.start("localhost", port, "keibai", "admin", "keibai");
         }
     }
@@ -55,6 +58,8 @@ public class EmbeddedPostgresWrapper {
 
     private static int getFreePort() throws IOException {
         ServerSocket s = new ServerSocket(0);
-        return s.getLocalPort();
+        int x = s.getLocalPort();
+        System.out.print(x);
+        return x;
     }
 }

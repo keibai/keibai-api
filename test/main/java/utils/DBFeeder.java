@@ -1,8 +1,11 @@
 package main.java.utils;
 
 import main.java.dao.DAOException;
+import main.java.dao.EventDAO;
 import main.java.dao.UserDAO;
+import main.java.dao.sql.EventDAOSQL;
 import main.java.dao.sql.UserDAOSQL;
+import main.java.models.Event;
 import main.java.models.User;
 
 public class DBFeeder {
@@ -15,5 +18,13 @@ public class DBFeeder {
         UserDAO userDAO = UserDAOSQL.getInstance();
         User user = userDAO.create(dummyUser);
         return user;
+    }
+
+    public static Event createDummyEvent() throws DAOException {
+        Event DummyEvent = DummyGenerator.getDummyEvent();
+
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        Event event = eventDAO.create(DummyEvent);
+        return event;
     }
 }
