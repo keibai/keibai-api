@@ -56,13 +56,13 @@ public class DummyGenerator {
     public static final String TEST_EVENT_NAME = "TestName";
     public static final int TEST_EVENT_AUCTION_TIME = 100;
     public static final String TEST_EVENT_LOCATION = "TestLocation";
-    public static final String TEST_EVENT_AUCTION_TYPE = "TestAuctionType";
+    public static final String TEST_EVENT_AUCTION_TYPE = Event.AUCTION_TYPES[0];
     public static final String TEST_EVENT_CATEGORY = "TestCategory";
 
     public static final String TEST_EVENT_OTHER_NAME = "TestOtherName";
     public static final int TEST_EVENT_OTHER_AUCTION_TIME = 100;
     public static final String TEST_EVENT_OTHER_LOCATION = "TestLocation";
-    public static final String TEST_EVENT_OTHER_AUCTION_TYPE = "TestAuctionType";
+    public static final String TEST_EVENT_OTHER_AUCTION_TYPE = Event.AUCTION_TYPES[1];
     public static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
 
     public static Event getDummyEvent() {
