@@ -1,11 +1,11 @@
-# Keibai Android
+# Keibai API
 
 [![Build Status](https://travis-ci.org/keibai/keibai-api.svg?branch=master)](https://travis-ci.org/keibai/keibai-api)
 [![Heroku](https://heroku-badge.herokuapp.com/?app=keibai)](https://keibai.herokuapp.com/)
 
-> The ultimate auction app :sunglasses:
+> API used by the [ultimate auction app](https://github.com/keibai/keibai-android)
 
-Keibai is a face-to-face auction Android app that can be used in any kind of auction (such as fish auctions or art auctions).
+Keibai is a face-to-face auction app that can be used in any kind of auction (such as fish auctions or art auctions).
 
 ## Getting Started
 
