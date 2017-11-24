@@ -1,6 +1,8 @@
 package main.java.utils;
 
 import com.google.gson.Gson;
+import main.java.models.meta.Msg;
+import main.java.models.meta.Error;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -38,13 +40,15 @@ public class JsonResponse {
     /* Generic */
 
     public void msg(String msg) throws IOException {
-        String json = String.format("{ \"msg\": \"%s\" }", msg);
-        this.response(json);
+        Msg obj = new Msg();
+        obj.msg = msg;
+        this.response(new Gson().toJson(obj));
     }
 
     public void error(String errorMsg) throws IOException {
-        String json = String.format("{ \"error\": \"%s\" }", errorMsg);
-        this.response(json);
+        Error obj = new Error();
+        obj.error = errorMsg;
+        this.response(new Gson().toJson(obj));
     }
 
     public void response(String json) throws IOException {
