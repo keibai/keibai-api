@@ -8,6 +8,7 @@ import main.java.models.meta.Msg;
 import main.java.models.User;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
+import main.java.utils.JsonResponse;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -27,7 +28,7 @@ public class UserAuthenticateTest extends AbstractDBTest {
         new UserAuthenticate().doPost(stubber.servletRequest, stubber.servletResponse);
         Msg outputUser = new Gson().fromJson(stubber.gathered(), Msg.class);
 
-        assertEquals("OK", outputUser.msg);
+        assertEquals(JsonResponse.OK, outputUser.msg);
     }
 
     @Test
@@ -44,7 +45,7 @@ public class UserAuthenticateTest extends AbstractDBTest {
         new UserAuthenticate().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals("Invalid password.", error.error);
+        assertEquals(UserAuthenticate.PASSWORD_INVALID, error.error);
     }
 
     @Test
@@ -57,6 +58,6 @@ public class UserAuthenticateTest extends AbstractDBTest {
         new UserAuthenticate().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals("Email is not registered on the system.", error.error);
+        assertEquals(UserAuthenticate.EMAIL_NOT_FOUND, error.error);
     }
 }

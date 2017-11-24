@@ -9,6 +9,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class JsonResponse {
+
+    public static final String OK = "OK";
+    public static final String INTERNAL_SERVER_ERROR = "Internal server error.";
+    public static final String UNAUTHORIZED = "Unauthorized.";
+    public static final String INVALID_REQUEST = "Invalid request.";
+
     private final HttpServletResponse response;
 
     public JsonResponse(HttpServletResponse response) {
@@ -22,19 +28,19 @@ public class JsonResponse {
     }
 
     public void ok() throws IOException {
-        this.msg("OK");
+        this.msg(OK);
     }
 
     public void internalServerError() throws IOException {
-        this.error("Internal server error.");
+        this.error(INTERNAL_SERVER_ERROR);
     }
 
     public void unauthorized() throws IOException {
-        this.error("Unauthorized.");
+        this.error(UNAUTHORIZED);
     }
 
     public void invalidRequest() throws IOException {
-        this.error("Invalid request.");
+        this.error(INVALID_REQUEST);
     }
 
     /* Generic */

@@ -24,8 +24,6 @@ public class UserWhoamiTest extends AbstractDBTest {
         assertEquals(user.email, outputUser.email);
         assertEquals(user.lastName, outputUser.lastName);
         assertEquals(null, outputUser.password);
-//        assertEquals(user.updatedAt.getTime() / 1000, outputUser.updatedAt.getTime() / 1000);
-//        assertEquals(user.createdAt.getTime() / 1000, outputUser.createdAt.getTime() / 1000);
         assertEquals(new ImpreciseDate(user.updatedAt), new ImpreciseDate(outputUser.updatedAt));
         assertEquals(new ImpreciseDate(user.createdAt),new ImpreciseDate(outputUser.updatedAt));
     }
