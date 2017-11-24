@@ -2,7 +2,7 @@ package main.java.dao.sql;
 
 import main.java.dao.*;
 import main.java.models.Auction;
-import main.java.models.DummyGenerator;
+import main.java.utils.DummyGenerator;
 import main.java.models.Event;
 import main.java.models.User;
 import org.junit.Test;

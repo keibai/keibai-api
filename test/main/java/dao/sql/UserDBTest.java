@@ -3,7 +3,7 @@ package main.java.dao.sql;
 import main.java.dao.DAOException;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
-import main.java.models.DummyGenerator;
+import main.java.utils.DummyGenerator;
 import main.java.models.User;
 import org.junit.*;
 
