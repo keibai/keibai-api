@@ -77,6 +77,7 @@ public class EventNew extends HttpServlet {
         newEvent.location = unsafeEvent.location;
         newEvent.auctionType = unsafeEvent.auctionType;
         newEvent.category = unsafeEvent.category;
+        newEvent.ownerId = userId;
 
         Event dbEvent;
         try {

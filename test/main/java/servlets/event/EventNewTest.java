@@ -73,6 +73,31 @@ public class EventNewTest extends AbstractDBTest {
         common_event_error_test(attemptEvent, EventNew.CATEGORY_ERROR);
     }
 
+    @Test
+    public void should_create_new_event() throws IOException, ServletException, DAOException {
+        User dummyUser = DBFeeder.createDummyUser();
+
+        Event attemptEvent = DummyGenerator.getDummyEvent();
+        attemptEvent.ownerId = dummyUser.id;
+        String attemptEventJson = new Gson().toJson(attemptEvent);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(dummyUser.id);
+        stubber.body(attemptEventJson).listen();
+        new EventNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Event outputEvent = new Gson().fromJson(stubber.gathered(), Event.class);
+
+        assertEquals(attemptEvent.name, outputEvent.name);
+        assertEquals(attemptEvent.auctionTime, outputEvent.auctionTime);
+        assertEquals(attemptEvent.auctionType, outputEvent.auctionType);
+        assertEquals(attemptEvent.location, outputEvent.location);
+        assertNotEquals(outputEvent.ownerId, 0);
+        assertNotEquals(outputEvent.id, 0);
+        assertNotNull(outputEvent.createdAt);
+        assertNotNull(outputEvent.updatedAt);
+    }
+
     private void common_event_error_test(Event attemptEvent, String errorMsg) throws DAOException, IOException, ServletException {
         User dummyUser = DBFeeder.createDummyUser();
 
