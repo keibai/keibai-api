@@ -25,4 +25,44 @@ public class BidDBTest extends AbstractDBTest {
 
         Bid insertedBid = bidDAO.create(dummyBid);
     }
+
+    @Test(expected = DAOException.class)
+    public void test_insertion_of_bid_without_owner_throws_DAOException() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_insertion_and_retrieval_of_bid() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_bid_not_found_by_id() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_bid_amount_update() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_full_bid_update() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_update_in_non_existent_bid() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_delete_existent_bid() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
+
+    @Test
+    public void test_delete_inexistent_bid() {
+        throw new UnsupportedOperationException("TODO: Implement this");
+    }
 }
