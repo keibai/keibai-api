@@ -11,13 +11,21 @@ public class DummyGenerator {
 
     public static final String TEST_GOOD_NAME = "TestGoodName";
     public static final String TEST_GOOD_IMAGE = "TestGoodImage";
-    public static final int TEST_GOOD_AUCTION_ID = 1;
+
+    private static final String TEST_GOOD_OTHER_NAME = "TestGoodName";
+    private static final String TEST_GOOD_OTHER_IMAGE = "TestGoodImage";
 
     public static Good getDummyGood() {
         Good good = new Good();
         good.name = TEST_GOOD_NAME;
         good.image = TEST_GOOD_IMAGE;
-        good.auctionId = TEST_GOOD_AUCTION_ID;
+        return good;
+    }
+
+    public static Good getOtherDummyGood() {
+        Good good = new Good();
+        good.name = TEST_GOOD_OTHER_NAME;
+        good.image = TEST_GOOD_OTHER_IMAGE;
         return good;
     }
 
