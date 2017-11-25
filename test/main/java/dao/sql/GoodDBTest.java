@@ -1,12 +1,11 @@
+package main.java.dao.sql;
+
 import main.java.dao.*;
-import main.java.dao.sql.AuctionDAOSQL;
-import main.java.dao.sql.EventDAOSQL;
-import main.java.dao.sql.GoodDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.Good;
 import main.java.models.User;
+import main.java.utils.DummyGenerator;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
