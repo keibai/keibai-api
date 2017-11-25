@@ -111,10 +111,17 @@ public class DummyGenerator {
     }
 
     public static final double TEST_BID_AMOUNT = 10.5;
+    public static final double TEST_BID_OTHER_AMOUNT = 10.5;
 
     public static Bid getDummyBid() {
         Bid bid = new Bid();
         bid.amount = TEST_BID_AMOUNT;
+        return bid;
+    }
+
+    public static Bid getOtherDummyBid() {
+        Bid bid = new Bid();
+        bid.amount = TEST_BID_OTHER_AMOUNT;
         return bid;
     }
 }
