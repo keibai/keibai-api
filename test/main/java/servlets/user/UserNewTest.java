@@ -20,6 +20,7 @@ public class UserNewTest extends AbstractDBTest {
         new UserNew().doPost(stubber.servletRequest, stubber.servletResponse);
         User outputUser = new Gson().fromJson(stubber.gathered(), User.class);
 
+        assertNotNull(outputUser.id);
         assertEquals(dummyUser.name, outputUser.name);
         assertEquals(dummyUser.email, outputUser.email);
         assertEquals(dummyUser.lastName, outputUser.lastName);
