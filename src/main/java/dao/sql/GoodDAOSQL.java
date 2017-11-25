@@ -80,6 +80,7 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
             statement.setString(1, good.name);
             statement.setString(2, good.image);
             statement.setInt(3, good.auctionId);
+            statement.setInt(4,good.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);

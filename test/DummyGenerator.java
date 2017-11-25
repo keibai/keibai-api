@@ -10,6 +10,9 @@ class DummyGenerator {
     private static final String TEST_GOOD_NAME = "TestGoodName";
     private static final String TEST_GOOD_IMAGE = "TestGoodImage";
     private static final int TEST_GOOD_AUCTION_ID = 1;
+    private static final String TEST_GOOD_OTHER_NAME = "TestGoodName";
+    private static final String TEST_GOOD_OTHER_IMAGE = "TestGoodImage";
+    private static final int TEST_GOOD_OTHER_AUCTION_ID = 1;
 
     static Good getDummyGood() {
         Good good = new Good();
@@ -111,5 +114,13 @@ class DummyGenerator {
         event.location = TEST_EVENT_OTHER_LOCATION;
         event.ownerId = 1;
         return event;
+    }
+
+    public static Good getOtherDummyGood() {
+        Good good = new Good();
+        good.name = TEST_GOOD_OTHER_NAME;
+        good.image = TEST_GOOD_OTHER_IMAGE;
+        good.auctionId = TEST_GOOD_OTHER_AUCTION_ID;
+        return good;
     }
 }

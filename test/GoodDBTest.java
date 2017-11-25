@@ -57,24 +57,111 @@ public class GoodDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_good_update_name()  {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_good_update_name() throws DAOException {
+
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.ownerId = insertedOwner.id;
+        auction.eventId = insertedEvent.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+
+        Good good = DummyGenerator.getDummyGood();
+        good.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(good);
+
+        insertedGood.name = TEST_NEW_NAME;
+        Good updatedGood = goodDAO.update(insertedGood);
+
+        Good retrievedGood = goodDAO.getById(updatedGood.id);
+
+        assertEquals(updatedGood, retrievedGood);
+        assertNotNull(updatedGood);
+        assertNotEquals(retrievedGood.name, retrievedGood.name);
+
+
 
     }
 
     @Test
-    public void test_full_good_update() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_full_good_update() throws DAOException {
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.ownerId = insertedOwner.id;
+        auction.eventId = insertedEvent.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+
+        Good good = DummyGenerator.getDummyGood();
+        good.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(good);
+
+        Good good2 = DummyGenerator.getOtherDummyGood();
+        good2.id = insertedGood.id;
+        good2.auctionId = insertedAuction.id;
+        Good updateGood = goodDAO.update(good2);
+        assertEquals(good2,updateGood);
     }
 
     @Test
-    public void test_update_in_non_existing_good() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_update_in_non_existing_good() throws DAOException {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        Good updatedGood = DummyGenerator.getDummyGood();
+        updatedGood.id = 1;
+        Good modifiedGood = goodDAO.update(updatedGood);
+        assertNull(modifiedGood);
     }
 
     @Test
-    public void test_delete_existent_good() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_delete_existent_good() throws DAOException {
+
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.ownerId = insertedOwner.id;
+        auction.eventId = insertedEvent.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+
+        Good good = DummyGenerator.getDummyGood();
+        good.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(good);
+        assertNotNull(insertedGood);
+
+        boolean deleted = goodDAO.delete(insertedGood.id);
+        assertTrue(deleted);
+
+        assertNull(goodDAO.getById(insertedGood.id));
     }
 
     @Test
