@@ -33,7 +33,6 @@ public class EmbeddedPostgresWrapper {
         if (embeddedPostgres == null) {
             int port = getFreePort();
             embeddedPostgres = new EmbeddedPostgres();
-            System.out.print(port);
             connectionUrl = embeddedPostgres.start("localhost", port, "keibai", "admin", "keibai");
         }
     }
@@ -58,8 +57,6 @@ public class EmbeddedPostgresWrapper {
 
     private static int getFreePort() throws IOException {
         ServerSocket s = new ServerSocket(0);
-        int x = s.getLocalPort();
-        System.out.print(x);
-        return x;
+        return s.getLocalPort();
     }
 }
