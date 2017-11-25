@@ -1,9 +1,10 @@
+package main.java.dao.sql;
+
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
-import main.java.dao.sql.EventDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
+import main.java.utils.DummyGenerator;
 import main.java.models.Event;
 import main.java.models.User;
 import org.junit.Test;
@@ -60,6 +61,7 @@ public class EventDBTest extends AbstractDBTest {
         User insertedOwner = userDAO.create(owner);
 
         Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
         Event insertedEvent = eventDAO.create(event);
 
         insertedEvent.name = TEST_NEW_NAME;
@@ -88,6 +90,7 @@ public class EventDBTest extends AbstractDBTest {
         event2.id = insertedEvent.id;
         event2.createdAt = insertedEvent.createdAt;
         event2.updatedAt = insertedEvent.updatedAt;
+        event2.ownerId = insertedEvent.ownerId;
         Event updatedEvent = eventDAO.update(event2);
 
         Event retrievedEvent = eventDAO.getById(updatedEvent.id);
@@ -116,8 +119,8 @@ public class EventDBTest extends AbstractDBTest {
         User insertedUser = userDAO.create(user);
 
         Event event = DummyGenerator.getDummyEvent();
-        Event insertedEvent = eventDAO.create(event);
         event.ownerId = insertedUser.id;
+        Event insertedEvent = eventDAO.create(event);
         boolean deleted = eventDAO.delete(insertedEvent.id);
         assertTrue(deleted);
 
