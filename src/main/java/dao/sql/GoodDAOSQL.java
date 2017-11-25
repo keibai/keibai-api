@@ -78,7 +78,7 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, good.name);
-            statement.setString(2, good.image);
+            statement.setBytes(2, good.image.getBytes());
             statement.setInt(3, good.auctionId);
             statement.setInt(4,good.id);
             statement.executeUpdate();

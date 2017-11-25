@@ -87,10 +87,7 @@ public class GoodDBTest extends AbstractDBTest {
 
         assertEquals(updatedGood, retrievedGood);
         assertNotNull(updatedGood);
-        assertNotEquals(retrievedGood.name, retrievedGood.name);
-
-
-
+        assertNotEquals(good.name, retrievedGood.name);
     }
 
     @Test
