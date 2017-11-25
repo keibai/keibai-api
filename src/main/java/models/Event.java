@@ -22,6 +22,7 @@ public class Event extends ModelAbstract {
 
         Event event = (Event) o;
 
+        if (id != event.id) return false;
         if (auctionTime != event.auctionTime) return false;
         if (ownerId != event.ownerId) return false;
         if (!name.equals(event.name)) return false;
