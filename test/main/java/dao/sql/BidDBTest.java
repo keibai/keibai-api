@@ -1,8 +1,10 @@
 package main.java.dao.sql;
 
+import main.java.dao.AuctionDAO;
 import main.java.dao.BidDAO;
 import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
+import main.java.models.Auction;
 import main.java.models.Bid;
 import main.java.models.User;
 import main.java.utils.DummyGenerator;
@@ -27,8 +29,16 @@ public class BidDBTest extends AbstractDBTest {
     }
 
     @Test(expected = DAOException.class)
-    public void test_insertion_of_bid_without_owner_throws_DAOException() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_insertion_of_bid_without_owner_throws_DAOException() throws DAOException {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        Auction insertedOwner = auctionDAO.create(dummyAuction);
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.ownerId = insertedOwner.id;
+        Bid insertedBid = bidDAO.create(dummyBid);
     }
 
     @Test
