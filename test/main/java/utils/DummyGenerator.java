@@ -25,7 +25,7 @@ public class DummyGenerator {
     public static final double TEST_AUCTION_STARTING_PRICE = 1.0;
     public static final Timestamp TEST_AUCTION_START_TIME = new Timestamp(System.currentTimeMillis());
     public static final String TEST_AUCTION_STATUS = "TestStatus";
-    public static final boolean TEST_AUCTION_IS_VALID = false;
+    public static final boolean TEST_AUCTION_IS_VALID = true;
 
     public static final String TEST_AUCTION_OTHER_NAME = "TestOtherName";
     public static final double TEST_AUCTION_OTHER_STARTING_PRICE = 2.0;

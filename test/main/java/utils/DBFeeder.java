@@ -21,10 +21,17 @@ public class DBFeeder {
     }
 
     public static Event createDummyEvent() throws DAOException {
-        Event DummyEvent = DummyGenerator.getDummyEvent();
+        User dummyUser = DummyGenerator.getOtherDummyUser();
+        dummyUser.password = new PasswordAuthentication().hash(dummyUser.password.toCharArray());
+
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User user = userDAO.create(dummyUser);
+
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = user.id;
 
         EventDAO eventDAO = EventDAOSQL.getInstance();
-        Event event = eventDAO.create(DummyEvent);
+        Event event = eventDAO.create(dummyEvent);
         return event;
     }
 }

@@ -10,6 +10,7 @@ import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
+import main.java.utils.ImpreciseDate;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
@@ -74,6 +75,7 @@ public class AuctionNewTest extends AbstractDBTest {
 
         Auction attemptAuction = DummyGenerator.getDummyAuction();
         attemptAuction.ownerId = dummyUser.id;
+        attemptAuction.eventId = dummyEvent.id;
         String attemptAuctionJson = new Gson().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -85,10 +87,10 @@ public class AuctionNewTest extends AbstractDBTest {
 
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(attemptAuction.startingPrice, outputAuction.startingPrice, 0.01);
-        assertEquals(attemptAuction.startTime, outputAuction.startTime);
+        assertEquals(new ImpreciseDate(attemptAuction.startTime), new ImpreciseDate(outputAuction.startTime));
         assertEquals(attemptAuction.isValid, outputAuction.isValid);
         assertNotEquals(outputAuction.ownerId, 0);
-        //assertEquals(attemptAuction.status, outputAuction.status);
+        assertEquals(attemptAuction.status, outputAuction.status);
     }
 
     private void common_auction_error_test(Auction attemptAuction, String errorMsg) throws DAOException, IOException, ServletException {
