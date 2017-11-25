@@ -2,51 +2,47 @@ package main.java.models;
 
 import java.sql.Timestamp;
 
-public class Bid {
-    private int id;
-    private double amount;
-    private Timestamp createdAt;
+public class Bid extends ModelAbstract {
 
-    private Auction auction;
-    private User owner;
+    public double amount;
+    public Timestamp createdAt;
+    public int auctionId;
+    public int ownerId;
 
-    public int getId() {
-        return id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Bid bid = (Bid) o;
+
+        if (id != bid.id) return false;
+        if (Double.compare(bid.amount, amount) != 0) return false;
+        if (auctionId != bid.auctionId) return false;
+        if (ownerId != bid.ownerId) return false;
+        return createdAt != null ? createdAt.equals(bid.createdAt) : bid.createdAt == null;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(amount);
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        result = 31 * result + auctionId;
+        result = 31 * result + ownerId;
+        return result;
     }
 
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Auction getAuction() {
-        return auction;
-    }
-
-    public void setAuction(Auction auction) {
-        this.auction = auction;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
+    @Override
+    public String toString() {
+        return "Bid{" +
+                "amount=" + amount +
+                ", createdAt=" + createdAt +
+                ", auctionId=" + auctionId +
+                ", ownerId=" + ownerId +
+                ", id=" + id +
+                '}';
     }
 }

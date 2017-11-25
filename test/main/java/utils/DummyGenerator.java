@@ -1,9 +1,6 @@
 package main.java.utils;
 
-import main.java.models.Auction;
-import main.java.models.Event;
-import main.java.models.Good;
-import main.java.models.User;
+import main.java.models.*;
 
 import java.sql.Timestamp;
 
@@ -119,5 +116,20 @@ public class DummyGenerator {
         user.email = TEST_USER_OTHER_EMAIL;
         user.password = TEST_USER_OTHER_PASSWORD;
         return user;
+    }
+
+    public static final double TEST_BID_AMOUNT = 10.5;
+    public static final double TEST_BID_OTHER_AMOUNT = 10.5;
+
+    public static Bid getDummyBid() {
+        Bid bid = new Bid();
+        bid.amount = TEST_BID_AMOUNT;
+        return bid;
+    }
+
+    public static Bid getOtherDummyBid() {
+        Bid bid = new Bid();
+        bid.amount = TEST_BID_OTHER_AMOUNT;
+        return bid;
     }
 }
