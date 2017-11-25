@@ -38,7 +38,7 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
             String query = "INSERT INTO public.good (name, image, auction) " +
                     "VALUES (?, ?, ?)";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, good.name);
             statement.setBytes(2, good.image.getBytes());
             statement.setInt(3, good.auctionId);
@@ -54,7 +54,7 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.good WHERE \"good\".id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
@@ -76,10 +76,11 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
                     "auction = ?" +
                     "WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, good.name);
-            statement.setString(2, good.image);
+            statement.setBytes(2, good.image.getBytes());
             statement.setInt(3, good.auctionId);
+            statement.setInt(4,good.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -93,7 +94,7 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.good WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 

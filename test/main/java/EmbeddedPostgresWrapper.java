@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import static jdk.nashorn.internal.objects.Global.print;
+
 public class EmbeddedPostgresWrapper {
 
     private static EmbeddedPostgresWrapper instance;

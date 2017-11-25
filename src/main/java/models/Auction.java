@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 public class Auction extends ModelAbstract {
 
+    public static final String[] AUCTION_STATUSES = {"OPENED", "CLOSED", "IN_PROGRESS"};
+
     public String name;
     public double startingPrice;
     public Timestamp startTime;
@@ -46,5 +48,20 @@ public class Auction extends ModelAbstract {
         result = 31 * result + status.hashCode();
         result = 31 * result + winnerId;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Auction{" +
+                "name='" + name + '\'' +
+                ", startingPrice=" + startingPrice +
+                ", startTime=" + startTime +
+                ", isValid=" + isValid +
+                ", eventId=" + eventId +
+                ", ownerId=" + ownerId +
+                ", status='" + status + '\'' +
+                ", winnerId=" + winnerId +
+                ", id=" + id +
+                '}';
     }
 }
