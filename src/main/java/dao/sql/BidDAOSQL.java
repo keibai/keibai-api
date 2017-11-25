@@ -13,10 +13,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BidDAOSQL implements BidDAO {
+public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_AMOUNT = "amount";
+    private static final String DB_AUCTION_ID = "auction";
+    private static final String DB_OWNER_ID = "owner";
 
     private static BidDAO instance;
 
@@ -31,23 +33,24 @@ public class BidDAOSQL implements BidDAO {
         return instance;
     }
 
-    public void createBid(Bid bid) throws DAOException {
+    public Bid create(Bid bid) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "INSERT INTO public.bid (amount, auction, owner) " +
                     "VALUES (?, ?, ?)";
 
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setDouble(1, bid.getAmount());
-            statement.setInt(2, bid.getAuction().id);
-            statement.setInt(3, bid.getOwner().id);
-            statement.execute();
-        } catch (NamingException |SQLException e) {
+            PreparedStatement statement = connection.prepareStatement(query, new String[]{"id"});
+            statement.setDouble(1, bid.amount);
+            statement.setInt(2, bid.auctionId);
+            statement.setInt(3, bid.ownerId);
+            statement.executeUpdate();
+            return recentlyUpdated(statement);
+        } catch (NamingException | SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public Bid getBidById(int id) throws DAOException, NotFoundException {
+    public Bid getById(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.bid WHERE \"bid\".id = ?";
@@ -57,16 +60,16 @@ public class BidDAOSQL implements BidDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new NotFoundException("Bid not found");
+                return null;
             }
 
-            return createBidFromResultSet(resultSet);
-        } catch (NamingException|SQLException e) {
+            return objectFromResultSet(resultSet);
+        } catch (NamingException | SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void updateBid(Bid bid) throws DAOException, NotFoundException {
+    public Bid update(Bid bid) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.bid " +
@@ -74,21 +77,20 @@ public class BidDAOSQL implements BidDAO {
                     "owner = ?" +
                     "WHERE id = ?";
 
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setDouble(1, bid.getAmount());
-            statement.setInt(2, bid.getAuction().id);
-            statement.setInt(3, bid.getOwner().id);
-            int nUpdated = statement.executeUpdate();
+            PreparedStatement statement = connection.prepareStatement(query, new String[]{"id"});
+            statement.setDouble(1, bid.amount);
+            statement.setInt(2, bid.auctionId);
+            statement.setInt(3, bid.ownerId);
+            statement.setInt(4, bid.id);
+            statement.executeUpdate();
 
-            if (nUpdated == 0) {
-                throw new NotFoundException("Bid not found");
-            }
-        } catch (NamingException|SQLException e) {
+            return recentlyUpdated(statement);
+        } catch (NamingException | SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    public void deleteBid(int id) throws DAOException, NotFoundException {
+    public boolean delete(int id) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "DELETE FROM public.bid WHERE id = ?";
@@ -97,23 +99,20 @@ public class BidDAOSQL implements BidDAO {
             statement.setInt(1, id);
             int nDeleted = statement.executeUpdate();
 
-            if (nDeleted == 0) {
-                throw new NotFoundException("Bid not found");
-            }
-        } catch (NamingException|SQLException e) {
+            return nDeleted != 0;
+        } catch (NamingException | SQLException e) {
             throw new DAOException(e);
         }
     }
 
-    private Bid createBidFromResultSet(ResultSet resultSet) throws SQLException {
-        User owner = new User();
-        Auction auction = new Auction();
+    @Override
+    public Bid objectFromResultSet(ResultSet resultSet) throws SQLException {
         Bid bid = new Bid();
 
-        bid.setId(resultSet.getInt(DB_ID));
-        bid.setAmount(resultSet.getDouble(DB_AMOUNT));
-        bid.setAuction(auction);
-        bid.setOwner(owner);
+        bid.id = resultSet.getInt(DB_ID);
+        bid.amount = resultSet.getDouble(DB_AMOUNT);
+        bid.auctionId = resultSet.getInt(DB_AUCTION_ID);
+        bid.ownerId = resultSet.getInt(DB_OWNER_ID);
         return bid;
     }
 }
