@@ -7,6 +7,7 @@ import main.java.dao.sql.EventDAOSQL;
 import main.java.models.Event;
 import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
+import main.java.utils.Validator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +21,7 @@ public class EventSearch extends HttpServlet {
 
     public static final String ID_ERROR = "Event ID must be a number";
     public static final String EVENT_NOT_FOUND_ERROR = "Event not found";
+    public static final String ID_NONE_ERROR = "No ID parameter was sent";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -27,15 +29,13 @@ public class EventSearch extends HttpServlet {
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
         String param = request.getParameter("id");
-        boolean isNumber;
-        try {
-            Integer.parseInt(param);
-            isNumber = true;
-        } catch (NumberFormatException e) {
-            isNumber = false;
+
+        if (param == null || param.trim().isEmpty()) {
+            jsonResponse.error(ID_NONE_ERROR);
+            return;
         }
 
-        if (!isNumber) {
+        if (!Validator.isNumber(param)) {
             jsonResponse.error(ID_ERROR);
             return;
         }
@@ -54,6 +54,6 @@ public class EventSearch extends HttpServlet {
             return;
         }
 
-        jsonResponse.msg(new Gson().toJson(retrievedEvent));
+        jsonResponse.response(new Gson().toJson(retrievedEvent));
     }
 }
