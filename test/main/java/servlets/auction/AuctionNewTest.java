@@ -53,14 +53,16 @@ public class AuctionNewTest extends AbstractDBTest {
         attemptAuction.startTime = null;
         common_auction_error_test(attemptAuction, AuctionNew.AUCTION_START_TIME_ERROR);
     }
-/*
+
     @Test
     public void test_auction_with_no_valid_status_can_not_be_created() throws ServletException, DAOException, IOException {
+        Event dummyEvent = DBFeeder.createDummyEvent();
         Auction attemptAuction = DummyGenerator.getDummyAuction();
         attemptAuction.status = "WrongStatus";
+        attemptAuction.eventId = dummyEvent.id;
         common_auction_error_test(attemptAuction, AuctionNew.AUCTION_STATUS_ERROR);
     }
-*/
+
     @Test
     public void test_invalid_auction_can_not_be_created() throws ServletException, DAOException, IOException {
         Auction attemptAuction = DummyGenerator.getDummyAuction();

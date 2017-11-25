@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @WebServlet(name = "AuctionNew", urlPatterns = {"/auctions/new"})
 public class AuctionNew extends HttpServlet {
@@ -58,7 +59,7 @@ public class AuctionNew extends HttpServlet {
             jsonResponse.error(AUCTION_START_TIME_ERROR);
             return;
         }
-        if (unsafeAuction.status == null || unsafeAuction.status.trim().isEmpty()) {
+        if (!Arrays.asList(Auction.AUCTION_STATUSES).contains(unsafeAuction.status)) {
             jsonResponse.error(AUCTION_STATUS_ERROR);
             return;
         }
