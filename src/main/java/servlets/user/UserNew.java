@@ -15,11 +15,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 
 @WebServlet(name = "UserNew", urlPatterns = {"/users/new"})
 public class UserNew extends HttpServlet {
+
+    public static final String EMAIL_BLANK = "Email cannot be blank.";
+    public static final String EMAIL_INVALID = "Invalid email.";
+    public static final String EMAIL_TAKEN = "Email is already taken";
+    public static final String PASSWORD_BLANK = "Password cannot be blank";
+    public static final String PASSWORD_LENGTH = "Password should be longer than 4 characters";
+    public static final String NAME_BLANK = "Name cannot be blank";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
@@ -36,23 +41,23 @@ public class UserNew extends HttpServlet {
 
         // Validate fields.
         if (unsafeUser.email == null) {
-            jsonResponse.error("Email cannot be blank.");
+            jsonResponse.error(EMAIL_BLANK);
             return;
         }
         if (!Validator.isEmail(unsafeUser.email)) {
-            jsonResponse.error("Invalid email");
+            jsonResponse.error(EMAIL_INVALID);
             return;
         }
         if (unsafeUser.password == null) {
-            jsonResponse.error("Password cannot be blank.");
+            jsonResponse.error(PASSWORD_BLANK);
             return;
         }
         if (!Validator.isLength(unsafeUser.password, 4)) {
-            jsonResponse.error("Password length should be longer than 4 characters.");
+            jsonResponse.error(PASSWORD_LENGTH);
             return;
         }
         if (unsafeUser.name == null) {
-            jsonResponse.error("Name cannot be blank");
+            jsonResponse.error(NAME_BLANK);
             return;
         }
 
@@ -67,7 +72,7 @@ public class UserNew extends HttpServlet {
         try {
             User user = userDAO.getByEmail(newUser.email);
             if (user != null) {
-                jsonResponse.error("Email is already taken.");
+                jsonResponse.error(EMAIL_TAKEN);
                 return;
             }
         } catch (DAOException e) {

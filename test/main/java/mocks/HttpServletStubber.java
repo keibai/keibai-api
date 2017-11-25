@@ -22,7 +22,11 @@ public class HttpServletStubber {
 
     private MockHttpSession mockHttpSession;
 
+    private final Map<String, String> parameters;
+
     public HttpServletStubber() {
+        parameters = new HashMap<>();
+
         servletRequest = mock(HttpServletRequest.class);
         servletResponse = mock(HttpServletResponse.class);
 
@@ -48,6 +52,11 @@ public class HttpServletStubber {
         // Mock session.
         when(servletRequest.getSession()).thenReturn(mockHttpSession);
 
+        // Mock parameters.
+        for (String paramName : parameters.keySet()) {
+            when(servletRequest.getParameter(paramName)).thenReturn(parameters.get(paramName));
+        }
+
         return this;
     }
 
@@ -62,6 +71,21 @@ public class HttpServletStubber {
      */
     public HttpServletStubber authenticate(int userId) {
         mockHttpSession.setAttribute(main.java.utils.HttpSession.USER_ID_KEY, userId);
+
+        return this;
+    }
+
+    /**
+     * Returns the userId of who we are authenticated as.
+     * @return
+     */
+    public int authenticated() {
+        Object object = this.mockHttpSession.getAttribute(main.java.utils.HttpSession.USER_ID_KEY);
+        return object == null ? -1 : (int) object;
+    }
+
+    public HttpServletStubber parameter(String name, String value) {
+        parameters.put(name, value);
 
         return this;
     }
