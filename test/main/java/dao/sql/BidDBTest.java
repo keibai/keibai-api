@@ -1,11 +1,9 @@
 package main.java.dao.sql;
 
-import main.java.dao.AuctionDAO;
-import main.java.dao.BidDAO;
-import main.java.dao.DAOException;
-import main.java.dao.UserDAO;
+import main.java.dao.*;
 import main.java.models.Auction;
 import main.java.models.Bid;
+import main.java.models.Event;
 import main.java.models.User;
 import main.java.utils.DummyGenerator;
 import org.junit.Test;
@@ -34,16 +32,42 @@ public class BidDBTest extends AbstractDBTest {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         Auction dummyAuction = DummyGenerator.getDummyAuction();
-        Auction insertedOwner = auctionDAO.create(dummyAuction);
+        Auction insertedauction = auctionDAO.create(dummyAuction);
 
         Bid dummyBid = DummyGenerator.getDummyBid();
-        dummyBid.ownerId = insertedOwner.id;
+        dummyBid.ownerId = insertedauction.id;
         Bid insertedBid = bidDAO.create(dummyBid);
     }
 
     @Test
-    public void test_insertion_and_retrieval_of_bid() {
-        throw new UnsupportedOperationException("TODO: Implement this");
+    public void test_insertion_and_retrieval_of_bid() throws DAOException {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+        assertNotNull(insertedOwner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.ownerId = insertedOwner.id;
+        auction.eventId = insertedEvent.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+        assertNotNull(insertedAuction);
+
+        Bid bid = DummyGenerator.getDummyBid();
+        bid.ownerId = insertedOwner.id;
+        bid.auctionId = insertedAuction.id;
+        Bid insertedBid = bidDAO.create(bid);
+        assertNotNull(insertedBid);
+        Bid retrievedBid = bidDAO.getById(insertedBid.id);
+
+        assertEquals(insertedBid, retrievedBid);
+
     }
 
     @Test
