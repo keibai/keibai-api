@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class GoodNewTest extends AbstractDBTest {
 
@@ -62,6 +63,7 @@ public class GoodNewTest extends AbstractDBTest {
 
         assertEquals(attemptGood.name, outputGood.name);
         assertEquals(attemptGood.image, outputGood.image);
+        assertNotEquals(attemptGood.auctionId, 0);
     }
 
     private void common_good_error_test(Good attemptGood, String errorMsg) throws DAOException, IOException, ServletException {
