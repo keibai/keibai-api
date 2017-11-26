@@ -10,6 +10,7 @@ import main.java.models.Event;
 import main.java.models.Good;
 import main.java.models.User;
 
+
 public class DBFeeder {
 
     public static User createDummyUser() throws DAOException {
