@@ -1,14 +1,8 @@
 package main.java.utils;
 
 import main.java.dao.*;
-import main.java.dao.sql.AuctionDAOSQL;
-import main.java.dao.sql.EventDAOSQL;
-import main.java.dao.sql.GoodDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
-import main.java.models.Auction;
-import main.java.models.Event;
-import main.java.models.Good;
-import main.java.models.User;
+import main.java.dao.sql.*;
+import main.java.models.*;
 
 
 public class DBFeeder {
@@ -60,5 +54,17 @@ public class DBFeeder {
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
         Good good = goodDAO.create(dummyGood);
         return good;
+    }
+
+    public static Bid createDummyBid() throws DAOException {
+        Auction dummyAuction = createDummyAuction();
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.auctionId = dummyAuction.id;
+        dummyBid.ownerId = dummyAuction.ownerId;
+
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        Bid bid = bidDAO.create(dummyBid);
+        return bid;
     }
 }
