@@ -68,7 +68,7 @@ public class BidDBTest extends AbstractDBTest {
         Bid retrievedBid = bidDAO.getById(insertedBid.id);
 
         assertEquals(insertedBid, retrievedBid);
-
+        assertNotNull(retrievedBid.createdAt);
     }
 
     @Test
