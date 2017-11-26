@@ -19,6 +19,7 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
     private static final String DB_AMOUNT = "amount";
     private static final String DB_AUCTION_ID = "auction";
     private static final String DB_OWNER_ID = "owner";
+    private static final String DB_CREATED_AT = "created_at";
 
     private static BidDAO instance;
 
@@ -113,6 +114,7 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
         bid.amount = resultSet.getDouble(DB_AMOUNT);
         bid.auctionId = resultSet.getInt(DB_AUCTION_ID);
         bid.ownerId = resultSet.getInt(DB_OWNER_ID);
+        bid.createdAt = resultSet.getTimestamp(DB_CREATED_AT);
         return bid;
     }
 }
