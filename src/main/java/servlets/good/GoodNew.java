@@ -56,6 +56,7 @@ public class GoodNew extends HttpServlet {
         Good newGood = new Good();
         newGood.name = unsafeGood.name;
         newGood.image = unsafeGood.image;
+        newGood.auctionId = unsafeGood.auctionId;
 
         Good dbGood;
         try {

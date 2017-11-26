@@ -55,7 +55,7 @@ public class GoodNewTest extends AbstractDBTest {
         String attemptGoodJson = new Gson().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.authenticate(dummyAuction.id);
+        stubber.authenticate(dummyAuction.ownerId);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
