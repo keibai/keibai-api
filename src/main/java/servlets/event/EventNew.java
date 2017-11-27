@@ -50,6 +50,11 @@ public class EventNew extends HttpServlet {
             return;
         }
 
+        if (unsafeEvent == null) {
+            jsonResponse.invalidRequest();
+            return;
+        }
+
         if (unsafeEvent.name == null || unsafeEvent.name.trim().isEmpty()) {
             jsonResponse.error(NAME_ERROR);
             return;

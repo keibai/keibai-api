@@ -44,6 +44,11 @@ public class BidNew extends HttpServlet {
             return;
         }
 
+        if (unsafeBid == null) {
+            jsonResponse.invalidRequest();
+            return;
+        }
+
         if (unsafeBid.amount <= 0.0) {
             jsonResponse.error(INVALID_AMOUNT_ERROR);
             return;
