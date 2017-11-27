@@ -2,9 +2,12 @@ package main.java.servlets.good;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import main.java.dao.AuctionDAO;
 import main.java.dao.GoodDAO;
 import main.java.dao.DAOException;
+import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.GoodDAOSQL;
+import main.java.models.Auction;
 import main.java.models.Good;
 import main.java.utils.HttpRequest;
 import main.java.utils.HttpSession;
@@ -24,11 +27,13 @@ public class GoodNew extends HttpServlet {
 
     public static final String NAME_ERROR = "Good name cannot be blank";
     public static final String IMAGE_ERROR = "Good must have an image";
+    public static final String AUCTION_NOT_EXIST_ERROR = "Auction does not exists";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
         HttpSession session = new HttpSession(request);
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
@@ -55,6 +60,23 @@ public class GoodNew extends HttpServlet {
         }
         if (unsafeGood.image == null || unsafeGood.image.trim().isEmpty()) {
             jsonResponse.error(IMAGE_ERROR);
+            return;
+        }
+
+        Auction auction;
+        try {
+            auction = auctionDAO.getById(unsafeGood.auctionId);
+        } catch (DAOException e) {
+            Logger.error("Get auction by ID " + unsafeGood.auctionId, e.toString());
+            jsonResponse.internalServerError();
+            return;
+        }
+        if (auction == null) {
+            jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
+            return;
+        }
+        if (auction.ownerId != userId) {
+            jsonResponse.unauthorized();
             return;
         }
 

@@ -35,6 +35,7 @@ public class EventNew extends HttpServlet {
         JsonResponse jsonResponse = new JsonResponse(response);
         HttpSession session = new HttpSession(request);
         EventDAO eventDAO = EventDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
