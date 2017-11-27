@@ -17,6 +17,16 @@ public class DBFeeder {
         return user;
     }
 
+    public static User createOtherDummyUser() throws DAOException {
+        User dummyUser = DummyGenerator.getOtherDummyUser();
+        // Hash password like if he had really signed up.
+        dummyUser.password = new PasswordAuthentication().hash(dummyUser.password.toCharArray());
+
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User user = userDAO.create(dummyUser);
+        return user;
+    }
+
     public static Event createDummyEvent() throws DAOException {
         User dummyUser = DummyGenerator.getOtherDummyUser();
         dummyUser.password = new PasswordAuthentication().hash(dummyUser.password.toCharArray());

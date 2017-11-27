@@ -75,6 +75,10 @@ public class GoodNew extends HttpServlet {
             jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
             return;
         }
+        if (auction.ownerId != userId) {
+            jsonResponse.unauthorized();
+            return;
+        }
 
         Good newGood = new Good();
         newGood.name = unsafeGood.name;

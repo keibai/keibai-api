@@ -1,14 +1,21 @@
 package main.java.servlets.good;
 
 import com.google.gson.Gson;
+import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
+import main.java.dao.EventDAO;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.AuctionDAOSQL;
+import main.java.dao.sql.EventDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
+import main.java.models.Event;
 import main.java.models.Good;
+import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
+import main.java.utils.JsonResponse;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
@@ -63,7 +70,72 @@ public class GoodNewTest extends AbstractDBTest {
 
         assertEquals(attemptGood.name, outputGood.name);
         assertEquals(attemptGood.image, outputGood.image);
-        assertNotEquals(attemptGood.auctionId, 0);
+        assertEquals(attemptGood.auctionId, outputGood.auctionId);
+    }
+
+    @Test
+    public void test_good_creation_fails_if_not_owner_of_the_auction() throws Exception {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+
+        User auctionOwner = DBFeeder.createDummyUser();
+        User eventOwner = DBFeeder.createOtherDummyUser();
+
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = eventOwner.id;
+        Event dbEvent = eventDAO.create(dummyEvent);
+
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.ownerId = auctionOwner.id;
+        dummyAuction.eventId = dbEvent.id;
+        dummyAuction.winnerId = 0;
+        Auction dbAuction = auctionDAO.create(dummyAuction);
+
+        Good attemptGood = DummyGenerator.getDummyGood();
+        attemptGood.auctionId = dbAuction.id;
+        String attemptGoodJson = new Gson().toJson(attemptGood);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(eventOwner.id);
+        stubber.body(attemptGoodJson).listen();
+        new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+    }
+
+    @Test
+    public void test_good_creation_success_if_owner_of_the_auction() throws Exception {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+
+        User auctionOwner = DBFeeder.createDummyUser();
+        User eventOwner = DBFeeder.createOtherDummyUser();
+
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = eventOwner.id;
+        Event dbEvent = eventDAO.create(dummyEvent);
+
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.ownerId = auctionOwner.id;
+        dummyAuction.eventId = dbEvent.id;
+        dummyAuction.winnerId = 0;
+        Auction dbAuction = auctionDAO.create(dummyAuction);
+
+        Good attemptGood = DummyGenerator.getDummyGood();
+        attemptGood.auctionId = dbAuction.id;
+        String attemptGoodJson = new Gson().toJson(attemptGood);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(auctionOwner.id);
+        stubber.body(attemptGoodJson).listen();
+        new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Good outputGood = new Gson().fromJson(stubber.gathered(), Good.class);
+
+        assertEquals(attemptGood.name, outputGood.name);
+        assertEquals(attemptGood.image, outputGood.image);
+        assertEquals(attemptGood.auctionId, outputGood.auctionId);
     }
 
     private void common_good_error_test(Good attemptGood, String errorMsg) throws DAOException, IOException, ServletException {
@@ -73,7 +145,7 @@ public class GoodNewTest extends AbstractDBTest {
         String attemptGoodJson = new Gson().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.authenticate(dummyAuction.id);
+        stubber.authenticate(dummyAuction.ownerId);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
