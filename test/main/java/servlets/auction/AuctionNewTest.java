@@ -2,7 +2,9 @@ package main.java.servlets.auction;
 
 import com.google.gson.Gson;
 import main.java.dao.DAOException;
+import main.java.dao.EventDAO;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.EventDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -96,6 +98,47 @@ public class AuctionNewTest extends AbstractDBTest {
 
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
         assertEquals(errorMsg, error.error);
+    }
+
+    @Test
+    public void does_not_throw_event_does_not_exist_if_event_does_exist() throws Exception {
+        User dummyUser = DBFeeder.createDummyUser();
+
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = dummyUser.id;
+        Event dbEvent = eventDAO.create(dummyEvent);
+
+        Auction bodyAuction = DummyGenerator.getDummyAuction();
+        bodyAuction.eventId = dbEvent.id;
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.body(new Gson().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
+        new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        assertEquals(bodyAuction.name, outputAuction.name);
+        assertEquals(bodyAuction.startingPrice, outputAuction.startingPrice, 0.01);
+        assertEquals(new ImpreciseDate(bodyAuction.startTime), new ImpreciseDate(outputAuction.startTime));
+        assertEquals(bodyAuction.isValid, outputAuction.isValid);
+        assertNotEquals(outputAuction.ownerId, 0);
+        assertEquals(bodyAuction.status, outputAuction.status);
+        assertEquals(bodyAuction.eventId, outputAuction.eventId);
+    }
+
+    @Test
+    public void does_throw_event_does_not_exist_if_event_does_not_exist() throws Exception {
+        User dummyUser = DBFeeder.createDummyUser();
+
+        Auction bodyAuction = DummyGenerator.getDummyAuction();
+        bodyAuction.eventId = 1;
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.body(new Gson().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
+        new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        assertEquals(AuctionNew.EVENT_NOT_EXIST_ERROR, error.error);
     }
 
 }
