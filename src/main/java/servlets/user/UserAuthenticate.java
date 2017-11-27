@@ -36,6 +36,11 @@ public class UserAuthenticate extends HttpServlet {
             return;
         }
 
+        if (unsafeUser == null) {
+            jsonResponse.invalidRequest();
+            return;
+        }
+
         // Do a little validation (rest will be handled by comparing with user DAO).
         if (unsafeUser.email == null) {
             jsonResponse.error(EMAIL_BLANK);

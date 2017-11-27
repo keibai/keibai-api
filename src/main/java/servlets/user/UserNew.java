@@ -39,6 +39,10 @@ public class UserNew extends HttpServlet {
             return;
         }
 
+        if (unsafeUser == null) {
+            jsonResponse.invalidRequest();
+            return;
+        }
         // Validate fields.
         if (unsafeUser.email == null) {
             jsonResponse.error(EMAIL_BLANK);
