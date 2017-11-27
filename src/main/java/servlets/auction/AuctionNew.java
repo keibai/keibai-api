@@ -64,11 +64,6 @@ public class AuctionNew extends HttpServlet {
             jsonResponse.error(AUCTION_STATUS_ERROR);
             return;
         }
-        if (!unsafeAuction.isValid) {
-            jsonResponse.error(AUCTION_IS_NOT_VALID_ERROR);
-            return;
-        }
-
 
         Auction newAuction = new Auction();
         newAuction.name = unsafeAuction.name;
