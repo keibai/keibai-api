@@ -30,10 +30,7 @@ public class AuctionNew extends HttpServlet {
 
     public static final String NAME_ERROR = "Auction name cannot be blank";
     public static final String AUCTION_STARTING_PRICE_ERROR = "Auction starting price must be a positive number";
-    public static final String AUCTION_START_TIME_ERROR = "Auction must have a start time";
     public static final String AUCTION_STATUS_ERROR = "Status must be valid";
-    public static final String AUCTION_IS_NOT_VALID_ERROR = "Auction is not valid";
-    public static final String OWNER_NOT_EXIST_ERROR = "Owner does not exist";
     public static final String EVENT_NOT_EXIST_ERROR = "Event does not exist";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -84,7 +81,7 @@ public class AuctionNew extends HttpServlet {
             return;
         }
         if (event == null) {
-            jsonResponse.error(OWNER_NOT_EXIST_ERROR);
+            jsonResponse.error(EVENT_NOT_EXIST_ERROR);
             return;
         }
 
