@@ -47,6 +47,11 @@ public class AuctionNew extends HttpServlet {
             return;
         }
 
+        if (unsafeAuction == null) {
+            jsonResponse.invalidRequest();
+            return;
+        }
+
         if (unsafeAuction.name == null || unsafeAuction.name.trim().isEmpty()) {
             jsonResponse.error(NAME_ERROR);
             return;

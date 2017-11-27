@@ -44,6 +44,11 @@ public class GoodNew extends HttpServlet {
             return;
         }
 
+        if (unsafeGood == null) {
+            jsonResponse.invalidRequest();
+            return;
+        }
+
         if (unsafeGood.name == null || unsafeGood.name.trim().isEmpty()) {
             jsonResponse.error(NAME_ERROR);
             return;
