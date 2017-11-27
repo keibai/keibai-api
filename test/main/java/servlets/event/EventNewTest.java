@@ -74,23 +74,6 @@ public class EventNewTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_event_with_invalid_owner_can_not_be_created() throws Exception {
-        Event attemptEvent = DummyGenerator.getDummyEvent();
-        attemptEvent.ownerId = 2;
-
-        User dummyUser = DBFeeder.createDummyUser();
-        String attemptEventJson = new Gson().toJson(attemptEvent);
-
-        HttpServletStubber stubber = new HttpServletStubber();
-        stubber.authenticate(dummyUser.id);
-        stubber.body(attemptEventJson).listen();
-        new EventNew().doPost(stubber.servletRequest, stubber.servletResponse);
-
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
-        assertEquals(EventNew.OWNER_NOT_EXIST_EROR, error.error);
-    }
-
-    @Test
     public void should_create_new_event() throws IOException, ServletException, DAOException {
         User dummyUser = DBFeeder.createDummyUser();
 

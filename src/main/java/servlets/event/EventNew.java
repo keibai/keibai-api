@@ -30,7 +30,6 @@ public class EventNew extends HttpServlet {
     public static final String LOCATION_ERROR = "Location cannot be blank";
     public static final String AUCTION_TYPE_ERROR = "Invalid auction type";
     public static final String CATEGORY_ERROR = "Category cannot be blank";
-    public static final String OWNER_NOT_EXIST_EROR = "Owner does not exist";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
@@ -75,20 +74,6 @@ public class EventNew extends HttpServlet {
         }
         if (unsafeEvent.category == null || unsafeEvent.category.trim().isEmpty()) {
             jsonResponse.error(CATEGORY_ERROR);
-            return;
-        }
-
-        User owner;
-        try {
-            owner = userDAO.getById(unsafeEvent.ownerId);
-        } catch (DAOException e) {
-            Logger.error("Get user by ID " + unsafeEvent.ownerId, e.toString());
-            jsonResponse.internalServerError();
-            return;
-        }
-
-        if (owner == null) {
-            jsonResponse.error(OWNER_NOT_EXIST_EROR);
             return;
         }
 

@@ -75,19 +75,6 @@ public class AuctionNew extends HttpServlet {
             return;
         }
 
-        User owner;
-        try {
-            owner = userDAO.getById(unsafeAuction.ownerId);
-        } catch (DAOException e) {
-            Logger.error("Get user by ID " + unsafeAuction.ownerId, e.toString());
-            jsonResponse.internalServerError();
-            return;
-        }
-        if (owner == null) {
-            jsonResponse.error(OWNER_NOT_EXIST_ERROR);
-            return;
-        }
-
         Event event;
         try {
             event = eventDAO.getById(unsafeAuction.eventId);
