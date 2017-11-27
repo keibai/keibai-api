@@ -47,12 +47,12 @@ public class AuctionNewTest extends AbstractDBTest {
         common_auction_error_test(attemptAuction, AuctionNew.AUCTION_STARTING_PRICE_ERROR);
     }
 
-    @Test
-    public void test_auction_without_start_time_can_not_be_created() throws ServletException, DAOException, IOException {
-        Auction attemptAuction = DummyGenerator.getDummyAuction();
-        attemptAuction.startTime = null;
-        common_auction_error_test(attemptAuction, AuctionNew.AUCTION_START_TIME_ERROR);
-    }
+//    @Test
+//    public void test_auction_without_start_time_can_not_be_created() throws ServletException, DAOException, IOException {
+//        Auction attemptAuction = DummyGenerator.getDummyAuction();
+//        attemptAuction.startTime = null;
+//        common_auction_error_test(attemptAuction, AuctionNew.AUCTION_START_TIME_ERROR);
+//    }
 
     @Test
     public void test_auction_with_no_valid_status_can_not_be_created() throws ServletException, DAOException, IOException {
@@ -78,6 +78,7 @@ public class AuctionNewTest extends AbstractDBTest {
         Auction attemptAuction = DummyGenerator.getDummyAuction();
         attemptAuction.ownerId = dummyUser.id;
         attemptAuction.eventId = dummyEvent.id;
+        attemptAuction.startTime = null;
         String attemptAuctionJson = new Gson().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -89,7 +90,7 @@ public class AuctionNewTest extends AbstractDBTest {
 
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(attemptAuction.startingPrice, outputAuction.startingPrice, 0.01);
-        assertEquals(new ImpreciseDate(attemptAuction.startTime), new ImpreciseDate(outputAuction.startTime));
+        assertEquals(attemptAuction.startTime, outputAuction.startTime);
         assertEquals(attemptAuction.isValid, outputAuction.isValid);
         assertNotEquals(outputAuction.ownerId, 0);
         assertEquals(attemptAuction.status, outputAuction.status);

@@ -60,10 +60,6 @@ public class AuctionNew extends HttpServlet {
             jsonResponse.error(AUCTION_STARTING_PRICE_ERROR);
             return;
         }
-        if (unsafeAuction.startTime == null) {
-            jsonResponse.error(AUCTION_START_TIME_ERROR);
-            return;
-        }
         if (!Arrays.asList(Auction.AUCTION_STATUSES).contains(unsafeAuction.status)) {
             jsonResponse.error(AUCTION_STATUS_ERROR);
             return;

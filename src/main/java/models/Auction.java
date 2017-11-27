@@ -18,7 +18,7 @@ public class Auction extends ModelAbstract {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Auction)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Auction auction = (Auction) o;
 
@@ -29,7 +29,7 @@ public class Auction extends ModelAbstract {
         if (ownerId != auction.ownerId) return false;
         if (winnerId != auction.winnerId) return false;
         if (!name.equals(auction.name)) return false;
-        if (!startTime.equals(auction.startTime)) return false;
+        if (startTime != null ? !startTime.equals(auction.startTime) : auction.startTime != null) return false;
         return status.equals(auction.status);
     }
 
@@ -37,11 +37,10 @@ public class Auction extends ModelAbstract {
     public int hashCode() {
         int result;
         long temp;
-        result = id;
-        result = 31 * result + name.hashCode();
+        result = name.hashCode();
         temp = Double.doubleToLongBits(startingPrice);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + startTime.hashCode();
+        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
         result = 31 * result + (isValid ? 1 : 0);
         result = 31 * result + eventId;
         result = 31 * result + ownerId;
