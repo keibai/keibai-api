@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS auction
   owner          INTEGER NOT NULL REFERENCES "user" (id),
   name           VARCHAR(255)     NOT NULL,
   starting_price DOUBLE PRECISION NOT NULL,
-  start_time     TIMESTAMP        NOT NULL,
+  start_time     TIMESTAMP,
   status         VARCHAR(25)      NOT NULL,
   is_valid       BOOLEAN DEFAULT FALSE
 );
