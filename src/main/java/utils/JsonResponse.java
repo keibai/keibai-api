@@ -54,6 +54,7 @@ public class JsonResponse {
     public void error(String errorMsg) throws IOException {
         Error obj = new Error();
         obj.error = errorMsg;
+        this.response.setStatus(400);
         this.response(new Gson().toJson(obj));
     }
 
