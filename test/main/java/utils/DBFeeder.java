@@ -42,6 +42,15 @@ public class DBFeeder {
         return event;
     }
 
+    public static Event createOtherDummyEvent(int ownerId) throws DAOException {
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = ownerId;
+
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        Event event = eventDAO.create(dummyEvent);
+        return event;
+    }
+
     public static Auction createDummyAuction() throws DAOException {
         Event dummyEvent = createDummyEvent();
 
