@@ -11,6 +11,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
 
@@ -71,6 +74,26 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
             }
 
             return objectFromResultSet(resultSet);
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public List<Event> getEventList() throws DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.event";
+
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
+            ResultSet resultSet = statement.executeQuery();
+
+            List<Event> eventList = new LinkedList<>();
+            while (resultSet.next()) {
+                eventList.add(objectFromResultSet(resultSet));
+            }
+
+            return eventList;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }

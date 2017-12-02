@@ -7,7 +7,12 @@ import main.java.dao.UserDAO;
 import main.java.utils.DummyGenerator;
 import main.java.models.Event;
 import main.java.models.User;
+import main.java.utils.ImpreciseDate;
 import org.junit.Test;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -45,12 +50,63 @@ public class EventDBTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_when_user_not_found_by_id() throws DAOException {
+    public void test_when_event_not_found_by_id() throws DAOException {
         EventDAO eventDAO = EventDAOSQL.getInstance();
         Event event = eventDAO.getById(24);
         assertNull(event);
     }
 
+    @Test
+    public void test_returned_empty_list_when_there_are_not_events() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        List<Event> eventList = eventDAO.getEventList();
+        assertNotNull(eventList);
+        assertEquals(0, eventList.size());
+    }
+
+    @Test
+    public void test_list_of_events() throws DAOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+
+        User owner = DummyGenerator.getDummyUser();
+        User insertedOwner = userDAO.create(owner);
+
+        Event event = DummyGenerator.getDummyEvent();
+        event.ownerId = insertedOwner.id;
+        Event insertedEvent = eventDAO.create(event);
+
+        Event eventOther = DummyGenerator.getOtherDummyEvent();
+        eventOther.ownerId = insertedOwner.id;
+        Event insertedOtherEvent = eventDAO.create(eventOther);
+
+        List<Event> expectedEventList = new LinkedList<Event>() {{
+            add(insertedEvent);
+            add(insertedOtherEvent);
+        }};
+
+        List<Event> outputEventList = eventDAO.getEventList();
+        assertNotNull(outputEventList);
+        assertEquals(expectedEventList.size(), outputEventList.size());
+
+        Iterator<Event> expectedIterator = expectedEventList.iterator();
+        Iterator<Event> outputIterator = outputEventList.iterator();
+
+        while (expectedIterator.hasNext() && outputIterator.hasNext()) {
+            Event expectedEvent = expectedIterator.next();
+            Event outputEvent = outputIterator.next();
+
+            assertEquals(expectedEvent.id, outputEvent.id);
+            assertEquals(expectedEvent.name, outputEvent.name);
+            assertEquals(expectedEvent.auctionTime, outputEvent.auctionTime);
+            assertEquals(expectedEvent.location, outputEvent.location);
+            assertEquals(new ImpreciseDate(expectedEvent.createdAt), new ImpreciseDate(outputEvent.createdAt));
+            assertEquals(new ImpreciseDate(expectedEvent.updatedAt), new ImpreciseDate(outputEvent.updatedAt));
+            assertEquals(expectedEvent.auctionType, outputEvent.auctionType);
+            assertEquals(expectedEvent.category, outputEvent.category);
+            assertEquals(expectedEvent.ownerId, outputEvent.ownerId);
+        }
+    }
 
     @Test
     public void test_event_update_name() throws DAOException, NotFoundException {
