@@ -80,7 +80,7 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
     }
 
     @Override
-    public List<Event> getEventList() throws DAOException {
+    public List<Event> getList() throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.event";

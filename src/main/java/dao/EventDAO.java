@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface EventDAO extends CRUD<Event> {
 
-    List<Event> getEventList() throws DAOException;
+    List<Event> getList() throws DAOException;
 
 }

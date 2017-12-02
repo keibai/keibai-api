@@ -25,7 +25,7 @@ public class EventList extends HttpServlet {
 
         List<Event> eventList;
         try {
-            eventList = eventDAO.getEventList();
+            eventList = eventDAO.getList();
         } catch (DAOException e) {
             Logger.error("Get event list", e.toString());
             return;

@@ -59,7 +59,7 @@ public class EventDBTest extends AbstractDBTest {
     @Test
     public void test_returned_empty_list_when_there_are_not_events() throws DAOException {
         EventDAO eventDAO = EventDAOSQL.getInstance();
-        List<Event> eventList = eventDAO.getEventList();
+        List<Event> eventList = eventDAO.getList();
         assertNotNull(eventList);
         assertEquals(0, eventList.size());
     }
@@ -85,7 +85,7 @@ public class EventDBTest extends AbstractDBTest {
             add(insertedOtherEvent);
         }};
 
-        List<Event> outputEventList = eventDAO.getEventList();
+        List<Event> outputEventList = eventDAO.getList();
         assertNotNull(outputEventList);
         assertEquals(expectedEventList.size(), outputEventList.size());
 
