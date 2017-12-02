@@ -1,11 +1,10 @@
 package main.java.dao;
 
 import main.java.models.Event;
-
-import java.util.List;
+import main.java.models.meta.ModelList;
 
 public interface EventDAO extends CRUD<Event> {
 
-    List<Event> getList() throws DAOException;
+    ModelList<Event> getList() throws DAOException;
 
 }

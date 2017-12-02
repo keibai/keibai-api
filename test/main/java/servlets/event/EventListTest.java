@@ -7,6 +7,7 @@ import main.java.dao.sql.EventDBTest;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Event;
 import main.java.models.User;
+import main.java.models.meta.ModelList;
 import main.java.utils.DBFeeder;
 import main.java.utils.ImpreciseDate;
 import org.junit.Test;
@@ -24,8 +25,8 @@ public class EventListTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventList().doGet(stubber.servletRequest, stubber.servletResponse);
-        List<Event> outputListEvent = new Gson().fromJson(stubber.gathered(), new TypeToken<List<Event>>(){}.getType());
-        assertEquals(0, outputListEvent.size());
+        ModelList<Event> modelList = new Gson().fromJson(stubber.gathered(), new TypeToken<ModelList<Event>>(){}.getType());
+        assertEquals(0, modelList.list.size());
     }
 
     @Test
@@ -42,8 +43,9 @@ public class EventListTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventList().doGet(stubber.servletRequest, stubber.servletResponse);
-        List<Event> outputEventList = new Gson().fromJson(stubber.gathered(), new TypeToken<List<Event>>(){}.getType());
+        System.out.println(stubber.gathered());
+        ModelList<Event> modelList = new Gson().fromJson(stubber.gathered(), new TypeToken<ModelList<Event>>(){}.getType());
 
-        EventDBTest.assertEventListEquals(expectedEventList, outputEventList);
+        EventDBTest.assertEventListEquals(expectedEventList, modelList.list);
     }
 }

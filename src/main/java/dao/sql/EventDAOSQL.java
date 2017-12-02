@@ -5,6 +5,7 @@ import main.java.dao.EventDAO;
 import main.java.dao.NotFoundException;
 import main.java.db.Source;
 import main.java.models.Event;
+import main.java.models.meta.ModelList;
 
 import javax.naming.NamingException;
 import java.sql.Connection;
@@ -80,7 +81,7 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
     }
 
     @Override
-    public List<Event> getList() throws DAOException {
+    public ModelList<Event> getList() throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "SELECT * FROM public.event";
@@ -93,7 +94,9 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
                 eventList.add(objectFromResultSet(resultSet));
             }
 
-            return eventList;
+            ModelList<Event> modelList = new ModelList<>();
+            modelList.list = eventList;
+            return modelList;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
