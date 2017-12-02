@@ -89,23 +89,7 @@ public class EventDBTest extends AbstractDBTest {
         assertNotNull(outputEventList);
         assertEquals(expectedEventList.size(), outputEventList.size());
 
-        Iterator<Event> expectedIterator = expectedEventList.iterator();
-        Iterator<Event> outputIterator = outputEventList.iterator();
-
-        while (expectedIterator.hasNext() && outputIterator.hasNext()) {
-            Event expectedEvent = expectedIterator.next();
-            Event outputEvent = outputIterator.next();
-
-            assertEquals(expectedEvent.id, outputEvent.id);
-            assertEquals(expectedEvent.name, outputEvent.name);
-            assertEquals(expectedEvent.auctionTime, outputEvent.auctionTime);
-            assertEquals(expectedEvent.location, outputEvent.location);
-            assertEquals(new ImpreciseDate(expectedEvent.createdAt), new ImpreciseDate(outputEvent.createdAt));
-            assertEquals(new ImpreciseDate(expectedEvent.updatedAt), new ImpreciseDate(outputEvent.updatedAt));
-            assertEquals(expectedEvent.auctionType, outputEvent.auctionType);
-            assertEquals(expectedEvent.category, outputEvent.category);
-            assertEquals(expectedEvent.ownerId, outputEvent.ownerId);
-        }
+        assertEventListEquals(expectedEventList, outputEventList);
     }
 
     @Test
@@ -188,6 +172,26 @@ public class EventDBTest extends AbstractDBTest {
         EventDAO eventDAO = EventDAOSQL.getInstance();
         boolean deleted = eventDAO.delete(24);
         assertFalse(deleted);
+    }
+
+    public static void assertEventListEquals(List<Event> expectedEventList, List<Event> outputEventList) {
+        Iterator<Event> expectedIterator = expectedEventList.iterator();
+        Iterator<Event> outputIterator = outputEventList.iterator();
+
+        while (expectedIterator.hasNext() && outputIterator.hasNext()) {
+            Event expectedEvent = expectedIterator.next();
+            Event outputEvent = outputIterator.next();
+
+            assertEquals(expectedEvent.id, outputEvent.id);
+            assertEquals(expectedEvent.name, outputEvent.name);
+            assertEquals(expectedEvent.auctionTime, outputEvent.auctionTime);
+            assertEquals(expectedEvent.location, outputEvent.location);
+            assertEquals(new ImpreciseDate(expectedEvent.createdAt), new ImpreciseDate(outputEvent.createdAt));
+            assertEquals(new ImpreciseDate(expectedEvent.updatedAt), new ImpreciseDate(outputEvent.updatedAt));
+            assertEquals(expectedEvent.auctionType, outputEvent.auctionType);
+            assertEquals(expectedEvent.category, outputEvent.category);
+            assertEquals(expectedEvent.ownerId, outputEvent.ownerId);
+        }
     }
 
 }
