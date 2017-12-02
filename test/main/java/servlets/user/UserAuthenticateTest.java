@@ -26,9 +26,15 @@ public class UserAuthenticateTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.body(attemptUserJson).listen();
         new UserAuthenticate().doPost(stubber.servletRequest, stubber.servletResponse);
-        Msg outputUser = new Gson().fromJson(stubber.gathered(), Msg.class);
+        User outputUser = new Gson().fromJson(stubber.gathered(), User.class);
 
-        assertEquals(JsonResponse.OK, outputUser.msg);
+        assertNotNull(outputUser.id);
+        assertEquals(dummyUser.name, outputUser.name);
+        assertEquals(dummyUser.email, outputUser.email);
+        assertEquals(dummyUser.lastName, outputUser.lastName);
+        assertEquals(null, outputUser.password);
+        assertNotNull(outputUser.createdAt);
+        assertNotNull(outputUser.updatedAt);
     }
 
     @Test

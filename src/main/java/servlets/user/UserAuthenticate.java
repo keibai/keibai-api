@@ -1,5 +1,6 @@
 package main.java.servlets.user;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
@@ -77,6 +78,9 @@ public class UserAuthenticate extends HttpServlet {
         HttpSession httpSession = new HttpSession(request);
         httpSession.save(HttpSession.USER_ID_KEY, dbUser.id);
 
-        jsonResponse.ok();
+        // Hide password from output.
+        dbUser.password = null;
+
+        jsonResponse.response(new Gson().toJson(dbUser));
     }
 }
