@@ -97,6 +97,10 @@ public class UserNew extends HttpServlet {
             return;
         }
 
+        // Sign in. Store the user on the session storage.
+        HttpSession httpSession = new HttpSession(request);
+        httpSession.save(HttpSession.USER_ID_KEY, dbUser.id);
+
         // Hide password from output
         dbUser.password = null;
 
