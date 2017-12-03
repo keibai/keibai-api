@@ -5,7 +5,6 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.models.Event;
-import main.java.models.meta.ModelList;
 import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
 
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet(name = "EventList", urlPatterns = {"/events/list"})
 public class EventList extends HttpServlet {
@@ -23,14 +23,14 @@ public class EventList extends HttpServlet {
         JsonResponse jsonResponse = new JsonResponse(response);
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
-        ModelList<Event> eventList;
+        List<Event> dbEvents;
         try {
-            eventList = eventDAO.getList();
+            dbEvents = eventDAO.getList();
         } catch (DAOException e) {
             Logger.error("Get event list", e.toString());
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(eventList));
+        jsonResponse.response(new Gson().toJson(dbEvents.toArray()));
     }
 }

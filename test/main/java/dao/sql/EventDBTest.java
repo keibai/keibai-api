@@ -4,7 +4,6 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
-import main.java.models.meta.ModelList;
 import main.java.utils.DummyGenerator;
 import main.java.models.Event;
 import main.java.models.User;
@@ -60,9 +59,9 @@ public class EventDBTest extends AbstractDBTest {
     @Test
     public void test_returned_empty_list_when_there_are_not_events() throws DAOException {
         EventDAO eventDAO = EventDAOSQL.getInstance();
-        ModelList<Event> eventList = eventDAO.getList();
+        List<Event> eventList = eventDAO.getList();
         assertNotNull(eventList);
-        assertEquals(0, eventList.list.size());
+        assertEquals(0, eventList.size());
     }
 
     @Test
@@ -86,11 +85,11 @@ public class EventDBTest extends AbstractDBTest {
             add(insertedOtherEvent);
         }};
 
-        ModelList<Event> outputEventList = eventDAO.getList();
+        List<Event> outputEventList = eventDAO.getList();
         assertNotNull(outputEventList);
-        assertEquals(expectedEventList.size(), outputEventList.list.size());
+        assertEquals(expectedEventList.size(), outputEventList.size());
 
-        assertEventListEquals(expectedEventList, outputEventList.list);
+        assertEventListEquals(expectedEventList, outputEventList);
     }
 
     @Test
