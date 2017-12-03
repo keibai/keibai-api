@@ -64,6 +64,17 @@ public class DBFeeder {
         return auction;
     }
 
+    public static Auction createOtherDummyAuction(int eventId, int ownerId) throws DAOException {
+        Auction dummyAuction = DummyGenerator.getOtherDummyAuction();
+        dummyAuction.eventId = eventId;
+        dummyAuction.ownerId = ownerId;
+        dummyAuction.winnerId = 0;
+
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Auction auction = auctionDAO.create(dummyAuction);
+        return auction;
+    }
+
     public static Good createDummyGood() throws DAOException {
         Auction dummyAuction = createDummyAuction();
 
