@@ -2,10 +2,16 @@ package main.java.dao.sql;
 
 import main.java.dao.*;
 import main.java.models.Auction;
+import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
 import main.java.models.Event;
 import main.java.models.User;
+import main.java.utils.ImpreciseDate;
 import org.junit.Test;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -119,6 +125,41 @@ public class AuctionDBTest extends AbstractDBTest {
         auction.ownerId = insertedOwner.id;
         Auction insertedAuction = auctionDAO.create(auction);
         assertTrue(insertedAuction.winnerId == 0);
+    }
+
+    @Test
+    public void test_returned_empty_list_when_there_are_not_auctions_for_an_event() throws Exception {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        List<Auction> auctionList = auctionDAO.getListByEventId(dummyEvent.id);
+        assertEquals(0, auctionList.size());
+    }
+
+    @Test
+    public void test_list_of_auctions_for_an_event() throws Exception {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Event dummyEvent = DBFeeder.createDummyEvent();
+
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.ownerId = dummyEvent.ownerId;
+        auction.eventId = dummyEvent.id;
+        Auction insertedAuction = auctionDAO.create(auction);
+
+        Auction auctionOther = DummyGenerator.getOtherDummyAuction();
+        auctionOther.ownerId = dummyEvent.ownerId;
+        auctionOther.eventId = dummyEvent.id;
+        Auction insertedOtherAuction = auctionDAO.create(auctionOther);
+
+        List<Auction> expectedAuctionList = new LinkedList<Auction>() {{
+            add(insertedAuction);
+            add(insertedOtherAuction);
+        }};
+
+        List<Auction> outputAuctionList = auctionDAO.getListByEventId(dummyEvent.id);
+        assertNotNull(outputAuctionList);
+        assertEquals(expectedAuctionList.size(), outputAuctionList.size());
+
+        assertAuctionListEquals(expectedAuctionList, outputAuctionList);
     }
 
     @Test
@@ -258,6 +299,26 @@ public class AuctionDBTest extends AbstractDBTest {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         boolean isDeleted = auctionDAO.delete(1234);
         assertFalse(isDeleted);
+    }
+
+    public static void assertAuctionListEquals(List<Auction> expectedAuctionList, List<Auction> outputAuctionList) {
+        Iterator<Auction> expectedIterator = expectedAuctionList.iterator();
+        Iterator<Auction> outputIterator = outputAuctionList.iterator();
+
+        while (expectedIterator.hasNext() && outputIterator.hasNext()) {
+            Auction expectedAuction = expectedIterator.next();
+            Auction outputAuction = outputIterator.next();
+
+            assertEquals(expectedAuction.id, outputAuction.id);
+            assertEquals(expectedAuction.name, outputAuction.name);
+            assertEquals(expectedAuction.startingPrice, outputAuction.startingPrice, 0.0000001);
+            assertEquals(new ImpreciseDate(expectedAuction.startTime), new ImpreciseDate(outputAuction.startTime));
+            assertEquals(expectedAuction.isValid, outputAuction.isValid);
+            assertEquals(expectedAuction.eventId, outputAuction.eventId);
+            assertEquals(expectedAuction.ownerId, outputAuction.ownerId);
+            assertEquals(expectedAuction.status, outputAuction.status);
+            assertEquals(expectedAuction.winnerId, outputAuction.winnerId);
+        }
     }
 
 }

@@ -8,6 +8,8 @@ import main.java.models.Auction;
 
 import javax.naming.NamingException;
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO {
 
@@ -79,6 +81,27 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
         }
     }
 
+    @Override
+    public List<Auction> getListByEventId(int eventId) throws DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.auction WHERE \"event\" = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
+            statement.setInt(1, eventId);
+            ResultSet resultSet = statement.executeQuery();
+
+            List<Auction> auctionList = new LinkedList<>();
+            while (resultSet.next()) {
+                auctionList.add(objectFromResultSet(resultSet));
+            }
+
+            return auctionList;
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
     public Auction update(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
@@ -140,5 +163,4 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
         auction.winnerId = resultSet.getInt(DB_WINNER_ID);
         return auction;
     }
-
 }
