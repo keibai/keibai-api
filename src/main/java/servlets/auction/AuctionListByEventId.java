@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "AuctionListByEventId", urlPatterns = {"/auctions/search"})
+@WebServlet(name = "AuctionListByEventId", urlPatterns = {"/auctions/list"})
 public class AuctionListByEventId extends HttpServlet {
 
     public static final String ID_NONE = "Event ID can not be empty";
@@ -28,7 +28,7 @@ public class AuctionListByEventId extends HttpServlet {
         JsonResponse jsonResponse = new JsonResponse(response);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
-        String param = request.getParameter("event");
+        String param = request.getParameter("eventid");
         if (param == null) {
             jsonResponse.error(ID_NONE);
             return;

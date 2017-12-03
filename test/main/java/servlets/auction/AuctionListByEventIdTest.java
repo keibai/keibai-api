@@ -32,7 +32,7 @@ public class AuctionListByEventIdTest extends AbstractDBTest {
     @Test
     public void test_when_event_id_parameter_is_empty() throws Exception {
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.parameter("event", "").listen();
+        stubber.parameter("eventid", "").listen();
         new AuctionListByEventId().doGet(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
@@ -42,7 +42,7 @@ public class AuctionListByEventIdTest extends AbstractDBTest {
     @Test
     public void test_when_event_id_parameter_is_NaN() throws Exception {
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.parameter("event", "OMGNaN").listen();
+        stubber.parameter("eventid", "OMGNaN").listen();
         new AuctionListByEventId().doGet(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
@@ -60,7 +60,7 @@ public class AuctionListByEventIdTest extends AbstractDBTest {
         }};
 
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.parameter("event", String.valueOf(auction.eventId)).listen();
+        stubber.parameter("eventid", String.valueOf(auction.eventId)).listen();
         new AuctionListByEventId().doGet(stubber.servletRequest, stubber.servletResponse);
         Auction[] modelList = new Gson().fromJson(stubber.gathered(), Auction[].class);
 
