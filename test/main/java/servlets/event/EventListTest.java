@@ -1,31 +1,30 @@
 package main.java.servlets.event;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.EventDBTest;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.utils.DBFeeder;
-import main.java.utils.ImpreciseDate;
 import org.junit.Test;
 
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class EventListTest extends AbstractDBTest {
 
     @Test
-    public void test_get_event_list_with_no_event_returns_empty_list() throws Exception {
+    public void test_get_event_list_with_no_event_returns_empty_array() throws Exception {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventList().doGet(stubber.servletRequest, stubber.servletResponse);
-        List<Event> outputListEvent = new Gson().fromJson(stubber.gathered(), new TypeToken<List<Event>>(){}.getType());
-        assertEquals(0, outputListEvent.size());
+        Event[] outputEvents = new Gson().fromJson(stubber.gathered(), Event[].class);
+
+        assertEquals(0, outputEvents.length);
     }
 
     @Test
@@ -42,8 +41,8 @@ public class EventListTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventList().doGet(stubber.servletRequest, stubber.servletResponse);
-        List<Event> outputEventList = new Gson().fromJson(stubber.gathered(), new TypeToken<List<Event>>(){}.getType());
+        Event[] modelList = new Gson().fromJson(stubber.gathered(), Event[].class);
 
-        EventDBTest.assertEventListEquals(expectedEventList, outputEventList);
+        EventDBTest.assertEventListEquals(expectedEventList, Arrays.asList(modelList));
     }
 }

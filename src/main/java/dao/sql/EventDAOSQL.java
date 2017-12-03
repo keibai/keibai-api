@@ -2,7 +2,6 @@ package main.java.dao.sql;
 
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
-import main.java.dao.NotFoundException;
 import main.java.db.Source;
 import main.java.models.Event;
 
@@ -11,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

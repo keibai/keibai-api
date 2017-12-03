@@ -23,14 +23,14 @@ public class EventList extends HttpServlet {
         JsonResponse jsonResponse = new JsonResponse(response);
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
-        List<Event> eventList;
+        List<Event> dbEvents;
         try {
-            eventList = eventDAO.getList();
+            dbEvents = eventDAO.getList();
         } catch (DAOException e) {
             Logger.error("Get event list", e.toString());
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(eventList));
+        jsonResponse.response(new Gson().toJson(dbEvents.toArray()));
     }
 }
