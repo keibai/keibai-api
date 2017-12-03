@@ -52,8 +52,9 @@ public class UserSearch extends HttpServlet {
             return;
         }
 
-        // Hide password from output
+        // Hide personal fields
         dbUser.password = null;
+        dbUser.credit = 0.0;
 
         jsonResponse.response(new Gson().toJson(dbUser));
     }
