@@ -1,7 +1,9 @@
 package main.java.servlets.user;
 
 import com.google.gson.Gson;
+import main.java.dao.UserDAO;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.UserDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.User;
 import main.java.models.meta.Error;
@@ -61,4 +63,18 @@ public class UserSearchTest extends AbstractDBTest {
         assertEquals(new ImpreciseDate(dummyUser.updatedAt), new ImpreciseDate(outputUser.updatedAt));
     }
 
+    @Test
+    public void should_hide_credit() throws Exception {
+        User dummyUser = DummyGenerator.getDummyUser();
+        dummyUser.credit = 10.0;
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        User dbUser = userDAO.create(dummyUser);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.parameter("id", String.valueOf(dbUser.id)).listen();
+        new UserSearch().doGet(stubber.servletRequest, stubber.servletResponse);
+        User outputUser = new Gson().fromJson(stubber.gathered(), User.class);
+
+        assertEquals(0.0, outputUser.credit, 0.01);
+    }
 }
