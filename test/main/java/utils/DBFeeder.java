@@ -97,4 +97,14 @@ public class DBFeeder {
         Bid bid = bidDAO.create(dummyBid);
         return bid;
     }
+
+    public static Bid createOtherDummyBid(int auctionId, int ownerId) throws DAOException {
+        Bid dummyBid = DummyGenerator.getOtherDummyBid();
+        dummyBid.auctionId = auctionId;
+        dummyBid.ownerId = ownerId;
+
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        Bid bid = bidDAO.create(dummyBid);
+        return bid;
+    }
 }
