@@ -1,5 +1,6 @@
 package main.java.utils;
 
+import main.java.dao.EventDAO;
 import main.java.models.*;
 
 import java.sql.Timestamp;
@@ -30,13 +31,13 @@ public class DummyGenerator {
     public static final double TEST_AUCTION_STARTING_PRICE = 1.0;
     public static final Timestamp TEST_AUCTION_START_TIME = new Timestamp(System.currentTimeMillis());
     public static final String TEST_AUCTION_STATUS = Auction.AUCTION_STATUSES[0];
-    public static final boolean TEST_AUCTION_IS_VALID = true;
+    public static final String TEST_AUCTION_IS_VALID = Auction.AUCTION_VALID_STATES[0];
 
     public static final String TEST_AUCTION_OTHER_NAME = "TestOtherName";
     public static final double TEST_AUCTION_OTHER_STARTING_PRICE = 2.0;
     public static final Timestamp TEST_AUCTION_OTHER_START_TIME = new Timestamp(System.currentTimeMillis());
     public static final String TEST_AUCTION_OTHER_STATUS = Auction.AUCTION_STATUSES[1];
-    public static final boolean TEST_AUCTION_OTHER_IS_VALID = true;
+    public static final String TEST_AUCTION_OTHER_IS_VALID = Auction.AUCTION_VALID_STATES[1];
 
     public static Auction getDummyAuction() {
         Auction auction = new Auction();
@@ -44,7 +45,7 @@ public class DummyGenerator {
         auction.startingPrice = TEST_AUCTION_STARTING_PRICE;
         auction.startTime = TEST_AUCTION_START_TIME;
         auction.status = TEST_AUCTION_STATUS;
-        auction.isValid = TEST_AUCTION_IS_VALID;
+        auction.valid = TEST_AUCTION_IS_VALID;
         return auction;
     }
 
@@ -54,7 +55,7 @@ public class DummyGenerator {
         auction.startingPrice = TEST_AUCTION_OTHER_STARTING_PRICE;
         auction.startTime = TEST_AUCTION_OTHER_START_TIME;
         auction.status = TEST_AUCTION_OTHER_STATUS;
-        auction.isValid = TEST_AUCTION_OTHER_IS_VALID;
+        auction.valid = TEST_AUCTION_OTHER_IS_VALID;
         return auction;
     }
 
@@ -63,12 +64,14 @@ public class DummyGenerator {
     public static final String TEST_EVENT_LOCATION = "TestLocation";
     public static final String TEST_EVENT_AUCTION_TYPE = Event.AUCTION_TYPES[0];
     public static final String TEST_EVENT_CATEGORY = "TestCategory";
+    public static final String TEST_EVENT_STATUS = Event.EVENT_STATUS[0];
 
     public static final String TEST_EVENT_OTHER_NAME = "TestOtherName";
     public static final int TEST_EVENT_OTHER_AUCTION_TIME = 100;
     public static final String TEST_EVENT_OTHER_LOCATION = "TestLocation";
     public static final String TEST_EVENT_OTHER_AUCTION_TYPE = Event.AUCTION_TYPES[1];
     public static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
+    public static final String TEST_EVENT_OTHER_STATUS = Event.EVENT_STATUS[1];
 
     public static Event getDummyEvent() {
         Event event = new Event();
@@ -77,6 +80,7 @@ public class DummyGenerator {
         event.location = TEST_EVENT_LOCATION;
         event.auctionType = TEST_EVENT_AUCTION_TYPE;
         event.category = TEST_EVENT_CATEGORY;
+        event.status = TEST_EVENT_STATUS;
         return event;
     }
 
@@ -87,6 +91,7 @@ public class DummyGenerator {
         event.auctionTime = TEST_EVENT_OTHER_AUCTION_TIME;
         event.auctionType = TEST_EVENT_OTHER_AUCTION_TYPE;
         event.location = TEST_EVENT_OTHER_LOCATION;
+        event.status = TEST_EVENT_OTHER_STATUS;
         return event;
     }
 

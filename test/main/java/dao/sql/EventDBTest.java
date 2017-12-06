@@ -191,6 +191,7 @@ public class EventDBTest extends AbstractDBTest {
             assertEquals(expectedEvent.auctionType, outputEvent.auctionType);
             assertEquals(expectedEvent.category, outputEvent.category);
             assertEquals(expectedEvent.ownerId, outputEvent.ownerId);
+            assertEquals(expectedEvent.status, outputEvent.status);
         }
     }
 

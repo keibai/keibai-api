@@ -46,7 +46,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
-            statement.setBoolean(4, auction.isValid);
+            statement.setString(4, auction.valid);
             statement.setInt(5, auction.eventId);
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
@@ -115,7 +115,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
-            statement.setBoolean(4, auction.isValid);
+            statement.setString(4, auction.valid);
             statement.setInt(5, auction.eventId);
             statement.setInt(6, auction.ownerId);
             statement.setString(7, auction.status);
@@ -156,7 +156,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
         auction.name = resultSet.getString(DB_NAME);
         auction.startingPrice = resultSet.getDouble(DB_STARTING_PRICE);
         auction.startTime = resultSet.getTimestamp(DB_START_TIME);
-        auction.isValid = resultSet.getBoolean(DB_IS_VALID);
+        auction.valid = resultSet.getString(DB_IS_VALID);
         auction.eventId = resultSet.getInt(DB_EVENT_ID);
         auction.ownerId = resultSet.getInt(DB_OWNER_ID);
         auction.status = resultSet.getString(DB_STATUS);

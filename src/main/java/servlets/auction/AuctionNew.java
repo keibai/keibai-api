@@ -37,7 +37,6 @@ public class AuctionNew extends HttpServlet {
         JsonResponse jsonResponse = new JsonResponse(response);
         HttpSession session = new HttpSession(request);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
-        UserDAO userDAO = UserDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
         int userId = session.userId();
@@ -93,7 +92,7 @@ public class AuctionNew extends HttpServlet {
         newAuction.ownerId = userId;
         newAuction.status = unsafeAuction.status;
         newAuction.winnerId = 0;
-        newAuction.isValid = unsafeAuction.isValid;
+        newAuction.valid = Auction.PENDING;
 
         Auction dbAuction;
         try {

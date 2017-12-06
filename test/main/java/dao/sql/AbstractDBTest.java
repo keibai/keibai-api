@@ -30,6 +30,8 @@ public abstract class AbstractDBTest {
     public void createAllTables() throws IOException, SQLException, NamingException {
         SQLFileExecutor.executeSQLFile(Source.getInstance().getConnection(),
                 new FileInputStream("db/v1.0.sql"));
+        SQLFileExecutor.executeSQLFile(Source.getInstance().getConnection(),
+                new FileInputStream("db/v1.1.sql"));
     }
 
     @After
