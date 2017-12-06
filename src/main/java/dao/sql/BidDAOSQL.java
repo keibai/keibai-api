@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
 
@@ -66,6 +68,27 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
 
             return objectFromResultSet(resultSet);
         } catch (NamingException | SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public List<Bid> getListByOwnerId(int ownerId) throws DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.bid WHERE \"owner\" = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
+            statement.setInt(1, ownerId);
+            ResultSet resultSet = statement.executeQuery();
+
+            List<Bid> bidList = new LinkedList<>();
+            while (resultSet.next()) {
+                bidList.add(objectFromResultSet(resultSet));
+            }
+
+            return bidList;
+        } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
     }
