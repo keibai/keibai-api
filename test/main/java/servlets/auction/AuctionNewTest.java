@@ -67,7 +67,7 @@ public class AuctionNewTest extends AbstractDBTest {
         attemptAuction.ownerId = dummyUser.id;
         attemptAuction.eventId = dummyEvent.id;
         attemptAuction.startTime = null;
-        attemptAuction.isValid = false;
+        attemptAuction.valid = Auction.PENDING;
         String attemptAuctionJson = new Gson().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -80,7 +80,7 @@ public class AuctionNewTest extends AbstractDBTest {
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(attemptAuction.startingPrice, outputAuction.startingPrice, 0.01);
         assertEquals(attemptAuction.startTime, outputAuction.startTime);
-        assertEquals(attemptAuction.isValid, outputAuction.isValid);
+        assertEquals(attemptAuction.valid, outputAuction.valid);
         assertNotEquals(outputAuction.ownerId, 0);
         assertEquals(attemptAuction.status, outputAuction.status);
     }
@@ -120,7 +120,7 @@ public class AuctionNewTest extends AbstractDBTest {
         assertEquals(bodyAuction.name, outputAuction.name);
         assertEquals(bodyAuction.startingPrice, outputAuction.startingPrice, 0.01);
         assertEquals(new ImpreciseDate(bodyAuction.startTime), new ImpreciseDate(outputAuction.startTime));
-        assertEquals(bodyAuction.isValid, outputAuction.isValid);
+        assertEquals(bodyAuction.valid, outputAuction.valid);
         assertNotEquals(outputAuction.ownerId, 0);
         assertEquals(bodyAuction.status, outputAuction.status);
         assertEquals(bodyAuction.eventId, outputAuction.eventId);

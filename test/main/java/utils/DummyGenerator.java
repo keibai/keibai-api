@@ -31,13 +31,13 @@ public class DummyGenerator {
     public static final double TEST_AUCTION_STARTING_PRICE = 1.0;
     public static final Timestamp TEST_AUCTION_START_TIME = new Timestamp(System.currentTimeMillis());
     public static final String TEST_AUCTION_STATUS = Auction.AUCTION_STATUSES[0];
-    public static final boolean TEST_AUCTION_IS_VALID = true;
+    public static final String TEST_AUCTION_IS_VALID = Auction.AUCTION_VALID_STATES[0];
 
     public static final String TEST_AUCTION_OTHER_NAME = "TestOtherName";
     public static final double TEST_AUCTION_OTHER_STARTING_PRICE = 2.0;
     public static final Timestamp TEST_AUCTION_OTHER_START_TIME = new Timestamp(System.currentTimeMillis());
     public static final String TEST_AUCTION_OTHER_STATUS = Auction.AUCTION_STATUSES[1];
-    public static final boolean TEST_AUCTION_OTHER_IS_VALID = true;
+    public static final String TEST_AUCTION_OTHER_IS_VALID = Auction.AUCTION_VALID_STATES[1];
 
     public static Auction getDummyAuction() {
         Auction auction = new Auction();
@@ -45,7 +45,7 @@ public class DummyGenerator {
         auction.startingPrice = TEST_AUCTION_STARTING_PRICE;
         auction.startTime = TEST_AUCTION_START_TIME;
         auction.status = TEST_AUCTION_STATUS;
-        auction.isValid = TEST_AUCTION_IS_VALID;
+        auction.valid = TEST_AUCTION_IS_VALID;
         return auction;
     }
 
@@ -55,7 +55,7 @@ public class DummyGenerator {
         auction.startingPrice = TEST_AUCTION_OTHER_STARTING_PRICE;
         auction.startTime = TEST_AUCTION_OTHER_START_TIME;
         auction.status = TEST_AUCTION_OTHER_STATUS;
-        auction.isValid = TEST_AUCTION_OTHER_IS_VALID;
+        auction.valid = TEST_AUCTION_OTHER_IS_VALID;
         return auction;
     }
 
