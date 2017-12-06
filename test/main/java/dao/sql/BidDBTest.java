@@ -8,6 +8,9 @@ import main.java.models.User;
 import main.java.utils.DummyGenerator;
 import org.junit.Test;
 
+import java.util.Iterator;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 
@@ -199,5 +202,20 @@ public class BidDBTest extends AbstractDBTest {
         BidDAO bidDAO = BidDAOSQL.getInstance();
         boolean deleted = bidDAO.delete(24);
         assertFalse(deleted);
+    }
+
+    public static void assertBidListEquals(List<Bid> expectedBidList, List<Bid> outputBidList) {
+        Iterator<Bid> expectedIterator = expectedBidList.iterator();
+        Iterator<Bid> outputIterator = outputBidList.iterator();
+
+        while (expectedIterator.hasNext() && outputIterator.hasNext()) {
+            Bid expectedBid = expectedIterator.next();
+            Bid outputBid = outputIterator.next();
+
+            assertEquals(expectedBid.id, outputBid.id);
+            assertEquals(expectedBid.auctionId, outputBid.auctionId);
+            assertEquals(expectedBid.ownerId, outputBid.ownerId);
+            assertEquals(expectedBid.amount, outputBid.amount, 0.01);
+        }
     }
 }
