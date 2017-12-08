@@ -154,4 +154,24 @@ public class AuctionNewTest extends AbstractDBTest {
         assertEquals(AuctionNew.EVENT_NOT_EXIST_ERROR, error.error);
     }
 
+    @Test
+    public void throw_event_closed_when_event_closed() throws Exception {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        dummyEvent.status = Event.CLOSED;
+        Event event = eventDAO.update(dummyEvent);
+
+        Auction bodyAuction = DummyGenerator.getDummyAuction();
+        bodyAuction.eventId = event.id;
+        bodyAuction.ownerId = event.ownerId;
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.body(new Gson().toJson(bodyAuction)).authenticate(event.ownerId).listen();
+        new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        assertEquals(AuctionNew.EVENT_NOT_ACTIVE, error.error);
+    }
+
 }
