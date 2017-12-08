@@ -165,7 +165,6 @@ public class AuctionNewTest extends AbstractDBTest {
         Auction bodyAuction = DummyGenerator.getDummyAuction();
         bodyAuction.eventId = event.id;
         bodyAuction.ownerId = event.ownerId;
-        String bodyAuctionJson = new Gson().toJson(bodyAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.body(new Gson().toJson(bodyAuction)).authenticate(event.ownerId).listen();
