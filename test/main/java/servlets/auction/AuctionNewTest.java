@@ -50,12 +50,27 @@ public class AuctionNewTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_auction_with_no_valid_status_can_not_be_created() throws ServletException, DAOException, IOException {
+    public void auction_should_be_given_pending_status() throws ServletException, DAOException, IOException {
+        User dummyUser = DBFeeder.createDummyUser();
         Event dummyEvent = DBFeeder.createDummyEvent();
+
         Auction attemptAuction = DummyGenerator.getDummyAuction();
-        attemptAuction.status = "WrongStatus";
+        attemptAuction.ownerId = dummyUser.id;
         attemptAuction.eventId = dummyEvent.id;
-        common_auction_error_test(attemptAuction, AuctionNew.AUCTION_STATUS_ERROR);
+        attemptAuction.startTime = null;
+        attemptAuction.status = Auction.IN_PROGRESS; // Hack attempt.
+        attemptAuction.valid = Auction.ACCEPTED; // Hack attempt.
+        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(dummyUser.id);
+        stubber.body(attemptAuctionJson).listen();
+        new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+
+        assertEquals(outputAuction.valid, Auction.PENDING);
+        assertEquals(outputAuction.status, Auction.OPENED);
     }
 
     @Test
@@ -64,10 +79,8 @@ public class AuctionNewTest extends AbstractDBTest {
         Event dummyEvent = DBFeeder.createDummyEvent();
 
         Auction attemptAuction = DummyGenerator.getDummyAuction();
-        attemptAuction.ownerId = dummyUser.id;
         attemptAuction.eventId = dummyEvent.id;
         attemptAuction.startTime = null;
-        attemptAuction.valid = Auction.PENDING;
         String attemptAuctionJson = new Gson().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -80,9 +93,9 @@ public class AuctionNewTest extends AbstractDBTest {
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(attemptAuction.startingPrice, outputAuction.startingPrice, 0.01);
         assertEquals(attemptAuction.startTime, outputAuction.startTime);
-        assertEquals(attemptAuction.valid, outputAuction.valid);
-        assertNotEquals(outputAuction.ownerId, 0);
-        assertEquals(attemptAuction.status, outputAuction.status);
+        assertEquals(dummyUser.id, outputAuction.ownerId);
+        assertEquals(outputAuction.valid, Auction.PENDING);
+        assertEquals(outputAuction.status, Auction.OPENED);
     }
 
     private void common_auction_error_test(Auction attemptAuction, String errorMsg) throws DAOException, IOException, ServletException {
@@ -115,11 +128,11 @@ public class AuctionNewTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.body(new Gson().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
-
         Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+
         assertEquals(bodyAuction.name, outputAuction.name);
         assertEquals(bodyAuction.startingPrice, outputAuction.startingPrice, 0.01);
-        assertEquals(new ImpreciseDate(bodyAuction.startTime), new ImpreciseDate(outputAuction.startTime));
+        assertNull(outputAuction.startTime); // Start time shouldn't be set by user.
         assertEquals(bodyAuction.valid, outputAuction.valid);
         assertNotEquals(outputAuction.ownerId, 0);
         assertEquals(bodyAuction.status, outputAuction.status);
