@@ -22,6 +22,7 @@ import java.io.IOException;
 public class UserUpdateCredit extends HttpServlet {
 
     public static final String INVALID_CREDIT_AMOUNT = "Invalid credit amount";
+    public static final String USER_NOT_EXIST = "User does not exist";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -57,6 +58,11 @@ public class UserUpdateCredit extends HttpServlet {
         } catch (DAOException e) {
             Logger.error("Get user by ID in update user credit: UserID " + userId, e.toString());
             jsonResponse.internalServerError();
+            return;
+        }
+
+        if (user == null) {
+            jsonResponse.error(USER_NOT_EXIST);
             return;
         }
 
