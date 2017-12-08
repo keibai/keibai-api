@@ -6,6 +6,7 @@ import main.java.mocks.HttpServletStubber;
 import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
+import main.java.utils.DummyGenerator;
 import main.java.utils.ImpreciseDate;
 import main.java.utils.JsonResponse;
 import org.junit.Test;
@@ -25,6 +26,24 @@ public class UserUpdateCreditTest extends AbstractDBTest {
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonResponse.INVALID_REQUEST, error.error);
+    }
+
+    @Test
+    public void should_show_error_if_user_does_not_exist() throws Exception {
+        User dummyUser = DummyGenerator.getDummyUser();
+
+        User updatedUser = new User();
+        updatedUser.id = dummyUser.id;
+        updatedUser.credit = 2;
+        String updatedUserJson = new Gson().toJson(updatedUser);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(dummyUser.id);
+        stubber.body(updatedUserJson).listen();
+        new UserUpdateCredit().doPost(stubber.servletRequest, stubber.servletResponse);
+        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+
+        assertEquals(UserUpdateCredit.USER_NOT_EXIST, error.error);
     }
 
     @Test
