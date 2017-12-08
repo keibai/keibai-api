@@ -5,7 +5,10 @@ import java.util.Objects;
 
 public class Auction extends ModelAbstract {
 
-    public static final String[] AUCTION_STATUSES = {"OPENED", "CLOSED", "IN_PROGRESS"};
+    public static final String OPENED = "OPENED";
+    public static final String CLOSED = "CLOSED";
+    public static final String IN_PROGRESS = "IN_PROGRESS";
+    public static final String[] AUCTION_STATUSES = {OPENED, CLOSED, IN_PROGRESS};
 
     public static final String PENDING = "PENDING";
     public static final String ACCEPTED = "ACCEPTED";
