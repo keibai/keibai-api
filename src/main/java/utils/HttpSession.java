@@ -9,7 +9,11 @@ public class HttpSession {
     private final javax.servlet.http.HttpSession session;
 
     public HttpSession(HttpServletRequest request) {
-        this.session = request.getSession();
+        this(request.getSession());
+    }
+
+    public HttpSession(javax.servlet.http.HttpSession session) {
+        this.session = session;
         this.session.setMaxInactiveInterval(SESSION_DURATION);
     }
 

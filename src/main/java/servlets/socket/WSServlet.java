@@ -6,21 +6,38 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint(value = "/ws", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
+@ServerEndpoint(value = "/ws",
+        decoders = MessageDecoder.class,
+        encoders = MessageEncoder.class,
+        configurator = GetHttpSessionConfigurator.class)
 public class WSServlet {
 
     private Session session;
+    private HttpSession httpSession;
+    private main.java.utils.HttpSession mySession;
     private static final Set<WSServlet> chatEndpoints = new CopyOnWriteArraySet<>();
 
     @OnOpen
-    public void onOpen(Session session) throws IOException {
+    public void onOpen(Session session, EndpointConfig config) throws IOException {
         System.out.println("Hola");
         this.session = session;
         chatEndpoints.add(this);
+        this.httpSession = (HttpSession) config.getUserProperties()
+                .get(HttpSession.class.getName());
+        mySession = new main.java.utils.HttpSession(this.httpSession);
         // Get session and WebSocket connection
+
+        Message message = new Message();
+        message.setContent("Hello you are " + mySession.userId());
+        try {
+            broadcast(message);
+        } catch(Exception e) {
+
+        }
     }
 
     @OnMessage
