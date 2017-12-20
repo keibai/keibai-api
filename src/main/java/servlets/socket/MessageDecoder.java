@@ -4,23 +4,30 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 import com.google.gson.Gson;
-import main.java.models.meta.Message;
+import com.google.gson.JsonSyntaxException;
+import main.java.models.meta.MsgWS;
 
-import javax.websocket.EndpointConfig;
-
-public class MessageDecoder implements Decoder.Text<Message> {
+public class MessageDecoder implements Decoder.Text<MsgWS> {
 
     private static Gson gson = new Gson();
 
     @Override
-    public Message decode(String s) throws DecodeException {
-        Message message = gson.fromJson(s, Message.class);
-        return message;
+    public MsgWS decode(String s) throws DecodeException {
+        try {
+            MsgWS msg = gson.fromJson(s, MsgWS.class);
+            System.out.println("aa");
+            System.out.println(msg);
+            return msg;
+        } catch (JsonSyntaxException e) {
+            System.out.println(e.toString());
+            MsgWS emptyMessage = new MsgWS();
+            return emptyMessage;
+        }
     }
 
     @Override
     public boolean willDecode(String s) {
-        return (s != null);
+        return true;
     }
 
     @Override
