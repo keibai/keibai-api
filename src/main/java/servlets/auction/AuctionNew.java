@@ -27,7 +27,7 @@ public class AuctionNew extends HttpServlet {
     public static final String NAME_ERROR = "Auction name cannot be blank";
     public static final String AUCTION_STARTING_PRICE_ERROR = "Auction starting price must be a positive number";
     public static final String EVENT_NOT_EXIST_ERROR = "Event does not exist";
-    public static final String EVENT_NOT_ACTIVE = "Event not active. Can not create an auction";
+    public static final String EVENT_NOT_OPENED = "Event not opened. Can not create an auction";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
@@ -78,8 +78,8 @@ public class AuctionNew extends HttpServlet {
             return;
         }
 
-        if (!event.status.equals(Event.ACTIVE)) {
-            jsonResponse.error(EVENT_NOT_ACTIVE);
+        if (!event.status.equals(Event.OPENED)) {
+            jsonResponse.error(EVENT_NOT_OPENED);
             return;
         }
 
@@ -88,9 +88,8 @@ public class AuctionNew extends HttpServlet {
         newAuction.startingPrice = unsafeAuction.startingPrice;
         newAuction.eventId = unsafeAuction.eventId;
         newAuction.ownerId = userId;
-        newAuction.status = Auction.OPENED;
+        newAuction.status = Auction.PENDING;
         newAuction.winnerId = 0;
-        newAuction.valid = Auction.PENDING;
 
         Auction dbAuction;
         try {

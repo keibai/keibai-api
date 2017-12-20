@@ -55,7 +55,6 @@ public class AuctionSearchTest extends AbstractDBTest {
         assertEquals(dummyAuction.name, outputAuction.name);
         assertEquals(dummyAuction.startingPrice, outputAuction.startingPrice, 0.000000001);
         assertEquals(new ImpreciseDate(dummyAuction.startTime), new ImpreciseDate(outputAuction.startTime));
-        assertEquals(dummyAuction.valid, outputAuction.valid);
         assertEquals(dummyAuction.eventId, outputAuction.eventId);
         assertEquals(dummyAuction.ownerId, outputAuction.ownerId);
         assertEquals(dummyAuction.status, outputAuction.status);

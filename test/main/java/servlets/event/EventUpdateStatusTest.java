@@ -44,7 +44,7 @@ public class EventUpdateStatusTest extends AbstractDBTest {
 
         Event wrongEvent = new Event();
         wrongEvent.id = 0;
-        wrongEvent.status = Event.ACTIVE;
+        wrongEvent.status = Event.OPENED;
         String wrongEventJson = new Gson().toJson(wrongEvent);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -80,7 +80,7 @@ public class EventUpdateStatusTest extends AbstractDBTest {
 
         Event wrongEvent = new Event();
         wrongEvent.id = 2;
-        wrongEvent.status = Event.CLOSED;
+        wrongEvent.status = Event.IN_PROGRESS;
         String wrongEventJson = new Gson().toJson(wrongEvent);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -99,7 +99,7 @@ public class EventUpdateStatusTest extends AbstractDBTest {
 
         Event updateEvent = new Event();
         updateEvent.id = dummyEvent.id;
-        updateEvent.status = Event.CLOSED;
+        updateEvent.status = Event.IN_PROGRESS;
         String updateEventJson = new Gson().toJson(updateEvent);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -120,7 +120,7 @@ public class EventUpdateStatusTest extends AbstractDBTest {
 
         Event updateEvent = new Event();
         updateEvent.id = dummyEvent.id;
-        updateEvent.status = Event.CLOSED;
+        updateEvent.status = Event.IN_PROGRESS;
         String updatedEventJson = new Gson().toJson(updateEvent);
 
         HttpServletStubber stubber = new HttpServletStubber();
@@ -138,6 +138,6 @@ public class EventUpdateStatusTest extends AbstractDBTest {
         assertEquals(dummyEvent.ownerId, outputEvent.ownerId);
         assertEquals(new ImpreciseDate(dummyEvent.createdAt), new ImpreciseDate(outputEvent.createdAt));
         assertNotEquals(new ImpreciseDate(dummyEvent.updatedAt), new ImpreciseDate(outputEvent.updatedAt));
-        assertEquals(Event.CLOSED, outputEvent.status);
+        assertEquals(Event.IN_PROGRESS, outputEvent.status);
     }
 }

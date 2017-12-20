@@ -313,7 +313,6 @@ public class AuctionDBTest extends AbstractDBTest {
             assertEquals(expectedAuction.name, outputAuction.name);
             assertEquals(expectedAuction.startingPrice, outputAuction.startingPrice, 0.0000001);
             assertEquals(new ImpreciseDate(expectedAuction.startTime), new ImpreciseDate(outputAuction.startTime));
-            assertEquals(expectedAuction.valid, outputAuction.valid);
             assertEquals(expectedAuction.eventId, outputAuction.eventId);
             assertEquals(expectedAuction.ownerId, outputAuction.ownerId);
             assertEquals(expectedAuction.status, outputAuction.status);
