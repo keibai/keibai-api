@@ -15,6 +15,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>javax.websocket</groupId>
+      <artifactId>javax.websocket-api</artifactId>
+      <version>1.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>9.4.1211.jre7</version>
@@ -39,6 +45,11 @@
       <artifactId>mockito-all</artifactId>
       <version>1.10.19</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-websocket</artifactId>
+      <version>8.5.14</version>
     </dependency>
   </dependencies>
   <build>
