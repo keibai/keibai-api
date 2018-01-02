@@ -1,15 +1,12 @@
 package main.java.servlets.socket;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import main.java.models.Auction;
-import main.java.models.Bid;
-import main.java.models.meta.MsgWS;
+import main.java.models.meta.BodyWS;
 import main.java.utils.HttpSession;
 
 
 import javax.websocket.Session;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,26 +23,19 @@ public class BidWS implements WS {
     }
 
     @Override
-    public void onMessage(Session session, MsgWS message) {
-        switch(message.type) {
+    public void onMessage(Session session, BodyWS body) {
+        switch(body.type) {
             case "AuctionSubscribe": {
-                onAuctionSubscribe(session, message);
+                onAuctionSubscribe(session, body);
                 break;
             }
         }
     }
 
-    protected void onAuctionSubscribe(Session session, MsgWS message) {
-        Auction unsafeAuction;
-        try {
-            unsafeAuction = (Auction) message.object;
-        } catch (ClassCastException e) {
-            System.out.println("error");
-            System.out.println(e);
-            return;
-        }
+    protected void onAuctionSubscribe(Session session, BodyWS body) {
+        Auction unsafeAuction = new Gson().fromJson(body.json, Auction.class);
         System.out.println(unsafeAuction);
-        System.out.println("ya, it's fine");
+        System.out.println("auction subscribe");
 //        connected.getOrDefault(unsafeBid)
     }
 

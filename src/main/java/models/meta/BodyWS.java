@@ -1,18 +1,18 @@
 package main.java.models.meta;
 
-public class MsgWS {
+public class BodyWS {
     public String type;
     public String nonce;
-    public Object object;
+    public String json;
 
     public boolean isEmpty() {
         return type == null || type.equals("")
             && nonce == null || nonce.equals("")
-            && object == null;
+            && json == null || json.equals("");
     }
 
     @Override
     public String toString() {
-        return String.format("%s,%s,%s", type, nonce, object == null ? "" : object.toString());
+        return String.format("%s,%s,%s", type, nonce, json);
     }
 }

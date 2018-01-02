@@ -1,6 +1,6 @@
 package main.java.servlets.socket;
 
-import main.java.models.meta.MsgWS;
+import main.java.models.meta.BodyWS;
 import main.java.utils.Logger;
 
 import java.io.IOException;
@@ -10,8 +10,8 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(value = "/ws",
-        decoders = MessageDecoder.class,
-        encoders = MessageEncoder.class,
+        decoders = BodyDecoder.class,
+        encoders = BodyEncoder.class,
         configurator = GetHttpSessionConfigurator.class)
 public class CoreWS {
 
@@ -35,14 +35,14 @@ public class CoreWS {
     }
 
     @OnMessage
-    public void onMessage(Session session, MsgWS message) throws IOException {
-        if (message.isEmpty()) {
+    public void onMessage(Session session, BodyWS body) throws IOException {
+        if (body.isEmpty()) {
             System.out.println("is empty");
             return;
         }
 
         for (WS listener: listeners) {
-            listener.onMessage(session, message);
+            listener.onMessage(session, body);
         }
     }
 
@@ -63,7 +63,7 @@ public class CoreWS {
         }
     }
 
-//    private static void broadcast(MsgWS message)
+//    private static void broadcast(BodyWS message)
 //            throws IOException, EncodeException {
 //
 //        chatEndpoints.forEach(endpoint -> {

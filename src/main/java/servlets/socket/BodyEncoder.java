@@ -6,14 +6,14 @@ import javax.websocket.EndpointConfig;
 
 
 import com.google.gson.Gson;
-import main.java.models.meta.MsgWS;
+import main.java.models.meta.BodyWS;
 
-public class MessageEncoder implements Encoder.Text<MsgWS> {
+public class BodyEncoder implements Encoder.Text<BodyWS> {
 
     private static Gson gson = new Gson();
 
     @Override
-    public String encode(MsgWS message) throws EncodeException {
+    public String encode(BodyWS message) throws EncodeException {
         String json = gson.toJson(message);
         return json;
     }
