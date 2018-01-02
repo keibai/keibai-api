@@ -1,24 +1,40 @@
 package main.java.servlets.socket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import main.java.dao.AuctionDAO;
+import main.java.dao.BidDAO;
+import main.java.dao.DAOException;
+import main.java.dao.UserDAO;
+import main.java.dao.sql.AuctionDAOSQL;
+import main.java.dao.sql.BidDAOSQL;
+import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Auction;
+import main.java.models.Bid;
 import main.java.models.meta.BodyWS;
 import main.java.utils.HttpSession;
+import main.java.utils.Logger;
 
 
+import javax.websocket.EncodeException;
 import javax.websocket.Session;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BidWS implements WS {
 
-    private static final Map<Integer, Set<BidWS>> connected = new ConcurrentHashMap<>();
+    private static final Map<Integer, Set<BidWS>> connected = new ConcurrentHashMap<>(); // Auction id <-> Sockets
+    private int subscribed = -1; // Auction on which the current user is subscribed to.
 
+    Session session;
     HttpSession httpSession;
 
     @Override
     public void onOpen(Session session, main.java.utils.HttpSession httpSession) {
+        this.session = session;
         this.httpSession = httpSession;
     }
 
@@ -29,19 +45,148 @@ public class BidWS implements WS {
                 onAuctionSubscribe(session, body);
                 break;
             }
+            case "AuctionBid": {
+                onAuctionBid(session, body);
+                break;
+            }
         }
     }
 
     protected void onAuctionSubscribe(Session session, BodyWS body) {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         Auction unsafeAuction = new Gson().fromJson(body.json, Auction.class);
-        System.out.println(unsafeAuction);
-        System.out.println("auction subscribe");
-//        connected.getOrDefault(unsafeBid)
+
+        if (unsafeAuction.id == 0) {
+            // jsonResponse.error(AUCTION_ID_ERROR);
+            System.out.println("Empty auction ID");
+            return;
+        }
+
+        Auction dbAuction;
+        try {
+            dbAuction = auctionDAO.getById(unsafeAuction.id);
+        } catch (DAOException e) {
+            Logger.error("Get auction by ID", String.valueOf(unsafeAuction.id), e.toString());
+            // jsonResponse.internalServerError();
+            return;
+        }
+        if (dbAuction == null) {
+            // jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
+            System.out.println("Auction " + unsafeAuction.id + " does not exist.");
+            return;
+        }
+
+        removeSubscription();
+        synchronized (connected) {
+            if (!connected.containsKey(dbAuction.id)) {
+                connected.put(dbAuction.id, ConcurrentHashMap.newKeySet());
+            }
+        }
+        connected.get(dbAuction.id).add(this);
+        subscribed = dbAuction.id;
+        System.out.println(dbAuction);
+    }
+
+    protected void onAuctionBid(Session session, BodyWS body) {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+
+        Bid unsafeBid;
+        try {
+            unsafeBid = new Gson().fromJson(body.json, Bid.class);
+        } catch (JsonSyntaxException e) {
+            // jsonResponse.invalidRequest();
+            System.out.println("Invalid request.");
+            return;
+        }
+
+        if (unsafeBid == null) {
+            // jsonResponse.invalidRequest();
+            System.out.println("Invalid request.");
+            return;
+        }
+
+        if (unsafeBid.amount <= 0.0) {
+            // jsonResponse.error(INVALID_AMOUNT_ERROR);
+            System.out.println("Invalid amount.");
+            return;
+        }
+
+        if (unsafeBid.auctionId == 0) {
+            // jsonResponse.error(AUCTION_ID_ERROR);
+            System.out.println("Empty auction ID.");
+            return;
+        }
+
+        if (unsafeBid.auctionId != subscribed) {
+            System.out.println("Not subscribed to that auction.");
+            return;
+        }
+
+        Auction auction;
+        try {
+            auction = auctionDAO.getById(unsafeBid.auctionId);
+        } catch (DAOException e) {
+            Logger.error("Get auction by ID " + unsafeBid.auctionId, e.toString());
+            // jsonResponse.internalServerError();
+            return;
+        }
+        if (auction == null) {
+            // jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
+            System.out.println("Auction " + unsafeBid.auctionId + " does not exist");
+            return;
+        }
+
+        Bid newBid = new Bid();
+        newBid.amount = unsafeBid.amount;
+        newBid.auctionId = unsafeBid.auctionId;
+        newBid.ownerId = this.httpSession.userId();
+
+        Bid dbBid;
+        try {
+            dbBid = bidDAO.create(newBid);
+        } catch (DAOException e) {
+            Logger.error("Create bid", newBid.toString(), e.toString());
+            // jsonResponse.internalServerError();
+            return;
+        }
+
+        System.out.println(dbBid);
+        auctionBidded(dbBid);
+    }
+
+    protected void auctionBidded(Bid newBid) {
+        System.out.println("returning");
+        System.out.println(newBid);
+        BodyWS body = new BodyWS();
+        body.type = "AuctionBidded";
+        body.nonce = "1";
+        body.json = new Gson().toJson(newBid);
+        for (BidWS endpoint : connected.get(newBid.auctionId)) {
+            synchronized (endpoint) {
+                try {
+                    endpoint.session.getBasicRemote().sendObject(body);
+                } catch (IOException | EncodeException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
     public void onClose(Session session) {
+        removeSubscription();
+    }
 
+    protected void removeSubscription() {
+        if (subscribed == -1) {
+            return;
+        }
+        if (!connected.containsKey(subscribed)) {
+            return;
+        }
+        connected.get(subscribed).remove(this);
     }
 
     @Override

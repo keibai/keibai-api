@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import main.java.models.meta.BodyWS;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class BodyDecoder implements Decoder.Text<BodyWS> {
 
     // private static Gson gson = new Gson();
@@ -23,15 +26,18 @@ public class BodyDecoder implements Decoder.Text<BodyWS> {
      */
     @Override
     public BodyWS decode(String s) throws DecodeException {
-        String[] parts = s.split(",");
-        if (parts.length != 3) {
+
+        Pattern pattern = Pattern.compile("(.*?),(.*?),(.*)");
+        Matcher matcher = pattern.matcher(s);
+
+        if (!matcher.matches()) {
             return new BodyWS();
         }
 
         BodyWS res = new BodyWS();
-        res.type = parts[0];
-        res.nonce = parts[1];
-        res.json = parts[2];
+        res.type = matcher.group(1);
+        res.nonce = matcher.group(2);
+        res.json = matcher.group(3);
 
         return res;
         /*try {
