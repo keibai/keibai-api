@@ -17,7 +17,6 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
     private static final String DB_NAME = "name";
     private static final String DB_STARTING_PRICE = "starting_price";
     private static final String DB_START_TIME = "start_time";
-    private static final String DB_IS_VALID = "is_valid";
     private static final String DB_STATUS = "status";
     private static final String DB_EVENT_ID = "event";
     private static final String DB_OWNER_ID = "owner";
@@ -39,21 +38,20 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
     public Auction create(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.auction (name, starting_price, start_time, is_valid, event, owner, status, winner) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO public.auction (name, starting_price, start_time, event, owner, status, winner) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
-            statement.setString(4, auction.valid);
-            statement.setInt(5, auction.eventId);
-            statement.setInt(6, auction.ownerId);
-            statement.setString(7, auction.status);
+            statement.setInt(4, auction.eventId);
+            statement.setInt(5, auction.ownerId);
+            statement.setString(6, auction.status);
             if (auction.winnerId == 0) {
-                statement.setNull(8, 0);
+                statement.setNull(7, 0);
             } else {
-                statement.setInt(8, auction.winnerId);
+                statement.setInt(7, auction.winnerId);
             }
             statement.executeUpdate();
             return recentlyUpdated(statement);
@@ -128,7 +126,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.auction " +
                     "SET name = ?, starting_price = ?, " +
-                    "start_time = ?, is_valid = ?, event = ?, " +
+                    "start_time = ?, event = ?, " +
                     "owner = ?, status = ?, winner = ? " +
                     "WHERE id = ?";
 
@@ -136,16 +134,15 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             statement.setString(1, auction.name);
             statement.setDouble(2, auction.startingPrice);
             statement.setTimestamp(3, auction.startTime);
-            statement.setString(4, auction.valid);
-            statement.setInt(5, auction.eventId);
-            statement.setInt(6, auction.ownerId);
-            statement.setString(7, auction.status);
+            statement.setInt(4, auction.eventId);
+            statement.setInt(5, auction.ownerId);
+            statement.setString(6, auction.status);
             if (auction.winnerId == 0) {
-                statement.setNull(8, 0);
+                statement.setNull(7, 0);
             } else {
-                statement.setInt(8, auction.winnerId);
+                statement.setInt(7, auction.winnerId);
             }
-            statement.setInt(9, auction.id);
+            statement.setInt(8, auction.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -177,7 +174,6 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
         auction.name = resultSet.getString(DB_NAME);
         auction.startingPrice = resultSet.getDouble(DB_STARTING_PRICE);
         auction.startTime = resultSet.getTimestamp(DB_START_TIME);
-        auction.valid = resultSet.getString(DB_IS_VALID);
         auction.eventId = resultSet.getInt(DB_EVENT_ID);
         auction.ownerId = resultSet.getInt(DB_OWNER_ID);
         auction.status = resultSet.getString(DB_STATUS);
