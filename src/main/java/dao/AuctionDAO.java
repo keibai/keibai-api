@@ -8,4 +8,6 @@ public interface AuctionDAO extends CRUD<Auction> {
 
     List<Auction> getListByEventId(int eventId) throws DAOException;
 
+    List<Auction> getListByWinnerId(int winnerId) throws DAOException;
+
 }

@@ -102,6 +102,27 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
         }
     }
 
+    @Override
+    public List<Auction> getListByWinnerId(int winnerId) throws DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.auction WHERE \"winner\" = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
+            statement.setInt(1, winnerId);
+            ResultSet resultSet = statement.executeQuery();
+
+            List<Auction> auctionList = new LinkedList<>();
+            while (resultSet.next()) {
+                auctionList.add(objectFromResultSet(resultSet));
+            }
+
+            return auctionList;
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
     public Auction update(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
