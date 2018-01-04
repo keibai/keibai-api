@@ -1,8 +1,10 @@
 package main.java.servlets.auction;
 
 import com.google.gson.Gson;
+import main.java.dao.AuctionDAO;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
@@ -10,39 +12,27 @@ import main.java.models.Event;
 import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
+import main.java.utils.DummyGenerator;
 import main.java.utils.ImpreciseDate;
 import main.java.utils.JsonResponse;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class AuctionUpdateStatusTest extends AbstractDBTest {
+public class AuctionAcceptTest extends AbstractDBTest {
 
     @Test
     public void test_update_can_not_be_done_if_user_not_authenticated() throws Exception {
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.body("").listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
+        stubber.listen();
+        new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonResponse.UNAUTHORIZED, error.error);
     }
 
     @Test
-    public void test_invalid_request_if_body_is_empty() throws Exception {
-        User dummyUser = DBFeeder.createDummyUser();
-
-        HttpServletStubber stubber = new HttpServletStubber();
-        stubber.authenticate(dummyUser.id);
-        stubber.body("").listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
-
-        assertEquals(JsonResponse.INVALID_REQUEST, error.error);
-    }
-
-    @Test
-    public void test_invalid_request_if_auction_id_is_0() throws Exception {
+    public void test_auction_not_exist_if_auction_id_is_0() throws Exception {
         User dummyUser = DBFeeder.createDummyUser();
         Event dummyEvent = DBFeeder.createDummyEvent();
 
@@ -54,31 +44,31 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
-        stubber.body(wrongAuctionJson).listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
+        stubber.parameter("id", "0").listen();
+        new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.INVALID_REQUEST, error.error);
+        assertEquals(AuctionAccept.AUCTION_NOT_EXIST, error.error);
     }
 
     @Test
-    public void test_error_if_event_status_not_valid() throws Exception {
-        EventDAO eventDAO = EventDAOSQL.getInstance();
-        Auction dummyAuction = DBFeeder.createDummyAuction();
-        Event dummyEvent = eventDAO.getById(dummyAuction.eventId);
+    public void test_error_if_auction_status_not_valid() throws Exception {
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.status = Auction.IN_PROGRESS;
+        auction.ownerId = dummyEvent.ownerId;
+        auction.eventId = dummyEvent.id;
+        Auction dummyAuction = auctionDAO.create(auction);
 
-        Auction wrongAuction = new Auction();
-        wrongAuction.id = dummyEvent.id;
-        wrongAuction.status = "WRONG STATUS";
-        String wrongAuctionJson = new Gson().toJson(wrongAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyEvent.ownerId);
-        stubber.body(wrongAuctionJson).listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
+        stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
+        new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(AuctionUpdateStatus.INVALID_STATUS, error.error);
+        assertEquals(AuctionAccept.INVALID_STATUS, error.error);
     }
 
     @Test
@@ -86,18 +76,13 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
         User dummyUser = DBFeeder.createDummyUser();
         Event dummyEvent = DBFeeder.createDummyEvent();
 
-        Auction wrongAuction = new Auction();
-        wrongAuction.id = 2;
-        wrongAuction.status = Auction.PENDING;
-        String wrongAuctionJson = new Gson().toJson(wrongAuction);
-
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
-        stubber.body(wrongAuctionJson).listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
+        stubber.parameter("id", "2").listen();
+        new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(AuctionUpdateStatus.AUCTION_NOT_EXIST, error.error);
+        assertEquals(AuctionAccept.AUCTION_NOT_EXIST, error.error);
     }
 
     @Test
@@ -105,15 +90,10 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
         User dummyUser = DBFeeder.createDummyUser();
         Auction dummyAuction = DBFeeder.createDummyAuction();
 
-        Auction updateAuction = new Auction();
-        updateAuction.id = dummyAuction.id;
-        updateAuction.status = Auction.ACCEPTED;
-        String updateAuctionJson = new Gson().toJson(updateAuction);
-
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
-        stubber.body(updateAuctionJson).listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
+        stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
+        new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonResponse.UNAUTHORIZED, error.error);
@@ -121,22 +101,21 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
 
     @Test
     public void test_auction_status_update_is_performed() throws Exception {
-        EventDAO eventDAO = EventDAOSQL.getInstance();
-        Auction dummyAuction = DBFeeder.createDummyAuction();
-        Event dummyEvent = eventDAO.getById(dummyAuction.eventId);
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Auction auction = DummyGenerator.getDummyAuction();
+        auction.status = Auction.PENDING;
+        auction.ownerId = dummyEvent.ownerId;
+        auction.eventId = dummyEvent.id;
+        Auction dummyAuction = auctionDAO.create(auction);
 
         // Wait 1 second to avoid createdAt == updatedAt
         Thread.sleep(1000);
 
-        Auction updateAuction = new Auction();
-        updateAuction.id = dummyAuction.id;
-        updateAuction.status = Auction.ACCEPTED;
-        String updateAuctionJson = new Gson().toJson(updateAuction);
-
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyEvent.ownerId);
-        stubber.body(updateAuctionJson).listen();
-        new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
+        stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
+        new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(dummyAuction.id, outputAuction.id);
