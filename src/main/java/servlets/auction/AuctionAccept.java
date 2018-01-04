@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
-@WebServlet(name = "AuctionAccept", urlPatterns = "/auctions/update/status")
+@WebServlet(name = "AuctionAccept", urlPatterns = "/auctions/accept")
 public class AuctionAccept extends HttpServlet {
 
     public static final String ID_NONE = "Auction ID can not be empty";
