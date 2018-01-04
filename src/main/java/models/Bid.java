@@ -2,7 +2,7 @@ package main.java.models;
 
 import java.sql.Timestamp;
 
-public class Bid extends ModelAbstract {
+public class Bid extends ModelAbstract implements Comparable<Bid> {
 
     public double amount;
     public Timestamp createdAt;
@@ -44,5 +44,10 @@ public class Bid extends ModelAbstract {
                 ", ownerId=" + ownerId +
                 ", id=" + id +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Bid bid) {
+        return Double.compare(this.amount, bid.amount);
     }
 }
