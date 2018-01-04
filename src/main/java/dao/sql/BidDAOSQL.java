@@ -93,6 +93,27 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
         }
     }
 
+    @Override
+    public List<Bid> getListByAuctionId(int auctionId) throws DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.bid WHERE \"auction\" = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
+            statement.setInt(1, auctionId);
+            ResultSet resultSet = statement.executeQuery();
+
+            List<Bid> bidList = new LinkedList<>();
+            while (resultSet.next()) {
+                bidList.add(objectFromResultSet(resultSet));
+            }
+
+            return bidList;
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
     public Bid update(Bid bid) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();

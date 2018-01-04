@@ -20,6 +20,7 @@ import javax.websocket.EncodeException;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,7 +91,6 @@ public class BidWS implements WS {
     protected void onAuctionBid(Session session, BodyWS body) {
         BidDAO bidDAO = BidDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
-        UserDAO userDAO = UserDAOSQL.getInstance();
 
         Bid unsafeBid;
         try {
@@ -132,10 +132,38 @@ public class BidWS implements WS {
             // jsonResponse.internalServerError();
             return;
         }
+
         if (auction == null) {
             // jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
             System.out.println("Auction " + unsafeBid.auctionId + " does not exist");
             return;
+        }
+
+        // TODO: Test!
+        if (!auction.status.equals(Auction.IN_PROGRESS)) {
+            System.out.println("Auction " + unsafeBid.auctionId + " not in progress");
+            //jsonResponse.error(AUCTION_NOT_IN_PROGRESS);
+            return;
+        }
+
+        // TODO: Test!
+        List<Bid> auctionBids;
+        try {
+            auctionBids = bidDAO.getListByAuctionId(unsafeBid.auctionId);
+        } catch (DAOException e) {
+            Logger.error("Get bid list by auction ID " + unsafeBid.auctionId, e.toString());
+            //jsonResponse.internalServerError();
+            return;
+        }
+
+        // TODO: Test
+        if (auctionBids.size() > 0) {
+            Bid maxBid = Collections.max(auctionBids);
+            if ((unsafeBid.amount - maxBid.amount) <= 0) {
+                //jsonResponse.error(BID_NOT_HIGHER_ENOUGH);
+                System.out.println("Bid of amount " + unsafeBid.amount + " no higher enough. Bid should be higher than " + maxBid.amount);
+                return;
+            }
         }
 
         Bid newBid = new Bid();
