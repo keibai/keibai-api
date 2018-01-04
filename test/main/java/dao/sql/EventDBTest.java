@@ -184,7 +184,6 @@ public class EventDBTest extends AbstractDBTest {
 
             assertEquals(expectedEvent.id, outputEvent.id);
             assertEquals(expectedEvent.name, outputEvent.name);
-            assertEquals(expectedEvent.auctionTime, outputEvent.auctionTime);
             assertEquals(expectedEvent.location, outputEvent.location);
             assertEquals(new ImpreciseDate(expectedEvent.createdAt), new ImpreciseDate(outputEvent.createdAt));
             assertEquals(new ImpreciseDate(expectedEvent.updatedAt), new ImpreciseDate(outputEvent.updatedAt));

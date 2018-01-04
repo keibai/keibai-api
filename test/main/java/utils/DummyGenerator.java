@@ -1,6 +1,5 @@
 package main.java.utils;
 
-import main.java.dao.EventDAO;
 import main.java.models.*;
 
 import java.sql.Timestamp;
@@ -56,14 +55,12 @@ public class DummyGenerator {
     }
 
     public static final String TEST_EVENT_NAME = "TestName";
-    public static final int TEST_EVENT_AUCTION_TIME = 100;
     public static final String TEST_EVENT_LOCATION = "TestLocation";
     public static final String TEST_EVENT_AUCTION_TYPE = Event.AUCTION_TYPES[0];
     public static final String TEST_EVENT_CATEGORY = "TestCategory";
     public static final String TEST_EVENT_STATUS = Event.EVENT_STATUS[0];
 
     public static final String TEST_EVENT_OTHER_NAME = "TestOtherName";
-    public static final int TEST_EVENT_OTHER_AUCTION_TIME = 100;
     public static final String TEST_EVENT_OTHER_LOCATION = "TestLocation";
     public static final String TEST_EVENT_OTHER_AUCTION_TYPE = Event.AUCTION_TYPES[1];
     public static final String TEST_EVENT__OTHER_CATEGORY = "TestCategory";
@@ -72,7 +69,6 @@ public class DummyGenerator {
     public static Event getDummyEvent() {
         Event event = new Event();
         event.name = TEST_EVENT_NAME;
-        event.auctionTime = TEST_EVENT_AUCTION_TIME;
         event.location = TEST_EVENT_LOCATION;
         event.auctionType = TEST_EVENT_AUCTION_TYPE;
         event.category = TEST_EVENT_CATEGORY;
@@ -84,7 +80,6 @@ public class DummyGenerator {
         Event event = new Event();
         event.name = TEST_EVENT_OTHER_NAME;
         event.category = TEST_EVENT__OTHER_CATEGORY;
-        event.auctionTime = TEST_EVENT_OTHER_AUCTION_TIME;
         event.auctionType = TEST_EVENT_OTHER_AUCTION_TYPE;
         event.location = TEST_EVENT_OTHER_LOCATION;
         event.status = TEST_EVENT_OTHER_STATUS;

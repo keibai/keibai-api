@@ -60,10 +60,6 @@ public class EventNew extends HttpServlet {
             jsonResponse.error(NAME_ERROR);
             return;
         }
-        if (unsafeEvent.auctionTime < 10) {
-            jsonResponse.error(AUCTION_TIME_ERROR);
-            return;
-        }
         if (unsafeEvent.location == null || unsafeEvent.location.trim().isEmpty()) {
             jsonResponse.error(LOCATION_ERROR);
             return;
@@ -79,7 +75,6 @@ public class EventNew extends HttpServlet {
 
         Event newEvent = new Event();
         newEvent.name = unsafeEvent.name;
-        newEvent.auctionTime = unsafeEvent.auctionTime;
         newEvent.location = unsafeEvent.location;
         newEvent.auctionType = unsafeEvent.auctionType;
         newEvent.category = unsafeEvent.category;

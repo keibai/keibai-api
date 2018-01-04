@@ -54,7 +54,6 @@ public class EventSearchTest extends AbstractDBTest {
 
         assertEquals(dummyEvent.id, outputEvent.id);
         assertEquals(dummyEvent.name, outputEvent.name);
-        assertEquals(dummyEvent.auctionTime, outputEvent.auctionTime);
         assertEquals(dummyEvent.location, outputEvent.location);
         assertEquals(dummyEvent.auctionType, outputEvent.auctionType);
         assertEquals(dummyEvent.category, outputEvent.category);

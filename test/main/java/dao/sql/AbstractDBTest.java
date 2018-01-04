@@ -34,6 +34,8 @@ public abstract class AbstractDBTest {
                 new FileInputStream("db/v1.1.sql"));
         SQLFileExecutor.executeSQLFile(Source.getInstance().getConnection(),
                 new FileInputStream("db/v1.2.sql"));
+        SQLFileExecutor.executeSQLFile(Source.getInstance().getConnection(),
+                new FileInputStream("db/v1.3.sql"));
     }
 
     @After
