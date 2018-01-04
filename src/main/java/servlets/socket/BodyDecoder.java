@@ -25,21 +25,8 @@ public class BodyDecoder implements Decoder.Text<BodyWS> {
      * @throws DecodeException
      */
     @Override
-    public BodyWS decode(String s) throws DecodeException {
-
-        Pattern pattern = Pattern.compile("(.*?),(.*?),(.*)");
-        Matcher matcher = pattern.matcher(s);
-
-        if (!matcher.matches()) {
-            return new BodyWS();
-        }
-
-        BodyWS res = new BodyWS();
-        res.type = matcher.group(1);
-        res.nonce = matcher.group(2);
-        res.json = matcher.group(3);
-
-        return res;
+    public BodyWS decode(String text) throws DecodeException {
+        return BodyWS.fromString(text);
         /*try {
             BodyWS msg = gson.fromJson(s, BodyWS.class);
             System.out.println("aa");

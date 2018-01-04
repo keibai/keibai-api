@@ -13,9 +13,8 @@ public class BodyEncoder implements Encoder.Text<BodyWS> {
     private static Gson gson = new Gson();
 
     @Override
-    public String encode(BodyWS message) throws EncodeException {
-        String json = gson.toJson(message);
-        return json;
+    public String encode(BodyWS body) throws EncodeException {
+        return body.toString();
     }
 
     @Override
