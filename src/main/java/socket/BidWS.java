@@ -26,12 +26,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BidWS implements WS {
 
+    public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
+    public static final String TYPE_AUCTION_BID = "AuctionBid";
+
     private static final Map<Integer, Set<BidWS>> connected = new ConcurrentHashMap<>(); // Auction id <-> Sockets
     private int subscribed = -1; // Auction on which the current user is subscribed to.
 
     Session session;
     HttpSession httpSession;
-    WSSender sender = new BodyWSSender();
+    WSSender<BodyWS> sender = new BodyWSSender();
 
     @Override
     public void onOpen(Session session, HttpSession httpSession) {
@@ -42,11 +45,11 @@ public class BidWS implements WS {
     @Override
     public void onMessage(Session session, BodyWS body) {
         switch(body.type) {
-            case "AuctionSubscribe": {
+            case TYPE_AUCTION_SUBSCRIBE: {
                 onAuctionSubscribe(body);
                 break;
             }
-            case "AuctionBid": {
+            case TYPE_AUCTION_BID: {
                 onAuctionBid(body);
                 break;
             }
@@ -97,6 +100,15 @@ public class BidWS implements WS {
         BidDAO bidDAO = BidDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
+        int userId = httpSession.userId();
+        if (userId == -1) {
+            BodyWS unauthorizedBody = new BodyWS();
+            unauthorizedBody.status = 400;
+            unauthorizedBody.json = JsonCommon.unauthorized();
+            sender.reply(session, body, unauthorizedBody);
+            return;
+        }
+
         Bid unsafeBid;
         try {
             unsafeBid = new Gson().fromJson(body.json, Bid.class);
@@ -124,6 +136,7 @@ public class BidWS implements WS {
             return;
         }
 
+        // TODO test
         if (unsafeBid.auctionId != subscribed) {
             System.out.println("Not subscribed to that auction.");
             return;
