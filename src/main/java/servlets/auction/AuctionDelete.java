@@ -9,7 +9,7 @@ import main.java.dao.sql.EventDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.meta.Msg;
-import main.java.utils.HttpSession;
+import main.java.utils.DefaultHttpSession;
 import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
@@ -33,7 +33,7 @@ public class AuctionDelete extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
-        HttpSession session = new HttpSession(request);
+        DefaultHttpSession session = new DefaultHttpSession(request);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
 

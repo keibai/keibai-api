@@ -5,10 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import main.java.dao.AuctionDAO;
 import main.java.dao.BidDAO;
 import main.java.dao.DAOException;
-import main.java.dao.UserDAO;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.BidDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Bid;
 import main.java.models.meta.BodyWS;
@@ -34,7 +32,7 @@ public class BidWS implements WS {
     HttpSession httpSession;
 
     @Override
-    public void onOpen(Session session, main.java.utils.HttpSession httpSession) {
+    public void onOpen(Session session, HttpSession httpSession) {
         this.session = session;
         this.httpSession = httpSession;
     }
@@ -180,8 +178,10 @@ public class BidWS implements WS {
             return;
         }
 
-        System.out.println(dbBid);
+
         auctionBidded(dbBid);
+        System.out.println(dbBid);
+
     }
 
     protected void auctionBidded(Bid newBid) {

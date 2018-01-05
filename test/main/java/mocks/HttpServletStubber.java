@@ -1,5 +1,7 @@
 package main.java.mocks;
 
+import main.java.utils.DefaultHttpSession;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +72,7 @@ public class HttpServletStubber {
      * @return
      */
     public HttpServletStubber authenticate(int userId) {
-        mockHttpSession.setAttribute(main.java.utils.HttpSession.USER_ID_KEY, userId);
+        mockHttpSession.setAttribute(DefaultHttpSession.USER_ID_KEY, userId);
 
         return this;
     }
@@ -80,7 +82,7 @@ public class HttpServletStubber {
      * @return
      */
     public int authenticated() {
-        Object object = this.mockHttpSession.getAttribute(main.java.utils.HttpSession.USER_ID_KEY);
+        Object object = this.mockHttpSession.getAttribute(DefaultHttpSession.USER_ID_KEY);
         return object == null ? -1 : (int) object;
     }
 

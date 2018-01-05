@@ -1,6 +1,6 @@
 package main.java.servlets.user;
 
-import main.java.utils.HttpSession;
+import main.java.utils.DefaultHttpSession;
 import main.java.utils.JsonResponse;
 
 import javax.servlet.ServletException;
@@ -13,8 +13,8 @@ import java.io.IOException;
 @WebServlet(name = "UserDeauthenticate", urlPatterns = {"/users/deauthenticate" })
 public class UserDeauthenticate extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = new HttpSession(request);
-        session.save(HttpSession.USER_ID_KEY, -1);
+        DefaultHttpSession session = new DefaultHttpSession(request);
+        session.save(DefaultHttpSession.USER_ID_KEY, -1);
 
         new JsonResponse(response).ok();
     }

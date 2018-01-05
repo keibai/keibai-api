@@ -5,7 +5,7 @@ import main.java.dao.BidDAO;
 import main.java.dao.DAOException;
 import main.java.dao.sql.BidDAOSQL;
 import main.java.models.Bid;
-import main.java.utils.HttpSession;
+import main.java.utils.DefaultHttpSession;
 import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
@@ -27,7 +27,7 @@ public class BidListByOwnerId extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
-        HttpSession session = new HttpSession(request);
+        DefaultHttpSession session = new DefaultHttpSession(request);
         BidDAO bidDAO = BidDAOSQL.getInstance();
 
         int userId = session.userId();

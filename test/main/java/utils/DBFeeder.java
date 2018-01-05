@@ -42,6 +42,15 @@ public class DBFeeder {
         return event;
     }
 
+    public static Event createDummyEvent(int userId) throws DAOException {
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = userId;
+
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        Event event = eventDAO.create(dummyEvent);
+        return event;
+    }
+
     public static Event createOtherDummyEvent(int ownerId) throws DAOException {
         Event dummyEvent = DummyGenerator.getDummyEvent();
         dummyEvent.ownerId = ownerId;
@@ -58,6 +67,21 @@ public class DBFeeder {
         dummyAuction.eventId = dummyEvent.id;
         dummyAuction.ownerId = dummyEvent.ownerId;
         dummyAuction.winnerId = dummyEvent.ownerId;
+
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Auction auction = auctionDAO.create(dummyAuction);
+        return auction;
+    }
+
+    public static Auction createDummyAuction(int eventId, int ownerId) throws DAOException {
+        return DBFeeder.createDummyAuction(eventId, ownerId, 0);
+    }
+
+    public static Auction createDummyAuction(int eventId, int ownerId, int winnerId) throws DAOException {
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.eventId = eventId;
+        dummyAuction.ownerId = ownerId;
+        dummyAuction.winnerId = winnerId;
 
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         Auction auction = auctionDAO.create(dummyAuction);

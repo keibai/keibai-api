@@ -3,7 +3,6 @@ package main.java.servlets.user;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import main.java.dao.DAOException;
-import main.java.dao.NotFoundException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
@@ -98,8 +97,8 @@ public class UserNew extends HttpServlet {
         }
 
         // Sign in. Store the user on the session storage.
-        HttpSession httpSession = new HttpSession(request);
-        httpSession.save(HttpSession.USER_ID_KEY, dbUser.id);
+        DefaultHttpSession httpSession = new DefaultHttpSession(request);
+        httpSession.save(DefaultHttpSession.USER_ID_KEY, dbUser.id);
 
         // Hide password from output
         dbUser.password = null;

@@ -10,7 +10,7 @@ import main.java.dao.sql.GoodDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Good;
 import main.java.utils.HttpRequest;
-import main.java.utils.HttpSession;
+import main.java.utils.DefaultHttpSession;
 import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
 
@@ -31,7 +31,7 @@ public class GoodNew extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
-        HttpSession session = new HttpSession(request);
+        DefaultHttpSession session = new DefaultHttpSession(request);
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 

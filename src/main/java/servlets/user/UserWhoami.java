@@ -5,7 +5,7 @@ import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
-import main.java.utils.HttpSession;
+import main.java.utils.DefaultHttpSession;
 import main.java.utils.JsonResponse;
 import main.java.utils.Logger;
 
@@ -21,7 +21,7 @@ public class UserWhoami extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JsonResponse jsonResponse = new JsonResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
-        HttpSession session = new HttpSession(request);
+        DefaultHttpSession session = new DefaultHttpSession(request);
 
         if (session.userId() == -1) {
             new JsonResponse(response).empty();

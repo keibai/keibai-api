@@ -75,8 +75,8 @@ public class UserAuthenticate extends HttpServlet {
         }
 
         // Finish the sign in. Store the user on the session storage.
-        HttpSession httpSession = new HttpSession(request);
-        httpSession.save(HttpSession.USER_ID_KEY, dbUser.id);
+        DefaultHttpSession httpSession = new DefaultHttpSession(request);
+        httpSession.save(DefaultHttpSession.USER_ID_KEY, dbUser.id);
 
         // Hide password from output.
         dbUser.password = null;

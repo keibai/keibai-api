@@ -1,11 +1,12 @@
 package main.java.servlets.socket;
 
 import main.java.models.meta.BodyWS;
+import main.java.utils.DefaultHttpSession;
+import main.java.utils.HttpSession;
 import main.java.utils.Logger;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
@@ -23,11 +24,15 @@ public class CoreWS {
         };
     }
 
+    /**
+     * Open WebSocket connection if a HttpSession can be built. Doesn't necessary mean that the user is signed in.
+     * Otherwise a 500 response is thrown.
+     */
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) throws IOException {
-        HttpSession httpSession = (HttpSession) config.getUserProperties()
-                .get(HttpSession.class.getName());
-        main.java.utils.HttpSession servletHttpSession = new main.java.utils.HttpSession(httpSession);
+        javax.servlet.http.HttpSession httpSession = (javax.servlet.http.HttpSession) config.getUserProperties()
+                .get(javax.servlet.http.HttpSession.class.getName());
+        HttpSession servletHttpSession = new DefaultHttpSession(httpSession);
 
         for (WS listener: listeners) {
             listener.onOpen(session, servletHttpSession);
