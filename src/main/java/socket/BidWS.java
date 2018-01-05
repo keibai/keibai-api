@@ -31,7 +31,7 @@ public class BidWS implements WS {
 
     Session session;
     HttpSession httpSession;
-    WSSender sender = new WSSender();
+    WSSender sender = new BodyWSSender();
 
     @Override
     public void onOpen(Session session, HttpSession httpSession) {

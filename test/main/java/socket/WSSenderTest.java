@@ -14,12 +14,12 @@ import static org.junit.Assert.*;
 public class WSSenderTest {
 
     MockSession mockSession;
-    WSSender wsSender;
+    BodyWSSender wsSender;
 
     @Before
     public void setup() {
         mockSession = new MockSession();
-        wsSender = new WSSender();
+        wsSender = new BodyWSSender();
     }
 
     @Test

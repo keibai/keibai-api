@@ -1,8 +1,5 @@
 package main.java.utils;
 
-import com.google.gson.Gson;
-import main.java.models.meta.Error;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;

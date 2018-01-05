@@ -5,18 +5,24 @@ import main.java.dao.DAOException;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.MockHttpSession;
 import main.java.mocks.MockSession;
+import main.java.mocks.MockWSSender;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.models.meta.BodyWS;
+import main.java.models.meta.Msg;
 import main.java.utils.DBFeeder;
+import main.java.utils.JsonCommon;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class BidWSTest extends AbstractDBTest {
 
     MockSession mockSession;
     MockHttpSession mockHttpSession;
+    MockWSSender mockSender;
     BidWS bidWS;
 
     // All correct BidWS requests will reference to this information.
@@ -33,8 +39,10 @@ public class BidWSTest extends AbstractDBTest {
         mockSession = new MockSession();
         mockHttpSession = new MockHttpSession();
         mockHttpSession.setUserId(user.id);
+        mockSender = new MockWSSender();
 
         bidWS = new BidWS();
+        bidWS.sender = mockSender;
         bidWS.onOpen(mockSession, mockHttpSession);
     }
 
@@ -49,5 +57,11 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.status = 200;
         requestBody.json = new Gson().toJson(auction);
         bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(mockSession, mockSender.sessionLastReply);
+        assertEquals(requestBody, mockSender.originObjLastReply);
+        assertEquals(200, replyBody.status);
+        assertEquals(JsonCommon.OK, new Gson().fromJson(replyBody.json, Msg.class).msg);
     }
 }
