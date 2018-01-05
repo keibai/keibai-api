@@ -5,7 +5,7 @@ import main.java.dao.DAOException;
 import main.java.dao.GoodDAO;
 import main.java.dao.sql.GoodDAOSQL;
 import main.java.models.Good;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
 
@@ -25,18 +25,18 @@ public class GoodSearch extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
 
         String param = request.getParameter("id");
 
         if (param == null || param.trim().isEmpty()) {
-            jsonResponse.error(ID_NONE_ERROR);
+            httpResponse.error(ID_NONE_ERROR);
             return;
         }
 
         if (!Validator.isNumber(param)) {
-            jsonResponse.error(ID_ERROR);
+            httpResponse.error(ID_ERROR);
             return;
         }
 
@@ -50,10 +50,10 @@ public class GoodSearch extends HttpServlet {
         }
 
         if (retrievedGood == null) {
-            jsonResponse.error(GOOD_NOT_FOUND_ERROR);
+            httpResponse.error(GOOD_NOT_FOUND_ERROR);
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(retrievedGood));
+        httpResponse.response(new Gson().toJson(retrievedGood));
     }
 }

@@ -10,7 +10,7 @@ import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Event;
 import main.java.utils.HttpRequest;
 import main.java.utils.DefaultHttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 
 import javax.servlet.ServletException;
@@ -31,14 +31,14 @@ public class EventNew extends HttpServlet {
     public static final String CATEGORY_ERROR = "Category cannot be blank";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         DefaultHttpSession session = new DefaultHttpSession(request);
         EventDAO eventDAO = EventDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -46,33 +46,33 @@ public class EventNew extends HttpServlet {
         try {
              unsafeEvent = new HttpRequest(request).extractPostRequestBody(Event.class);
         } catch (IOException|JsonSyntaxException e) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeEvent == null) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeEvent.name == null || unsafeEvent.name.trim().isEmpty()) {
-            jsonResponse.error(NAME_ERROR);
+            httpResponse.error(NAME_ERROR);
             return;
         }
         if (unsafeEvent.auctionTime < 10) {
-            jsonResponse.error(AUCTION_TIME_ERROR);
+            httpResponse.error(AUCTION_TIME_ERROR);
             return;
         }
         if (unsafeEvent.location == null || unsafeEvent.location.trim().isEmpty()) {
-            jsonResponse.error(LOCATION_ERROR);
+            httpResponse.error(LOCATION_ERROR);
             return;
         }
         if (!Arrays.asList(Event.AUCTION_TYPES).contains(unsafeEvent.auctionType)) {
-            jsonResponse.error(AUCTION_TYPE_ERROR);
+            httpResponse.error(AUCTION_TYPE_ERROR);
             return;
         }
         if (unsafeEvent.category == null || unsafeEvent.category.trim().isEmpty()) {
-            jsonResponse.error(CATEGORY_ERROR);
+            httpResponse.error(CATEGORY_ERROR);
             return;
         }
 
@@ -90,10 +90,10 @@ public class EventNew extends HttpServlet {
             dbEvent = eventDAO.create(newEvent);
         } catch (DAOException e) {
             Logger.error("Create event", newEvent.toString(), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbEvent));
+        httpResponse.response(new Gson().toJson(dbEvent));
     }
 }

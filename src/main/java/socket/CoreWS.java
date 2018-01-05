@@ -1,4 +1,4 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import main.java.models.meta.BodyWS;
 import main.java.utils.DefaultHttpSession;

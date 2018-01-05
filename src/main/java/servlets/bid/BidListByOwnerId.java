@@ -6,7 +6,7 @@ import main.java.dao.DAOException;
 import main.java.dao.sql.BidDAOSQL;
 import main.java.models.Bid;
 import main.java.utils.DefaultHttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
 
@@ -26,31 +26,31 @@ public class BidListByOwnerId extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         DefaultHttpSession session = new DefaultHttpSession(request);
         BidDAO bidDAO = BidDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
         String param = request.getParameter("ownerid");
         if (param == null) {
-            jsonResponse.error(ID_NONE);
+            httpResponse.error(ID_NONE);
             return;
         }
 
         if (!Validator.isNumber(param)) {
-            jsonResponse.error(ID_INVALID);
+            httpResponse.error(ID_INVALID);
             return;
         }
 
         int ownerId = Integer.parseInt(param);
 
         if (ownerId != userId) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -59,10 +59,10 @@ public class BidListByOwnerId extends HttpServlet {
             dbBids = bidDAO.getListByOwnerId(ownerId);
         } catch (DAOException e) {
             Logger.error("Retrieve bid list by owner ID: " + ownerId, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbBids.toArray()));
+        httpResponse.response(new Gson().toJson(dbBids.toArray()));
     }
 }

@@ -1,4 +1,4 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;

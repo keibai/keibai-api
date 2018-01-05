@@ -5,7 +5,7 @@ import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.models.Auction;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
 
@@ -25,17 +25,17 @@ public class AuctionListByEventId extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         String param = request.getParameter("eventid");
         if (param == null) {
-            jsonResponse.error(ID_NONE);
+            httpResponse.error(ID_NONE);
             return;
         }
 
         if (!Validator.isNumber(param)) {
-            jsonResponse.error(ID_INVALID);
+            httpResponse.error(ID_INVALID);
             return;
         }
 
@@ -46,10 +46,10 @@ public class AuctionListByEventId extends HttpServlet {
             dbAuctions = auctionDAO.getListByEventId(eventId);
         } catch (DAOException e) {
             Logger.error("Retrieve auction list by event ID: " + eventId, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbAuctions.toArray()));
+        httpResponse.response(new Gson().toJson(dbAuctions.toArray()));
     }
 }

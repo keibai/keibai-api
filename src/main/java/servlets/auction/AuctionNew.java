@@ -11,7 +11,7 @@ import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.utils.HttpRequest;
 import main.java.utils.DefaultHttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 
 import javax.servlet.ServletException;
@@ -30,14 +30,14 @@ public class AuctionNew extends HttpServlet {
     public static final String EVENT_NOT_OPENED = "Event not opened. Can not create an auction";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         DefaultHttpSession session = new DefaultHttpSession(request);
         EventDAO eventDAO = EventDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -45,22 +45,22 @@ public class AuctionNew extends HttpServlet {
         try {
              unsafeAuction = new HttpRequest(request).extractPostRequestBody(Auction.class);
         } catch (IOException|JsonSyntaxException e) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeAuction == null) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeAuction.name == null || unsafeAuction.name.trim().isEmpty()) {
-            jsonResponse.error(NAME_ERROR);
+            httpResponse.error(NAME_ERROR);
             return;
         }
 
         if (unsafeAuction.startingPrice <= 0) {
-            jsonResponse.error(AUCTION_STARTING_PRICE_ERROR);
+            httpResponse.error(AUCTION_STARTING_PRICE_ERROR);
             return;
         }
 
@@ -69,17 +69,17 @@ public class AuctionNew extends HttpServlet {
             event = eventDAO.getById(unsafeAuction.eventId);
         } catch (DAOException e) {
             Logger.error("Get event by ID", String.valueOf(unsafeAuction.eventId), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         if (event == null) {
-            jsonResponse.error(EVENT_NOT_EXIST_ERROR);
+            httpResponse.error(EVENT_NOT_EXIST_ERROR);
             return;
         }
 
         if (!event.status.equals(Event.OPENED)) {
-            jsonResponse.error(EVENT_NOT_OPENED);
+            httpResponse.error(EVENT_NOT_OPENED);
             return;
         }
 
@@ -96,10 +96,10 @@ public class AuctionNew extends HttpServlet {
             dbAuction = auctionDAO.create(newAuction);
         } catch (DAOException e) {
             Logger.error("Create auction", newAuction.toString(), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbAuction));
+        httpResponse.response(new Gson().toJson(dbAuction));
     }
 }

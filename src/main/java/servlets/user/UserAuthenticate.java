@@ -25,7 +25,7 @@ public class UserAuthenticate extends HttpServlet {
     public static final String PASSWORD_INVALID = "Invalid password.";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         // Retrieve body data.
@@ -33,24 +33,24 @@ public class UserAuthenticate extends HttpServlet {
         try {
             unsafeUser = new HttpRequest(request).extractPostRequestBody(User.class);
         } catch (IOException|JsonSyntaxException e) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeUser == null) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         // Do a little validation (rest will be handled by comparing with user DAO).
         if (unsafeUser.email == null) {
-            jsonResponse.error(EMAIL_BLANK);
+            httpResponse.error(EMAIL_BLANK);
             return;
         } else if (!Validator.isEmail(unsafeUser.email)) {
-            jsonResponse.error(EMAIL_INVALID);
+            httpResponse.error(EMAIL_INVALID);
             return;
         } else if (unsafeUser.password == null) {
-            jsonResponse.error(PASSWORD_BLANK);
+            httpResponse.error(PASSWORD_BLANK);
             return;
         }
 
@@ -63,14 +63,14 @@ public class UserAuthenticate extends HttpServlet {
             return;
         }
         if (dbUser == null) {
-            jsonResponse.error(EMAIL_NOT_FOUND);
+            httpResponse.error(EMAIL_NOT_FOUND);
             return;
         }
 
         // Compare password.
         boolean passwordMatches = new PasswordAuthentication().authenticate(unsafeUser.password.toCharArray(), dbUser.password);
         if (!passwordMatches) {
-            jsonResponse.error(PASSWORD_INVALID);
+            httpResponse.error(PASSWORD_INVALID);
             return;
         }
 
@@ -81,6 +81,6 @@ public class UserAuthenticate extends HttpServlet {
         // Hide password from output.
         dbUser.password = null;
 
-        jsonResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new Gson().toJson(dbUser));
     }
 }

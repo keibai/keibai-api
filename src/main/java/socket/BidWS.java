@@ -1,4 +1,4 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -11,6 +11,7 @@ import main.java.models.Auction;
 import main.java.models.Bid;
 import main.java.models.meta.BodyWS;
 import main.java.utils.HttpSession;
+import main.java.utils.JsonCommon;
 import main.java.utils.Logger;
 
 
@@ -30,6 +31,7 @@ public class BidWS implements WS {
 
     Session session;
     HttpSession httpSession;
+    WSSender sender = new WSSender();
 
     @Override
     public void onOpen(Session session, HttpSession httpSession) {
@@ -84,6 +86,11 @@ public class BidWS implements WS {
         connected.get(dbAuction.id).add(this);
         subscribed = dbAuction.id;
         System.out.println(dbAuction);
+
+        BodyWS okBody = new BodyWS();
+        okBody.status = 200;
+        okBody.json = JsonCommon.ok();
+        sender.reply(session, body, okBody);
     }
 
     protected void onAuctionBid(BodyWS body) {

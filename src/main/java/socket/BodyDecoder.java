@@ -1,14 +1,10 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import main.java.models.meta.BodyWS;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import main.java.models.meta.BodyWS;
 
 public class BodyDecoder implements Decoder.Text<BodyWS> {
 

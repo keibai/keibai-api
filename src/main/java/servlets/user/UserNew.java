@@ -26,7 +26,7 @@ public class UserNew extends HttpServlet {
     public static final String NAME_BLANK = "Name cannot be blank";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         // Retrieve body data.
@@ -34,33 +34,33 @@ public class UserNew extends HttpServlet {
         try {
             unsafeUser = new HttpRequest(request).extractPostRequestBody(User.class);
         } catch (IOException|JsonSyntaxException e) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeUser == null) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
         // Validate fields.
         if (unsafeUser.email == null) {
-            jsonResponse.error(EMAIL_BLANK);
+            httpResponse.error(EMAIL_BLANK);
             return;
         }
         if (!Validator.isEmail(unsafeUser.email)) {
-            jsonResponse.error(EMAIL_INVALID);
+            httpResponse.error(EMAIL_INVALID);
             return;
         }
         if (unsafeUser.password == null) {
-            jsonResponse.error(PASSWORD_BLANK);
+            httpResponse.error(PASSWORD_BLANK);
             return;
         }
         if (!Validator.isLength(unsafeUser.password, 4)) {
-            jsonResponse.error(PASSWORD_LENGTH);
+            httpResponse.error(PASSWORD_LENGTH);
             return;
         }
         if (unsafeUser.name == null) {
-            jsonResponse.error(NAME_BLANK);
+            httpResponse.error(NAME_BLANK);
             return;
         }
 
@@ -75,12 +75,12 @@ public class UserNew extends HttpServlet {
         try {
             User user = userDAO.getByEmail(newUser.email);
             if (user != null) {
-                jsonResponse.error(EMAIL_TAKEN);
+                httpResponse.error(EMAIL_TAKEN);
                 return;
             }
         } catch (DAOException e) {
             Logger.error("Validate email against the DB", newUser.email, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
@@ -92,7 +92,7 @@ public class UserNew extends HttpServlet {
             dbUser = userDAO.create(newUser);
         } catch(DAOException e) {
             Logger.error("Create user", newUser.toString(), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
@@ -103,7 +103,7 @@ public class UserNew extends HttpServlet {
         // Hide password from output
         dbUser.password = null;
 
-        jsonResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new Gson().toJson(dbUser));
     }
 
 }

@@ -1,7 +1,7 @@
 package main.java.servlets.user;
 
 import main.java.utils.DefaultHttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +16,6 @@ public class UserDeauthenticate extends HttpServlet {
         DefaultHttpSession session = new DefaultHttpSession(request);
         session.save(DefaultHttpSession.USER_ID_KEY, -1);
 
-        new JsonResponse(response).ok();
+        new HttpResponse(response).ok();
     }
 }

@@ -11,7 +11,7 @@ import main.java.models.Auction;
 import main.java.models.Good;
 import main.java.utils.HttpRequest;
 import main.java.utils.DefaultHttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 
 
@@ -30,14 +30,14 @@ public class GoodNew extends HttpServlet {
     public static final String AUCTION_NOT_EXIST_ERROR = "Auction does not exists";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         DefaultHttpSession session = new DefaultHttpSession(request);
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -45,21 +45,21 @@ public class GoodNew extends HttpServlet {
         try {
              unsafeGood = new HttpRequest(request).extractPostRequestBody(Good.class);
         } catch (IOException|JsonSyntaxException e) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeGood == null) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeGood.name == null || unsafeGood.name.trim().isEmpty()) {
-            jsonResponse.error(NAME_ERROR);
+            httpResponse.error(NAME_ERROR);
             return;
         }
         if (unsafeGood.image == null || unsafeGood.image.trim().isEmpty()) {
-            jsonResponse.error(IMAGE_ERROR);
+            httpResponse.error(IMAGE_ERROR);
             return;
         }
 
@@ -68,15 +68,15 @@ public class GoodNew extends HttpServlet {
             auction = auctionDAO.getById(unsafeGood.auctionId);
         } catch (DAOException e) {
             Logger.error("Get auction by ID " + unsafeGood.auctionId, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
         if (auction == null) {
-            jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
+            httpResponse.error(AUCTION_NOT_EXIST_ERROR);
             return;
         }
         if (auction.ownerId != userId) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -90,10 +90,10 @@ public class GoodNew extends HttpServlet {
             dbGood = goodDAO.create(newGood);
         } catch (DAOException e) {
             Logger.error("Create good", newGood.toString(), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbGood));
+        httpResponse.response(new Gson().toJson(dbGood));
     }
 }

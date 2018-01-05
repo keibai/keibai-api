@@ -1,4 +1,4 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import com.google.gson.Gson;
 import main.java.dao.DAOException;
@@ -6,18 +6,12 @@ import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.MockHttpSession;
 import main.java.mocks.MockSession;
 import main.java.models.Auction;
-import main.java.models.Bid;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.models.meta.BodyWS;
 import main.java.utils.DBFeeder;
-import main.java.utils.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.websocket.Session;
-
-import static org.junit.Assert.*;
 
 public class BidWSTest extends AbstractDBTest {
 
@@ -43,7 +37,6 @@ public class BidWSTest extends AbstractDBTest {
         bidWS = new BidWS();
         bidWS.onOpen(mockSession, mockHttpSession);
     }
-
 
     @Test
     public void bid_subscription_should_complete() {

@@ -8,7 +8,7 @@ import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
 import main.java.utils.HttpRequest;
 import main.java.utils.DefaultHttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 
 import javax.servlet.ServletException;
@@ -26,13 +26,13 @@ public class UserUpdateCredit extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         DefaultHttpSession session = new DefaultHttpSession(request);
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -41,12 +41,12 @@ public class UserUpdateCredit extends HttpServlet {
         try {
             unsafeUser = new HttpRequest(request).extractPostRequestBody(User.class);
         } catch (IOException|JsonSyntaxException e) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
         if (unsafeUser == null) {
-            jsonResponse.invalidRequest();
+            httpResponse.invalidRequest();
             return;
         }
 
@@ -57,17 +57,17 @@ public class UserUpdateCredit extends HttpServlet {
             user = userDAO.getById(userId);
         } catch (DAOException e) {
             Logger.error("Get user by ID in update user credit: UserID " + userId, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         if (user == null) {
-            jsonResponse.error(USER_NOT_EXIST);
+            httpResponse.error(USER_NOT_EXIST);
             return;
         }
 
         if (user.credit + creditDiff < 0) {
-            jsonResponse.error(INVALID_CREDIT_AMOUNT);
+            httpResponse.error(INVALID_CREDIT_AMOUNT);
             return;
         }
 
@@ -78,13 +78,13 @@ public class UserUpdateCredit extends HttpServlet {
             dbUser = userDAO.update(user);
         } catch(DAOException e) {
             Logger.error("Create user in update user credit", user.toString(), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         // Hide password from output
         dbUser.password = null;
 
-        jsonResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new Gson().toJson(dbUser));
     }
 }
