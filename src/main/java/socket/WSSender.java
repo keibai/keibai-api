@@ -26,7 +26,7 @@ public class WSSender {
     /**
      * Send the body to each of the sessions, one by one, as a text messages.
      * Sessions will be synchronized while sending the data (as they are being used).
-     * {@link #send(List, BodyWS)}
+     * @see #send(List, BodyWS)
      */
     void send(List<Session> sessions, BodyWS body) {
         for (Session session: sessions) {
