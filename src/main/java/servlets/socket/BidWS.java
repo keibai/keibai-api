@@ -43,17 +43,17 @@ public class BidWS implements WS {
     public void onMessage(Session session, BodyWS body) {
         switch(body.type) {
             case "AuctionSubscribe": {
-                onAuctionSubscribe(session, body);
+                onAuctionSubscribe(body);
                 break;
             }
             case "AuctionBid": {
-                onAuctionBid(session, body);
+                onAuctionBid(body);
                 break;
             }
         }
     }
 
-    protected void onAuctionSubscribe(Session session, BodyWS body) {
+    protected void onAuctionSubscribe(BodyWS body) {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         Auction unsafeAuction = new Gson().fromJson(body.json, Auction.class);
 
@@ -88,7 +88,7 @@ public class BidWS implements WS {
         System.out.println(dbAuction);
     }
 
-    protected void onAuctionBid(Session session, BodyWS body) {
+    protected void onAuctionBid(BodyWS body) {
         BidDAO bidDAO = BidDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
