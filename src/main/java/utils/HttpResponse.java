@@ -22,19 +22,19 @@ public class HttpResponse {
     }
 
     public void ok() throws IOException {
-        this.response(JsonCommon.OK);
+        this.response(JsonCommon.ok());
     }
 
     public void internalServerError() throws IOException {
-        this.response(JsonCommon.INTERNAL_SERVER_ERROR);
+        this.response(JsonCommon.internalServerError());
     }
 
     public void unauthorized() throws IOException {
-        this.response(JsonCommon.UNAUTHORIZED);
+        this.response(JsonCommon.unauthorized());
     }
 
     public void invalidRequest() throws IOException {
-        this.response(JsonCommon.INVALID_REQUEST);
+        this.response(JsonCommon.invalidRequest());
     }
 
     /* Generic */
