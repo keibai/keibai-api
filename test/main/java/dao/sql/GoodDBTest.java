@@ -5,8 +5,13 @@ import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.Good;
 import main.java.models.User;
+import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
 import org.junit.Test;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -53,6 +58,39 @@ public class GoodDBTest extends AbstractDBTest {
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
         Good good = goodDAO.getById(24);
         assertNull(good);
+    }
+
+    @Test
+    public void test_returned_empty_list_when_there_are_not_goods_for_an_auction() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Auction dummyAuction = DBFeeder.createDummyAuction();
+        List<Good> goodList = goodDAO.getListByAuctionId(dummyAuction.id);
+        assertEquals(0, goodList.size());
+    }
+
+    @Test
+    public void test_list_of_goods_for_an_auction() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Auction dummyAuction = DBFeeder.createDummyAuction();
+
+        Good dummyGood1 = DummyGenerator.getDummyGood();
+        dummyGood1.auctionId = dummyAuction.id;
+        Good insertedGood1 = goodDAO.create(dummyGood1);
+
+        Good dummyGood2 = DummyGenerator.getOtherDummyGood();
+        dummyGood2.auctionId = dummyAuction.id;
+        Good insertedGood2 = goodDAO.create(dummyGood2);
+
+        List<Good> expectedGoodList = new LinkedList<Good>() {{
+           add(insertedGood1);
+           add(insertedGood2);
+        }};
+
+        List<Good> outputGoodList = goodDAO.getListByAuctionId(dummyAuction.id);
+        assertNotNull(outputGoodList);
+        assertEquals(expectedGoodList.size(), outputGoodList.size());
+
+        assertGoodListEquals(expectedGoodList, outputGoodList);
     }
 
     @Test
@@ -165,5 +203,20 @@ public class GoodDBTest extends AbstractDBTest {
         GoodDAO goodDAO = GoodDAOSQL.getInstance();
         boolean deleted = goodDAO.delete(24);
         assertFalse(deleted);
+    }
+
+    public static void assertGoodListEquals(List<Good> expectedGoodList, List<Good> outputGoodList) {
+        Iterator<Good> expectedIterator = expectedGoodList.iterator();
+        Iterator<Good> outputIterator = outputGoodList.iterator();
+
+        while (expectedIterator.hasNext() && outputIterator.hasNext()) {
+            Good expectedGood = expectedIterator.next();
+            Good outputGood = outputIterator.next();
+
+            assertEquals(expectedGood.id, outputGood.id);
+            assertEquals(expectedGood.name, outputGood.name);
+            assertEquals(expectedGood.auctionId, outputGood.auctionId);
+            assertEquals(expectedGood.image, outputGood.image);
+        }
     }
 }
