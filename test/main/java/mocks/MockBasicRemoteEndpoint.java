@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 public class MockBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
-    Object lastSendObject;
+    public Object lastSendObject;
 
     @Override
     public void sendText(String s) throws IOException {

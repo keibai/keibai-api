@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class MockSession implements Session {
+    public MockBasicRemoteEndpoint basicRemoteEndpoint = new MockBasicRemoteEndpoint();
+
     @Override
     public WebSocketContainer getContainer() {
         return null;
@@ -101,7 +103,7 @@ public class MockSession implements Session {
 
     @Override
     public RemoteEndpoint.Basic getBasicRemote() {
-        return new MockBasicRemoteEndpoint();
+        return basicRemoteEndpoint;
     }
 
     @Override
