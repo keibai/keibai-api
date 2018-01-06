@@ -49,6 +49,7 @@ public class UserAuthenticateTest extends AbstractDBTest {
         new UserAuthenticate().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
+        assertEquals(400, stubber.servletResponse.getStatus());
         assertEquals(UserAuthenticate.PASSWORD_INVALID, error.error);
     }
 

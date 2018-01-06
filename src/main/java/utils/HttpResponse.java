@@ -23,15 +23,15 @@ public class HttpResponse {
     }
 
     public void internalServerError() throws IOException {
-        this.response(JsonCommon.internalServerError());
+        this.errorResponse(JsonCommon.internalServerError(), 500);
     }
 
     public void unauthorized() throws IOException {
-        this.response(JsonCommon.unauthorized());
+        this.errorResponse(JsonCommon.unauthorized());
     }
 
     public void invalidRequest() throws IOException {
-        this.response(JsonCommon.invalidRequest());
+        this.errorResponse(JsonCommon.invalidRequest());
     }
 
     /* Generic */
@@ -39,14 +39,22 @@ public class HttpResponse {
     public void msg(String msg) throws IOException {
         this.response(JsonCommon.msg(msg));
     }
-//
+
     public void error(String errorMsg) throws IOException {
         error(errorMsg, 400);
     }
 
     public void error(String errorMsg, int statusCode) throws IOException {
+        this.errorResponse(JsonCommon.error(errorMsg), statusCode);
+    }
+
+    public void errorResponse(String json) throws IOException {
+        this.errorResponse(json, 400);
+    }
+
+    public void errorResponse(String json, int statusCode) throws IOException {
         this.response.setStatus(statusCode);
-        this.response(JsonCommon.error(errorMsg));
+        this.response(json);
     }
 
     public void response(String json) throws IOException {
