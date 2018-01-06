@@ -22,6 +22,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
     private static final String DB_EVENT_ID = "event";
     private static final String DB_OWNER_ID = "owner";
     private static final String DB_WINNER_ID = "winner";
+    private static final String DB_COMBINATORIAL_WINNERS = "combinatorial_winners";
 
     private static AuctionDAO instance;
 
@@ -39,8 +40,8 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
     public Auction create(Auction auction) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.auction (name, starting_price, start_time, event, owner, status, winner, ending_time) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO public.auction (name, starting_price, start_time, event, owner, status, winner, ending_time, combinatorial_winners) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, auction.name);
@@ -55,6 +56,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
                 statement.setInt(7, auction.winnerId);
             }
             statement.setTimestamp(8, auction.endingTime);
+            statement.setString(9, auction.combinatorialWinners);
             statement.executeUpdate();
             return recentlyUpdated(statement);
         } catch (NamingException |SQLException e) {
@@ -129,7 +131,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
             String query = "UPDATE public.auction " +
                     "SET name = ?, starting_price = ?, " +
                     "start_time = ?, event = ?, " +
-                    "owner = ?, status = ?, winner = ?, ending_time = ? " +
+                    "owner = ?, status = ?, winner = ?, ending_time = ?, combinatorial_winners = ? " +
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
@@ -145,7 +147,8 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
                 statement.setInt(7, auction.winnerId);
             }
             statement.setTimestamp(8, auction.endingTime);
-            statement.setInt(9, auction.id);
+            statement.setString(9, auction.combinatorialWinners);
+            statement.setInt(10, auction.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -182,6 +185,7 @@ public class AuctionDAOSQL extends SQLDAOAbstract<Auction> implements AuctionDAO
         auction.status = resultSet.getString(DB_STATUS);
         auction.winnerId = resultSet.getInt(DB_WINNER_ID);
         auction.endingTime = resultSet.getTimestamp(DB_ENDING_TIME);
+        auction.combinatorialWinners = resultSet.getString(DB_COMBINATORIAL_WINNERS);
         return auction;
     }
 }
