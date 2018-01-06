@@ -1,8 +1,10 @@
 package main.java.servlets.auction;
 
 import com.google.gson.Gson;
+import main.java.dao.AuctionDAO;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
@@ -11,6 +13,7 @@ import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.models.meta.Msg;
 import main.java.utils.DBFeeder;
+import main.java.utils.DummyGenerator;
 import main.java.utils.JsonResponse;
 import org.junit.Test;
 
@@ -82,6 +85,27 @@ public class AuctionDeleteTest extends AbstractDBTest {
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+    }
+
+    @Test
+    public void can_not_delete_if_auction_not_pending() throws Exception {
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.ownerId = dummyEvent.ownerId;
+        dummyAuction.eventId = dummyEvent.id;
+        dummyAuction.status = Auction.IN_PROGRESS;
+        Auction dbAuction = auctionDAO.create(dummyAuction);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(dummyEvent.ownerId);
+        stubber.parameter("id", String.valueOf(dbAuction.id));
+        stubber.listen();
+        new AuctionDelete().doPost(stubber.servletRequest, stubber.servletResponse);
+        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+
+        assertEquals(AuctionDelete.WRONG_STATUS, error.error);
     }
 
     @Test
