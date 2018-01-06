@@ -5,10 +5,12 @@ import main.java.models.Auction;
 import main.java.models.Bid;
 import main.java.models.Event;
 import main.java.models.User;
+import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
 import org.junit.Test;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -202,6 +204,77 @@ public class BidDBTest extends AbstractDBTest {
         BidDAO bidDAO = BidDAOSQL.getInstance();
         boolean deleted = bidDAO.delete(24);
         assertFalse(deleted);
+    }
+
+    /* Lists */
+    @Test
+    public void test_returned_empty_list_when_there_are_not_bids_for_a_user() throws Exception {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        User dummyUser = DBFeeder.createDummyUser();
+        List<Bid> bidList = bidDAO.getListByOwnerId(dummyUser.id);
+        assertEquals(0, bidList.size());
+    }
+
+    @Test
+    public void test_list_of_bids_for_a_user() throws Exception {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        Auction dummyAuction = DBFeeder.createDummyAuction();
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.auctionId = dummyAuction.id;
+        dummyBid.ownerId = dummyAuction.ownerId;
+        Bid insertedBid = bidDAO.create(dummyBid);
+
+        Bid otherDummyBid = DummyGenerator.getOtherDummyBid();
+        otherDummyBid.auctionId = dummyAuction.id;
+        otherDummyBid.ownerId = dummyAuction.ownerId;
+        Bid insertedOtherBid = bidDAO.create(otherDummyBid);
+
+        List<Bid> expectedBidList = new LinkedList<Bid>() {{
+           add(insertedBid);
+           add(insertedOtherBid);
+        }};
+
+        List<Bid> outputBidList = bidDAO.getListByOwnerId(dummyAuction.ownerId);
+        assertNotNull(outputBidList);
+        assertEquals(expectedBidList.size(), outputBidList.size());
+
+        assertBidListEquals(expectedBidList, outputBidList);
+    }
+
+    @Test
+    public void test_returned_empty_list_when_there_are_not_bids_for_an_auction() throws Exception {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        Auction dummyAuction = DBFeeder.createDummyAuction();
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.auctionId = dummyAuction.id;
+        dummyBid.ownerId = dummyAuction.ownerId;
+        Bid insertedBid = bidDAO.create(dummyBid);
+
+        Bid otherDummyBid = DummyGenerator.getOtherDummyBid();
+        otherDummyBid.auctionId = dummyAuction.id;
+        otherDummyBid.ownerId = dummyAuction.ownerId;
+        Bid insertedOtherBid = bidDAO.create(otherDummyBid);
+
+        List<Bid> expectedBidList = new LinkedList<Bid>() {{
+            add(insertedBid);
+            add(insertedOtherBid);
+        }};
+
+        List<Bid> outputBidList = bidDAO.getListByAuctionId(dummyAuction.id);
+        assertNotNull(outputBidList);
+        assertEquals(expectedBidList.size(), outputBidList.size());
+
+        assertBidListEquals(expectedBidList, outputBidList);
+    }
+
+    @Test
+    public void test_list_of_bids_for_an_auction() throws Exception {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        Auction dummyAuction = DBFeeder.createDummyAuction();
+        List<Bid> bidList = bidDAO.getListByAuctionId(dummyAuction.id);
+        assertEquals(0, bidList.size());
     }
 
     public static void assertBidListEquals(List<Bid> expectedBidList, List<Bid> outputBidList) {
