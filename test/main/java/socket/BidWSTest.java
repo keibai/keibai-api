@@ -644,13 +644,15 @@ public class BidWSTest extends AbstractDBTest {
 
         // Join another auction and bid on it while the first one is in progress.
         Auction altAuction = DummyGenerator.getOtherDummyAuction();
-        altAuction.eventId = auction.eventId;
-        auctionDAO.create(altAuction);
+        altAuction.ownerId = dbUser.id;
+        altAuction.eventId = dbAuction.eventId;
+        altAuction.status = Auction.IN_PROGRESS;
+        Auction dbAltAuction = auctionDAO.create(altAuction);
 
-        successfulSubscription(altAuction);
+        successfulSubscription(dbAltAuction);
 
         Bid attemptBid2 = DummyGenerator.getDummyBid();
-        attemptBid2.auctionId = altAuction.id;
+        attemptBid2.auctionId = dbAltAuction.id;
         attemptBid2.amount = 1000;
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
