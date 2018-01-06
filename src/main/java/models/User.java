@@ -2,7 +2,7 @@ package main.java.models;
 
 import java.sql.Timestamp;
 
-public class User extends ModelAbstract {
+public class User extends ModelAbstract implements Cloneable {
 
     public String name;
     public String lastName;
@@ -51,5 +51,14 @@ public class User extends ModelAbstract {
         result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
         result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public User clone() {
+        try {
+            return (User) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

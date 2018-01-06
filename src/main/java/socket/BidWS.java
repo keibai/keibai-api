@@ -37,6 +37,7 @@ public class BidWS implements WS {
     public static final String LOW_BID_HIGHER_BID = "You cannot bid lower than the highest bid.";
 
     public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
+    public static final String TYPE_AUCTION_NEW_CONNECTION = "AuctionNewConnection";
     public static final String TYPE_AUCTION_BID = "AuctionBid";
     public static final String TYPE_AUCTION_BIDDED = "AuctionBidded";
 
@@ -68,7 +69,23 @@ public class BidWS implements WS {
     }
 
     protected void onAuctionSubscribe(BodyWS body) {
+        UserDAO userDAO = UserDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+
+        int userId = httpSession.userId();
+        if (userId == -1) {
+            sender.reply(session, body, BodyWSCommon.unauthorized());
+            return;
+        }
+
+        User dbUser;
+        try {
+            dbUser = userDAO.getById(userId);
+        } catch (DAOException e) {
+            Logger.error("Subscribe get user by ID", String.valueOf(userId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
 
         Auction unsafeAuction;
         try {
@@ -113,6 +130,22 @@ public class BidWS implements WS {
         okBody.status = 200;
         okBody.json = JsonCommon.ok();
         sender.reply(session, body, okBody);
+
+        newConnection(dbAuction.id, dbUser);
+    }
+
+    protected void newConnection(int auctionId, User user) {
+        User broadcastUser = user.clone();
+        broadcastUser.password = null;
+        broadcastUser.credit = 0.0;
+
+        BodyWS body = new BodyWS();
+        body.type = TYPE_AUCTION_NEW_CONNECTION;
+        body.status = 200;
+        body.json = new Gson().toJson(broadcastUser);
+
+        List<Session> sessions = connected.get(auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
+        sender.send(sessions, body);
     }
 
     protected void onAuctionBid(BodyWS body) {
@@ -161,7 +194,7 @@ public class BidWS implements WS {
         try {
             user = userDAO.getById(userId);
         } catch (DAOException e) {
-            Logger.error("Get user by ID", String.valueOf(userId), e.toString());
+            Logger.error("Bid get user by ID", String.valueOf(userId), e.toString());
             sender.reply(session, body, BodyWSCommon.internalServerError());
             return;
         }

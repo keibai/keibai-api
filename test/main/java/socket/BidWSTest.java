@@ -59,6 +59,19 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     /* AuctionSubscribe */
+
+    @Test
+    public void should_not_subscribe_if_not_authenticated() {
+        // Deauthenticate user first.
+        mockHttpSession.setUserId(-1);
+
+        successfulSubscription();
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.unauthorized(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
     @Test
     public void should_not_subscribe_if_invalid_json() {
         BodyWS requestBody = new BodyWS();
@@ -113,7 +126,7 @@ public class BidWSTest extends AbstractDBTest {
 
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
-        requestBody.nonce = "successful-subscription-nonce";
+        requestBody.nonce = "any";
         requestBody.status = 200;
         requestBody.json = new Gson().toJson(auction);
         bidWS.onMessage(mockSession, requestBody);
@@ -123,6 +136,30 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(requestBody, mockSender.originObjLastReply);
         assertEquals(200, replyBody.status);
         assertEquals(JsonCommon.ok(), replyBody.json);
+    }
+
+    @Test
+    public void should_send_new_connection_on_new_subscription() {
+        Auction requestAuction = new Auction();
+        requestAuction.id = auction.id;
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        requestBody.nonce = "any";
+        requestBody.status = 200;
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        assertEquals(1, mockSender.sessionsLastListSend.size());
+        BodyWS sendBody = mockSender.objLastListSend;
+        User sendUser = new Gson().fromJson(sendBody.json, User.class);
+        assertEquals(BidWS.TYPE_AUCTION_NEW_CONNECTION, sendBody.type);
+        assertEquals(200, sendBody.status);
+        assertNotEquals("", sendBody.nonce);
+        assertEquals(user.id, sendUser.id);
+        assertEquals(user.name, sendUser.name);
+        assertEquals(null, sendUser.password);
+        assertEquals(0.0, sendUser.credit, 0);
     }
 
     /* AuctionBid */
