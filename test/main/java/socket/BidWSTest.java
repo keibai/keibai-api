@@ -1,8 +1,14 @@
 package main.java.socket;
 
 import com.google.gson.Gson;
+import main.java.dao.AuctionDAO;
+import main.java.dao.BidDAO;
 import main.java.dao.DAOException;
+import main.java.dao.UserDAO;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.dao.sql.AuctionDAOSQL;
+import main.java.dao.sql.BidDAOSQL;
+import main.java.dao.sql.UserDAOSQL;
 import main.java.mocks.MockHttpSession;
 import main.java.mocks.MockSession;
 import main.java.mocks.MockWSSender;
@@ -11,8 +17,6 @@ import main.java.models.Bid;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.models.meta.BodyWS;
-import main.java.models.meta.Error;
-import main.java.models.meta.Msg;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
 import main.java.utils.JsonCommon;
@@ -22,6 +26,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class BidWSTest extends AbstractDBTest {
+
+    UserDAO userDAO = UserDAOSQL.getInstance();
+    AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+    BidDAO bidDAO = BidDAOSQL.getInstance();
 
     MockSession mockSession;
     MockHttpSession mockHttpSession;
@@ -67,14 +75,14 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(mockSession, mockSender.sessionLastReply);
         assertEquals(requestBody, mockSender.originObjLastReply);
         assertEquals(200, replyBody.status);
-        assertEquals(JsonCommon.OK, new Gson().fromJson(replyBody.json, Msg.class).msg);
+        assertEquals(JsonCommon.ok(), replyBody.json);
     }
 
     /* AuctionBid */
 
     @Test
-    public void test_not_authenticate_user_can_not_create_bid() {
-        Auction auction = succesfulSubscription();
+    public void should_not_create_bid_when_not_authenticated() {
+        Auction auction = successfulSubscription();
 
         // Deauthenticate user first.
         mockHttpSession.setUserId(-1);
@@ -92,58 +100,261 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(400, replyBody.status);
     }
 
-//    @Test
-//    public void test_bid_with_invalid_amount_can_not_be_created() throws Exception {
-//        Bid dummyBid = DummyGenerator.getDummyBid();
-//        dummyBid.amount = -1.0;
-//        common_bid_error_test(dummyBid, BidNew.INVALID_AMOUNT_ERROR);
-//    }
-//
-//    @Test
-//    public void test_bid_without_auction_can_not_be_created() throws Exception {
-//        Bid dummyBid = DummyGenerator.getDummyBid();
-//        common_bid_error_test(dummyBid, BidNew.AUCTION_ID_ERROR);
-//    }
-//
-//
-//    @Test
-//    public void should_create_bid() throws Exception {
-//        Auction dummyAuction = DBFeeder.createDummyAuction();
-//
-//        Bid attemptBid = DummyGenerator.getDummyBid();
-//        attemptBid.ownerId = dummyAuction.ownerId;
-//        attemptBid.auctionId = dummyAuction.id;
-//        String attemptBidJson = new Gson().toJson(attemptBid);
-//
-//        HttpServletStubber stubber = new HttpServletStubber();
-//        stubber.authenticate(attemptBid.ownerId);
-//        stubber.body(attemptBidJson).listen();
-//        new BidNew().doPost(stubber.servletRequest, stubber.servletResponse);
-//
-//        Bid outputBid = new Gson().fromJson(stubber.gathered(), Bid.class);
-//
-//        assertEquals(attemptBid.amount, outputBid.amount, 0.0000001);
-//        assertEquals(attemptBid.ownerId, outputBid.ownerId);
-//        assertEquals(attemptBid.auctionId, outputBid.auctionId);
-//        assertNotNull(outputBid.createdAt);
-//    }
-//
-//    private void common_bid_error_test(Bid attemptBid, String errorMsg) throws DAOException, IOException, ServletException {
-//        User dummyUser = DBFeeder.createDummyUser();
-//
-//        attemptBid.ownerId = dummyUser.id;
-//        String attemptBidJson = new Gson().toJson(attemptBid);
-//
-//        HttpServletStubber stubber = new HttpServletStubber();
-//        stubber.authenticate(dummyUser.id);
-//        stubber.body(attemptBidJson).listen();
-//        new BidNew().doPost(stubber.servletRequest, stubber.servletResponse);
-//
-//        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
-//        assertEquals(errorMsg, error.error);
-//    }
+    @Test
+    public void should_not_create_bid_when_json_is_invalid() {
+        Auction auction = successfulSubscription();
 
-    private Auction succesfulSubscription() {
+        String attemptBid = "{";
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = attemptBid;
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.invalidRequest(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_bid_with_invalid_amount() {
+        Auction auction = successfulSubscription();
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.amount = 0.0;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.INVALID_AMOUNT_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_bid_without_auction() {
+        Auction auction = successfulSubscription();
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.amount = 1.0;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.AUCTION_ID_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_bid_if_not_subscribed_to_the_auction() {
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.amount = 1.0;
+        attemptBid.auctionId = auction.id;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.SUBSCRIPTION_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_bid_if_auction_is_not_in_progress() {
+        Auction auction = successfulSubscription();
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.amount = 1.0;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.AUCTION_NOT_IN_PROGRESS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_bid_if_amount_is_lower_than_starting_price() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.amount = dbAuction.startingPrice - 0.01;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.LOW_BID_STARTING_PRICE), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+    
+    @Test
+    public void should_not_create_bid_if_not_enough_credit() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = dbAuction.startingPrice - 0.01;
+        userDAO.update(dbUser);
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.amount = dbAuction.startingPrice;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.NO_CREDIT), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_if_there_is_a_higher_bid_by_himself() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 2000;
+        userDAO.update(dbUser);
+
+        // First bid @ 2000.
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.amount = 2000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "first";
+        requestBody.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(2000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+
+        // Second bid @ 1000.
+        Bid attemptBid2 = DummyGenerator.getDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.amount = 1000;
+        BodyWS requestBody2 = new BodyWS();
+        requestBody2.type = BidWS.TYPE_AUCTION_BID;
+        requestBody2.nonce = "second";
+        requestBody2.json = new Gson().toJson(attemptBid2);
+        bidWS.onMessage(mockSession, requestBody2);
+
+        BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.LOW_BID_HIGHER_BID), replyBody2.json);
+        assertEquals(400, requestBody2.status);
+    }
+
+    @Test
+    public void should_not_create_if_there_is_a_higher_bid_by_another_user() throws DAOException {
+
+    }
+
+    @Test
+    public void should_create_bid() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 1000;
+        userDAO.update(dbUser);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "first";
+        requestBody.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+    }
+
+    @Test
+    public void should_create_bid_if_highest_bidder() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 2000;
+        userDAO.update(dbUser);
+
+        // First bid @ 1000.
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.amount = 1000;
+        BodyWS requestBody1 = new BodyWS();
+        requestBody1.type = BidWS.TYPE_AUCTION_BID;
+        requestBody1.nonce = "first";
+        requestBody1.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody1);
+
+        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+
+        // Second bid @ 2000.
+        Bid attemptBid2 = DummyGenerator.getDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.amount = 2000;
+        BodyWS requestBody2 = new BodyWS();
+        requestBody2.type = BidWS.TYPE_AUCTION_BID;
+        requestBody2.nonce = "second";
+        requestBody2.json = new Gson().toJson(attemptBid2);
+        bidWS.onMessage(mockSession, requestBody2);
+
+        BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid2 = new Gson().fromJson(replyBody2.json, Bid.class);
+        assertEquals(user.id, dbBid2.ownerId);
+        assertEquals(2000, dbBid2.amount, 0);
+        assertEquals(200, replyBody2.status);
+    }
+
+    @Test
+    public void should_broadcast_bid_after_a_successful_bid() {
+
+    }
+
+    private Auction successfulSubscription() {
         Auction requestAuction = new Auction();
         requestAuction.id = auction.id;
 

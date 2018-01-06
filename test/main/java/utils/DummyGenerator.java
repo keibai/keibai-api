@@ -1,6 +1,5 @@
 package main.java.utils;
 
-import main.java.dao.EventDAO;
 import main.java.models.*;
 
 import java.sql.Timestamp;

@@ -5,10 +5,13 @@ import com.google.gson.JsonSyntaxException;
 import main.java.dao.AuctionDAO;
 import main.java.dao.BidDAO;
 import main.java.dao.DAOException;
+import main.java.dao.UserDAO;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.BidDAOSQL;
+import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Bid;
+import main.java.models.User;
 import main.java.models.meta.BodyWS;
 import main.java.utils.HttpSession;
 import main.java.utils.JsonCommon;
@@ -25,6 +28,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BidWS implements WS {
+
+    public static final String INVALID_AMOUNT_ERROR = "Invalid amount";
+    public static final String AUCTION_ID_ERROR = "Missing auction ID.";
+    public static final String SUBSCRIPTION_ERROR = "User not found inside the auction.";
+    public static final String NO_CREDIT = "Not enough credit.";
+    public static final String LOW_BID_STARTING_PRICE = "Bid cannot be lower than initial starting price";
+    public static final String AUCTION_DOES_NOT_EXIST = "Auction does not exist";
+    public static final String AUCTION_NOT_IN_PROGRESS = "Auction is not in progress";
+    public static final String LOW_BID_HIGHER_BID = "You cannot bid lower than the highest bid.";
 
     public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
     public static final String TYPE_AUCTION_BID = "AuctionBid";
@@ -98,14 +110,12 @@ public class BidWS implements WS {
 
     protected void onAuctionBid(BodyWS body) {
         BidDAO bidDAO = BidDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         int userId = httpSession.userId();
         if (userId == -1) {
-            BodyWS unauthorizedBody = new BodyWS();
-            unauthorizedBody.status = 400;
-            unauthorizedBody.json = JsonCommon.unauthorized();
-            sender.reply(session, body, unauthorizedBody);
+            sender.reply(session, body, BodyWSCommon.unauthorized());
             return;
         }
 
@@ -113,32 +123,40 @@ public class BidWS implements WS {
         try {
             unsafeBid = new Gson().fromJson(body.json, Bid.class);
         } catch (JsonSyntaxException e) {
-            // jsonResponse.invalidRequest();
-            System.out.println("Invalid request.");
+            sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
         }
 
         if (unsafeBid == null) {
-            // jsonResponse.invalidRequest();
-            System.out.println("Invalid request.");
+            sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
         }
 
         if (unsafeBid.amount <= 0.0) {
-            // jsonResponse.error(INVALID_AMOUNT_ERROR);
-            System.out.println("Invalid amount.");
+            String json = JsonCommon.error(INVALID_AMOUNT_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 
         if (unsafeBid.auctionId == 0) {
-            // jsonResponse.error(AUCTION_ID_ERROR);
-            System.out.println("Empty auction ID.");
+            String json = JsonCommon.error(AUCTION_ID_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 
         // TODO test
         if (unsafeBid.auctionId != subscribed) {
-            System.out.println("Not subscribed to that auction.");
+            String json = JsonCommon.error(SUBSCRIPTION_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        User user;
+        try {
+            user = userDAO.getById(userId);
+        } catch (DAOException e) {
+            Logger.error("Get user by ID", String.valueOf(userId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
             return;
         }
 
@@ -146,40 +164,52 @@ public class BidWS implements WS {
         try {
             auction = auctionDAO.getById(unsafeBid.auctionId);
         } catch (DAOException e) {
-            Logger.error("Get auction by ID " + unsafeBid.auctionId, e.toString());
-            // jsonResponse.internalServerError();
+            Logger.error("Get auction by ID", String.valueOf(unsafeBid.auctionId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
             return;
         }
 
         if (auction == null) {
-            // jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
-            System.out.println("Auction " + unsafeBid.auctionId + " does not exist");
+            String json = JsonCommon.error(AUCTION_DOES_NOT_EXIST);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 
-        // TODO: Test!
         if (!auction.status.equals(Auction.IN_PROGRESS)) {
-            System.out.println("Auction " + unsafeBid.auctionId + " not in progress");
-            //jsonResponse.error(AUCTION_NOT_IN_PROGRESS);
+            String json = JsonCommon.error(AUCTION_NOT_IN_PROGRESS);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 
-        // TODO: Test!
         List<Bid> auctionBids;
         try {
             auctionBids = bidDAO.getListByAuctionId(unsafeBid.auctionId);
         } catch (DAOException e) {
-            Logger.error("Get bid list by auction ID " + unsafeBid.auctionId, e.toString());
-            //jsonResponse.internalServerError();
+            Logger.error("Get bid list by auction ID", String.valueOf(unsafeBid.auctionId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
             return;
         }
 
-        // TODO: Test
+        // User bid amount has to be higher or equal than auction starting price.
+        if (unsafeBid.amount < auction.startingPrice) {
+            String json = JsonCommon.error(LOW_BID_STARTING_PRICE);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        // User has enough credit
+        if (user.credit < unsafeBid.amount) {
+            String json = JsonCommon.error(NO_CREDIT);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        // User bid has to be higher than the maximum bid for that auction.
         if (auctionBids.size() > 0) {
             Bid maxBid = Collections.max(auctionBids);
             if ((unsafeBid.amount - maxBid.amount) <= 0) {
-                //jsonResponse.error(BID_NOT_HIGHER_ENOUGH);
-                System.out.println("Bid of amount " + unsafeBid.amount + " no higher enough. Bid should be higher than " + maxBid.amount);
+                String json = JsonCommon.error(LOW_BID_HIGHER_BID);
+                sender.reply(session, body, BodyWSCommon.error(json));
                 return;
             }
         }
@@ -194,14 +224,16 @@ public class BidWS implements WS {
             dbBid = bidDAO.create(newBid);
         } catch (DAOException e) {
             Logger.error("Create bid", newBid.toString(), e.toString());
-            // jsonResponse.internalServerError();
+            sender.reply(session, body, BodyWSCommon.internalServerError());
             return;
         }
 
 
-        auctionBidded(dbBid);
-        System.out.println(dbBid);
+        String json = new Gson().toJson(dbBid);
+        sender.reply(session, body, BodyWSCommon.ok(json));
 
+        // Broadcast bid to everyone in the auction.
+        auctionBidded(dbBid);
     }
 
     protected void auctionBidded(Bid newBid) {
