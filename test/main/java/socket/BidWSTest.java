@@ -50,7 +50,7 @@ public class BidWSTest extends AbstractDBTest {
         mockSession = new MockSession();
         mockHttpSession = new MockHttpSession();
         mockHttpSession.setUserId(user.id);
-        mockSender = new MockWSSender();
+        mockSender = new MockWSSender<>();
 
         BidWS.clearConnected();
         bidWS = new BidWS();
@@ -68,7 +68,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = "{";
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(400, replyBody.status);
         assertEquals(JsonCommon.invalidRequest(), replyBody.json);
     }
@@ -84,7 +84,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(emptyAuction);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(400, replyBody.status);
         assertEquals(JsonCommon.error(BidWS.AUCTION_ID_ERROR), replyBody.json);
     }
@@ -101,7 +101,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(nonexistentAuction);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(400, replyBody.status);
         assertEquals(JsonCommon.error(BidWS.AUCTION_DOES_NOT_EXIST), replyBody.json);
     }
@@ -118,7 +118,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(auction);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(mockSession, mockSender.sessionLastReply);
         assertEquals(requestBody, mockSender.originObjLastReply);
         assertEquals(200, replyBody.status);
@@ -142,7 +142,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.unauthorized(), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -158,7 +158,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = attemptBid;
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.invalidRequest(), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -176,7 +176,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.INVALID_AMOUNT_ERROR), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -193,7 +193,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.AUCTION_ID_ERROR), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -209,7 +209,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.SUBSCRIPTION_ERROR), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -227,7 +227,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.AUCTION_NOT_IN_PROGRESS), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -248,7 +248,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.LOW_BID_STARTING_PRICE), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -273,7 +273,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.NO_CREDIT), replyBody.json);
         assertEquals(400, replyBody.status);
     }
@@ -299,7 +299,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid1);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody1 = mockSender.newObjLastReply;
         Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
         assertEquals(user.id, dbBid1.ownerId);
         assertEquals(2000, dbBid1.amount, 0);
@@ -315,7 +315,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody2.json = new Gson().toJson(attemptBid2);
         bidWS.onMessage(mockSession, requestBody2);
 
-        BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody2 = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.LOW_BID_HIGHER_BID), replyBody2.json);
         assertEquals(400, replyBody2.status);
     }
@@ -345,7 +345,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid1);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody1 = mockSender.newObjLastReply;
         Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
         assertEquals(user.id, dbBid1.ownerId);
         assertEquals(1000, dbBid1.amount, 0);
@@ -364,7 +364,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody2.json = new Gson().toJson(attemptBid2);
         bidWS.onMessage(mockSession, requestBody2);
 
-        BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody2 = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.LOW_BID_HIGHER_BID), replyBody2.json);
         assertEquals(400, replyBody2.status);
 
@@ -378,7 +378,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody3.json = new Gson().toJson(attemptBid3);
         bidWS.onMessage(mockSession, requestBody3);
 
-        BodyWS replyBody3 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody3 = mockSender.newObjLastReply;
         Bid dbBid3 = new Gson().fromJson(replyBody3.json, Bid.class);
         assertEquals(altUser.id, dbBid3.ownerId);
         assertEquals(2000, dbBid3.amount, 0);
@@ -405,7 +405,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid1);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody1 = mockSender.newObjLastReply;
         Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
         assertEquals(user.id, dbBid1.ownerId);
         assertEquals(1000, dbBid1.amount, 0);
@@ -433,7 +433,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody1.json = new Gson().toJson(attemptBid1);
         bidWS.onMessage(mockSession, requestBody1);
 
-        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody1 = mockSender.newObjLastReply;
         Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
         assertEquals(user.id, dbBid1.ownerId);
         assertEquals(1000, dbBid1.amount, 0);
@@ -449,7 +449,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody2.json = new Gson().toJson(attemptBid2);
         bidWS.onMessage(mockSession, requestBody2);
 
-        BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody2 = mockSender.newObjLastReply;
         Bid dbBid2 = new Gson().fromJson(replyBody2.json, Bid.class);
         assertEquals(user.id, dbBid2.ownerId);
         assertEquals(2000, dbBid2.amount, 0);
@@ -504,7 +504,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         Bid dbBid = new Gson().fromJson(replyBody.json, Bid.class);
         assertEquals(user.id, dbBid.ownerId);
         assertEquals(1000, dbBid.amount, 0);
@@ -514,6 +514,7 @@ public class BidWSTest extends AbstractDBTest {
         assertNotEquals(mockSender.sessionsLastListSend.get(0), mockSender.sessionsLastListSend.get(1));
         assertTrue(mockSender.sessionsLastListSend.stream().anyMatch(e -> e == altMockSession));
         assertTrue(mockSender.sessionsLastListSend.stream().anyMatch(e -> e == mockSession));
+        assertEquals(BidWS.TYPE_AUCTION_BIDDED, mockSender.objLastListSend.type);
     }
 
     @Test
@@ -568,7 +569,7 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(attemptBid);
         bidWS.onMessage(mockSession, requestBody);
 
-        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        BodyWS replyBody = mockSender.newObjLastReply;
         Bid dbBid = new Gson().fromJson(replyBody.json, Bid.class);
         assertEquals(user.id, dbBid.ownerId);
         assertEquals(1000, dbBid.amount, 0);

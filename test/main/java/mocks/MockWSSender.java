@@ -8,14 +8,14 @@ import java.util.List;
 public class MockWSSender<T> implements WSSender<T> {
 
     public Session sessionLastSend;
-    public Object objLastSend;
+    public T objLastSend;
 
     public List<Session> sessionsLastListSend;
-    public Object objLastListSend;
+    public T objLastListSend;
 
-    public Object sessionLastReply;
-    public Object originObjLastReply;
-    public Object newObjLastReply;
+    public Session sessionLastReply;
+    public T originObjLastReply;
+    public T newObjLastReply;
 
     @Override
     public void send(Session session, T obj) {

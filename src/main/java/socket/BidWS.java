@@ -38,6 +38,7 @@ public class BidWS implements WS {
 
     public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
     public static final String TYPE_AUCTION_BID = "AuctionBid";
+    public static final String TYPE_AUCTION_BIDDED = "AuctionBidded";
 
     private static final Map<Integer, Set<BidWS>> connected = new ConcurrentHashMap<>(); // Auction id <-> Sockets
     private int subscribed = -1; // Auction on which the current user is subscribed to.
@@ -243,7 +244,7 @@ public class BidWS implements WS {
 
     protected void auctionBidded(Bid newBid) {
         BodyWS body = new BodyWS();
-        body.type = "AuctionBidded";
+        body.type = TYPE_AUCTION_BIDDED;
         body.json = new Gson().toJson(newBid);
 
         List<Session> sessions = connected.get(newBid.auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
