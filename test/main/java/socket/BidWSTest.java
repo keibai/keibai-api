@@ -270,7 +270,7 @@ public class BidWSTest extends AbstractDBTest {
 
         BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.LOW_BID_HIGHER_BID), replyBody2.json);
-        assertEquals(400, requestBody2.status);
+        assertEquals(400, replyBody2.status);
     }
 
     @Test
