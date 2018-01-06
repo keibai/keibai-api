@@ -8,8 +8,6 @@ import main.java.models.meta.BodyWS;
 
 public class BodyDecoder implements Decoder.Text<BodyWS> {
 
-    // private static Gson gson = new Gson();
-
     /**
      * Decode the information sent through socket.
      * If it's not complete, an empty BodyWS will be returned.
@@ -23,17 +21,6 @@ public class BodyDecoder implements Decoder.Text<BodyWS> {
     @Override
     public BodyWS decode(String text) throws DecodeException {
         return BodyWS.fromString(text);
-        /*try {
-            BodyWS msg = gson.fromJson(s, BodyWS.class);
-            System.out.println("aa");
-            System.out.println(msg);
-            return msg;
-        } catch (JsonSyntaxException e) {
-            System.out.println(e.toString());
-            BodyWS emptyMessage = new BodyWS();
-            return emptyMessage;
-        }
-        */
     }
 
     @Override

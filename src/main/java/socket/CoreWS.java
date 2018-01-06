@@ -42,7 +42,6 @@ public class CoreWS {
     @OnMessage
     public void onMessage(Session session, BodyWS body) throws IOException {
         if (body.isEmpty()) {
-            System.out.println("is empty");
             return;
         }
 
@@ -53,7 +52,6 @@ public class CoreWS {
 
     @OnClose
     public void onClose(Session session) throws IOException {
-        System.out.println("on close");
         for (WS listener: listeners) {
             listener.onClose(session);
         }
@@ -67,21 +65,4 @@ public class CoreWS {
             listener.onClose(session);
         }
     }
-
-//    private static void broadcast(BodyWS message)
-//            throws IOException, EncodeException {
-//
-//        chatEndpoints.forEach(endpoint -> {
-//            synchronized (endpoint) {
-//                try {
-//                    System.out.println(message);
-//                    endpoint.session.getBasicRemote().
-//                            sendObject(message);
-//                } catch (IOException | EncodeException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
-
 }

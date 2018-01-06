@@ -11,7 +11,6 @@ public class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurato
                                 HandshakeRequest request,
                                 HandshakeResponse response) {
         HttpSession httpSession = (HttpSession) request.getHttpSession();
-        System.out.println(httpSession.getId());
         config.getUserProperties().put(HttpSession.class.getName(), httpSession);
     }
 }
