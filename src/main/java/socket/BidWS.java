@@ -243,7 +243,6 @@ public class BidWS implements WS {
         System.out.println(newBid);
         BodyWS body = new BodyWS();
         body.type = "AuctionBidded";
-        body.nonce = "1"; // TODO
         body.json = new Gson().toJson(newBid);
 
         List<Session> sessions = connected.get(newBid.auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
