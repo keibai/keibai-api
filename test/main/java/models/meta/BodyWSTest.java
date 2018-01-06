@@ -48,12 +48,12 @@ public class BodyWSTest {
     }
 
     @Test
-    public void BodyWS_status_code_shoud_be_200_by_default() {
+    public void BodyWS_status_code_should_be_200_by_default() {
         BodyWS body = new BodyWS();
         assertEquals(200, body.status);
 
         String bodyText = body.toString();
-        assertEquals("null,null,200,null", bodyText);
+        assertEquals("null," + body.nonce + ",200,null", bodyText);
 
         BodyWS recoveredBody = BodyWS.fromString(bodyText);
         assertEquals(200, recoveredBody.status);
