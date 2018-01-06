@@ -17,10 +17,7 @@ import main.java.utils.HttpSession;
 import main.java.utils.JsonCommon;
 import main.java.utils.Logger;
 
-
-import javax.websocket.EncodeException;
 import javax.websocket.Session;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,11 +68,18 @@ public class BidWS implements WS {
 
     protected void onAuctionSubscribe(BodyWS body) {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
-        Auction unsafeAuction = new Gson().fromJson(body.json, Auction.class);
+
+        Auction unsafeAuction;
+        try {
+            unsafeAuction = new Gson().fromJson(body.json, Auction.class);
+        } catch (JsonSyntaxException e) {
+            sender.reply(session, body, BodyWSCommon.invalidRequest());
+            return;
+        }
 
         if (unsafeAuction.id == 0) {
-            // jsonResponse.error(AUCTION_ID_ERROR);
-            System.out.println("Empty auction ID");
+            String json = JsonCommon.error(AUCTION_ID_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 
@@ -84,15 +88,17 @@ public class BidWS implements WS {
             dbAuction = auctionDAO.getById(unsafeAuction.id);
         } catch (DAOException e) {
             Logger.error("Get auction by ID", String.valueOf(unsafeAuction.id), e.toString());
-            // jsonResponse.internalServerError();
+            String json = JsonCommon.error(AUCTION_DOES_NOT_EXIST);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
         if (dbAuction == null) {
-            // jsonResponse.error(AUCTION_NOT_EXIST_ERROR);
-            System.out.println("Auction " + unsafeAuction.id + " does not exist.");
+            String json = JsonCommon.error(AUCTION_DOES_NOT_EXIST);
+            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 
+        // Add session to connected sessions to that auction.
         removeSubscription();
         subscribed = dbAuction.id;
         synchronized (connected) {
@@ -101,8 +107,6 @@ public class BidWS implements WS {
             }
         }
         connected.get(subscribed).add(this);
-        System.out.println(connected);
-        System.out.println(dbAuction);
 
         BodyWS okBody = new BodyWS();
         okBody.status = 200;

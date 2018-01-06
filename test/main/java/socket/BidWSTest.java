@@ -59,6 +59,52 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     /* AuctionSubscribe */
+    @Test
+    public void should_not_subscribe_if_invalid_json() {
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        requestBody.nonce = "any";
+        requestBody.status = 200;
+        requestBody.json = "{";
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(400, replyBody.status);
+        assertEquals(JsonCommon.invalidRequest(), replyBody.json);
+    }
+
+    @Test
+    public void should_not_subscribe_if_empty_auction_id() {
+        Auction emptyAuction = new Auction();
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        requestBody.nonce = "any";
+        requestBody.status = 200;
+        requestBody.json = new Gson().toJson(emptyAuction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(400, replyBody.status);
+        assertEquals(JsonCommon.error(BidWS.AUCTION_ID_ERROR), replyBody.json);
+    }
+
+    @Test
+    public void should_not_subscribe_if_auction_does_not_exist() {
+        Auction nonexistentAuction = new Auction();
+        nonexistentAuction.id = 404;
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        requestBody.nonce = "any";
+        requestBody.status = 200;
+        requestBody.json = new Gson().toJson(nonexistentAuction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(400, replyBody.status);
+        assertEquals(JsonCommon.error(BidWS.AUCTION_DOES_NOT_EXIST), replyBody.json);
+    }
 
     @Test
     public void bid_subscription_should_complete() {
