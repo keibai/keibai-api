@@ -1,10 +1,7 @@
 package main.java.dao.sql;
 
 import main.java.dao.*;
-import main.java.models.Auction;
-import main.java.models.Bid;
-import main.java.models.Event;
-import main.java.models.User;
+import main.java.models.*;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
 import org.junit.Test;
@@ -47,6 +44,7 @@ public class BidDBTest extends AbstractDBTest {
 
     @Test
     public void test_insertion_and_retrieval_of_bid() throws DAOException {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
@@ -65,9 +63,14 @@ public class BidDBTest extends AbstractDBTest {
         Auction insertedAuction = auctionDAO.create(auction);
         assertNotNull(insertedAuction);
 
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
         Bid bid = DummyGenerator.getDummyBid();
         bid.ownerId = insertedOwner.id;
         bid.auctionId = insertedAuction.id;
+        bid.goodId = insertedGood.id;
         Bid insertedBid = bidDAO.create(bid);
         assertNotNull(insertedBid);
         Bid retrievedBid = bidDAO.getById(insertedBid.id);
@@ -86,7 +89,7 @@ public class BidDBTest extends AbstractDBTest {
 
     @Test
     public void test_bid_amount_update() throws DAOException {
-
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
@@ -105,9 +108,14 @@ public class BidDBTest extends AbstractDBTest {
         Auction insertedAuction = auctionDAO.create(auction);
         assertNotNull(insertedAuction);
 
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
         Bid bid = DummyGenerator.getDummyBid();
         bid.ownerId = insertedOwner.id;
         bid.auctionId = insertedAuction.id;
+        bid.goodId = insertedGood.id;
         Bid insertedBid = bidDAO.create(bid);
         assertNotNull(insertedBid);
         insertedBid.amount = TEST_NEW_PRICE;
@@ -118,7 +126,7 @@ public class BidDBTest extends AbstractDBTest {
 
     @Test
     public void test_full_bid_update() throws DAOException {
-
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
@@ -137,9 +145,14 @@ public class BidDBTest extends AbstractDBTest {
         Auction insertedAuction = auctionDAO.create(auction);
         assertNotNull(insertedAuction);
 
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
         Bid bid = DummyGenerator.getDummyBid();
         bid.ownerId = insertedOwner.id;
         bid.auctionId = insertedAuction.id;
+        bid.goodId = insertedGood.id;
         Bid insertedBid = bidDAO.create(bid);
         assertNotNull(insertedBid);
 
@@ -147,6 +160,7 @@ public class BidDBTest extends AbstractDBTest {
         bid2.id = insertedBid.id;
         bid2.ownerId = insertedOwner.id;
         bid2.auctionId = insertedAuction.id;
+        bid2.goodId = insertedGood.id;
         Bid updatedBid = bidDAO.update(bid2);
 
         Bid retrievedBid = bidDAO.getById(updatedBid.id);
@@ -167,7 +181,7 @@ public class BidDBTest extends AbstractDBTest {
 
     @Test
     public void test_delete_existent_bid() throws DAOException {
-
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
@@ -186,9 +200,14 @@ public class BidDBTest extends AbstractDBTest {
         Auction insertedAuction = auctionDAO.create(auction);
         assertNotNull(insertedAuction);
 
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
         Bid bid = DummyGenerator.getDummyBid();
         bid.ownerId = insertedOwner.id;
         bid.auctionId = insertedAuction.id;
+        bid.goodId = insertedGood.id;
         Bid insertedBid = bidDAO.create(bid);
         assertNotNull(insertedBid);
         boolean deleted = bidDAO.delete(insertedBid.id);
@@ -217,17 +236,24 @@ public class BidDBTest extends AbstractDBTest {
 
     @Test
     public void test_list_of_bids_for_a_user() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
         Auction dummyAuction = DBFeeder.createDummyAuction();
+
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = dummyAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
 
         Bid dummyBid = DummyGenerator.getDummyBid();
         dummyBid.auctionId = dummyAuction.id;
         dummyBid.ownerId = dummyAuction.ownerId;
+        dummyBid.goodId = insertedGood.id;
         Bid insertedBid = bidDAO.create(dummyBid);
 
         Bid otherDummyBid = DummyGenerator.getOtherDummyBid();
         otherDummyBid.auctionId = dummyAuction.id;
         otherDummyBid.ownerId = dummyAuction.ownerId;
+        otherDummyBid.goodId = insertedGood.id;
         Bid insertedOtherBid = bidDAO.create(otherDummyBid);
 
         List<Bid> expectedBidList = new LinkedList<Bid>() {{
@@ -244,17 +270,24 @@ public class BidDBTest extends AbstractDBTest {
 
     @Test
     public void test_returned_empty_list_when_there_are_not_bids_for_an_auction() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
         Auction dummyAuction = DBFeeder.createDummyAuction();
+
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = dummyAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
 
         Bid dummyBid = DummyGenerator.getDummyBid();
         dummyBid.auctionId = dummyAuction.id;
         dummyBid.ownerId = dummyAuction.ownerId;
+        dummyBid.goodId = insertedGood.id;
         Bid insertedBid = bidDAO.create(dummyBid);
 
         Bid otherDummyBid = DummyGenerator.getOtherDummyBid();
         otherDummyBid.auctionId = dummyAuction.id;
         otherDummyBid.ownerId = dummyAuction.ownerId;
+        otherDummyBid.goodId = insertedGood.id;
         Bid insertedOtherBid = bidDAO.create(otherDummyBid);
 
         List<Bid> expectedBidList = new LinkedList<Bid>() {{

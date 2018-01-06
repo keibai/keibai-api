@@ -22,6 +22,7 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
     private static final String DB_AUCTION_ID = "auction";
     private static final String DB_OWNER_ID = "owner";
     private static final String DB_CREATED_AT = "created_at";
+    private static final String DB_GOOD_ID = "good";
 
     private static BidDAO instance;
 
@@ -39,13 +40,14 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
     public Bid create(Bid bid) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.bid (amount, auction, owner) " +
-                    "VALUES (?, ?, ?)";
+            String query = "INSERT INTO public.bid (amount, auction, owner, good) " +
+                    "VALUES (?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[]{"id"});
             statement.setDouble(1, bid.amount);
             statement.setInt(2, bid.auctionId);
             statement.setInt(3, bid.ownerId);
+            statement.setInt(4, bid.goodId);
             statement.executeUpdate();
             return recentlyUpdated(statement);
         } catch (NamingException | SQLException e) {
@@ -119,14 +121,15 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.bid " +
                     "SET amount = ?, auction = ?, " +
-                    "owner = ?" +
+                    "owner = ?, good = ? " +
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[]{"id"});
             statement.setDouble(1, bid.amount);
             statement.setInt(2, bid.auctionId);
             statement.setInt(3, bid.ownerId);
-            statement.setInt(4, bid.id);
+            statement.setInt(4, bid.goodId);
+            statement.setInt(5, bid.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -159,6 +162,7 @@ public class BidDAOSQL extends SQLDAOAbstract<Bid> implements BidDAO {
         bid.auctionId = resultSet.getInt(DB_AUCTION_ID);
         bid.ownerId = resultSet.getInt(DB_OWNER_ID);
         bid.createdAt = resultSet.getTimestamp(DB_CREATED_AT);
+        bid.goodId = resultSet.getInt(DB_GOOD_ID);
         return bid;
     }
 }

@@ -75,7 +75,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
     @Test
     public void test_get_bid_list_returns_list_of_bids() throws Exception {
         Bid bid = DBFeeder.createDummyBid();
-        Bid otherBid = DBFeeder.createOtherDummyBid(bid.auctionId, bid.ownerId);
+        Bid otherBid = DBFeeder.createOtherDummyBid(bid.auctionId, bid.ownerId, bid.goodId);
 
         List<Bid> expectedBidList = new LinkedList<Bid>() {{
             add(bid);
