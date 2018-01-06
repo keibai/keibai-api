@@ -275,7 +275,67 @@ public class BidWSTest extends AbstractDBTest {
 
     @Test
     public void should_not_create_if_there_is_a_higher_bid_by_another_user() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
 
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 2000;
+        userDAO.update(dbUser);
+
+        User altUser = DBFeeder.createOtherDummyUser();
+        altUser.credit = 2000;
+        userDAO.update(altUser);
+
+        // User bids @ 1000.
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "first";
+        requestBody.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody1 = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+
+        // Alt user authenticates.
+        mockHttpSession.setUserId(altUser.id);
+
+        // Alt user bids @ 1000.
+        Bid attemptBid2 = DummyGenerator.getDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.amount = 1000;
+        BodyWS requestBody2 = new BodyWS();
+        requestBody2.type = BidWS.TYPE_AUCTION_BID;
+        requestBody2.nonce = "second";
+        requestBody2.json = new Gson().toJson(attemptBid2);
+        bidWS.onMessage(mockSession, requestBody2);
+
+        BodyWS replyBody2 = (BodyWS) mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.LOW_BID_HIGHER_BID), replyBody2.json);
+        assertEquals(400, replyBody2.status);
+
+        // Alt user bids @ 2000.
+        Bid attemptBid3 = DummyGenerator.getDummyBid();
+        attemptBid3.auctionId = auction.id;
+        attemptBid3.amount = 2000;
+        BodyWS requestBody3 = new BodyWS();
+        requestBody3.type = BidWS.TYPE_AUCTION_BID;
+        requestBody3.nonce = "third";
+        requestBody3.json = new Gson().toJson(attemptBid3);
+        bidWS.onMessage(mockSession, requestBody3);
+
+        BodyWS replyBody3 = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid3 = new Gson().fromJson(replyBody3.json, Bid.class);
+        assertEquals(altUser.id, dbBid3.ownerId);
+        assertEquals(2000, dbBid3.amount, 0);
+        assertEquals(200, replyBody3.status);
     }
 
     @Test
@@ -350,8 +410,125 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     @Test
-    public void should_broadcast_bid_after_a_successful_bid() {
+    public void should_broadcast_bid_after_a_successful_bid() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
 
+        // Authenticate with alt user first and subscribe to auction.
+        MockSession altMockSession = new MockSession();
+        MockHttpSession altMockHttpSession = new MockHttpSession();
+        altMockHttpSession.setUserId(altUser.id);
+        MockWSSender<BodyWS> altMockSender = new MockWSSender<>();
+        successfulSubscription();
+
+        BidWS altBidWS = new BidWS();
+        altBidWS.sender = mockSender;
+        altBidWS.onOpen(altMockSession, altMockHttpSession);
+
+        // Subscribe to auction with alt user.
+        Auction altRequestAuction = new Auction();
+        altRequestAuction.id = auction.id;
+
+        BodyWS altRequestBody = new BodyWS();
+        altRequestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        altRequestBody.nonce = "successful-alt-subscription-nonce";
+        altRequestBody.status = 200;
+        altRequestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, altRequestBody);
+        altBidWS.onMessage(altMockSession, altRequestBody);
+
+        // Authentication with user and bid.
+        mockHttpSession.setUserId(user.id);
+
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 1000;
+        userDAO.update(dbUser);
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid = new Gson().fromJson(replyBody.json, Bid.class);
+        assertEquals(user.id, dbBid.ownerId);
+        assertEquals(1000, dbBid.amount, 0);
+        assertEquals(200, replyBody.status);
+
+        assertEquals(2, mockSender.sessionsLastListSend.size());
+        assertNotEquals(mockSender.sessionsLastListSend.get(0), mockSender.sessionsLastListSend.get(1));
+        assertTrue(mockSender.sessionsLastListSend.stream().anyMatch(e -> e == altMockSession));
+        assertTrue(mockSender.sessionsLastListSend.stream().anyMatch(e -> e == mockSession));
+    }
+
+    @Test
+    public void should_not_broadcast_bid_if_disconnected() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        // Authenticate with alt user first and subscribe to auction.
+        mockHttpSession.setUserId(altUser.id);
+        MockSession altMockSession = new MockSession();
+        MockHttpSession altMockHttpSession = new MockHttpSession();
+        altMockHttpSession.setUserId(user.id);
+        MockWSSender<BodyWS> altMockSender = new MockWSSender<>();
+        successfulSubscription();
+
+        BidWS altBidWS = new BidWS();
+        altBidWS.sender = mockSender;
+        altBidWS.onOpen(altMockSession, altMockHttpSession);
+
+        // Subscribe to auction with alt user.
+        Auction altRequestAuction = new Auction();
+        altRequestAuction.id = auction.id;
+
+        BodyWS altRequestBody = new BodyWS();
+        altRequestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        altRequestBody.nonce = "successful-alt-subscription-nonce";
+        altRequestBody.status = 200;
+        altRequestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(altMockSession, altRequestBody);
+        altBidWS.onMessage(altMockSession, altRequestBody);
+
+        // Close socket connection (aka unsubscribe).
+        altBidWS.onClose(altMockSession);
+
+        // Authentication with user and bid.
+        mockHttpSession.setUserId(user.id);
+
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 1000;
+        userDAO.update(dbUser);
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = (BodyWS) mockSender.newObjLastReply;
+        Bid dbBid = new Gson().fromJson(replyBody.json, Bid.class);
+        assertEquals(user.id, dbBid.ownerId);
+        assertEquals(1000, dbBid.amount, 0);
+        assertEquals(200, replyBody.status);
+
+        assertEquals(1, mockSender.sessionsLastListSend.size());
+        assertTrue(mockSender.sessionsLastListSend.stream().anyMatch(e -> e == mockSession));
     }
 
     private Auction successfulSubscription() {

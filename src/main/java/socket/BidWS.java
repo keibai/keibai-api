@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class BidWS implements WS {
 
@@ -93,13 +94,14 @@ public class BidWS implements WS {
         }
 
         removeSubscription();
+        subscribed = dbAuction.id;
         synchronized (connected) {
-            if (!connected.containsKey(dbAuction.id)) {
-                connected.put(dbAuction.id, ConcurrentHashMap.newKeySet());
+            if (!connected.containsKey(subscribed)) {
+                connected.put(subscribed, ConcurrentHashMap.newKeySet());
             }
         }
-        connected.get(dbAuction.id).add(this);
-        subscribed = dbAuction.id;
+        connected.get(subscribed).add(this);
+        System.out.println(connected);
         System.out.println(dbAuction);
 
         BodyWS okBody = new BodyWS();
@@ -241,17 +243,11 @@ public class BidWS implements WS {
         System.out.println(newBid);
         BodyWS body = new BodyWS();
         body.type = "AuctionBidded";
-        body.nonce = "1";
+        body.nonce = "1"; // TODO
         body.json = new Gson().toJson(newBid);
-        for (BidWS endpoint : connected.get(newBid.auctionId)) {
-            synchronized (endpoint) {
-                try {
-                    endpoint.session.getBasicRemote().sendObject(body);
-                } catch (IOException | EncodeException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+
+        List<Session> sessions = connected.get(newBid.auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
+        sender.send(sessions, body);
     }
 
     @Override
@@ -267,6 +263,7 @@ public class BidWS implements WS {
             return;
         }
         connected.get(subscribed).remove(this);
+        subscribed = -1;
     }
 
     @Override
