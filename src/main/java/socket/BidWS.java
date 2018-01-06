@@ -146,7 +146,6 @@ public class BidWS implements WS {
             return;
         }
 
-        // TODO test
         if (unsafeBid.auctionId != subscribed) {
             String json = JsonCommon.error(SUBSCRIPTION_ERROR);
             sender.reply(session, body, BodyWSCommon.error(json));
@@ -239,8 +238,6 @@ public class BidWS implements WS {
     }
 
     protected void auctionBidded(Bid newBid) {
-        System.out.println("returning");
-        System.out.println(newBid);
         BodyWS body = new BodyWS();
         body.type = "AuctionBidded";
         body.json = new Gson().toJson(newBid);
@@ -268,5 +265,9 @@ public class BidWS implements WS {
     @Override
     public void onError(Session session, Throwable throwable) {
 
+    }
+
+    static void clearConnected() {
+        connected.clear();
     }
 }

@@ -52,6 +52,7 @@ public class BidWSTest extends AbstractDBTest {
         mockHttpSession.setUserId(user.id);
         mockSender = new MockWSSender();
 
+        BidWS.clearConnected();
         bidWS = new BidWS();
         bidWS.sender = mockSender;
         bidWS.onOpen(mockSession, mockHttpSession);
