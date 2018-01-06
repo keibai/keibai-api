@@ -35,6 +35,7 @@ public class BidWS implements WS {
     public static final String AUCTION_DOES_NOT_EXIST = "Auction does not exist";
     public static final String AUCTION_NOT_IN_PROGRESS = "Auction is not in progress";
     public static final String LOW_BID_HIGHER_BID = "You cannot bid lower than the highest bid.";
+    public static final String HAS_BIDDED_IN_IN_PROGRESS_AUCTION_TRYING_TO_BID_ANOTHER = "You are currently bidding in another auction.";
 
     public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
     public static final String TYPE_AUCTION_NEW_CONNECTION = "AuctionNewConnection";

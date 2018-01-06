@@ -616,10 +616,61 @@ public class BidWSTest extends AbstractDBTest {
         assertTrue(mockSender.sessionsLastListSend.stream().anyMatch(e -> e == mockSession));
     }
 
+    @Test
+    public void should_not_create_bid_if_they_are_currently_bidding_on_another_auction() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 9999;
+        userDAO.update(dbUser);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "first";
+        requestBody.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody1 = mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+
+        // Join another auction and bid on it while the first one is in progress.
+        Auction altAuction = DummyGenerator.getOtherDummyAuction();
+        altAuction.eventId = auction.eventId;
+        auctionDAO.create(altAuction);
+
+        successfulSubscription(altAuction);
+
+        Bid attemptBid2 = DummyGenerator.getDummyBid();
+        attemptBid2.auctionId = altAuction.id;
+        attemptBid2.amount = 1000;
+        BodyWS requestBody2 = new BodyWS();
+        requestBody2.type = BidWS.TYPE_AUCTION_BID;
+        requestBody2.nonce = "second";
+        requestBody2.json = new Gson().toJson(attemptBid2);
+        bidWS.onMessage(mockSession, requestBody2);
+
+        BodyWS replyBody2 = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.HAS_BIDDED_IN_IN_PROGRESS_AUCTION_TRYING_TO_BID_ANOTHER), replyBody2.json);
+        assertEquals(400, replyBody2.status);
+    }
+
     private Auction successfulSubscription() {
         Auction requestAuction = new Auction();
         requestAuction.id = auction.id;
 
+        return successfulSubscription(requestAuction);
+    }
+
+    private Auction successfulSubscription(Auction auction) {
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
         requestBody.nonce = "successful-subscription-nonce";
@@ -627,6 +678,6 @@ public class BidWSTest extends AbstractDBTest {
         requestBody.json = new Gson().toJson(auction);
         bidWS.onMessage(mockSession, requestBody);
 
-        return requestAuction;
+        return auction;
     }
 }
