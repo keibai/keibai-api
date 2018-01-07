@@ -5,7 +5,6 @@ import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.HttpServletStubber;
 import main.java.utils.DummyGenerator;
 import main.java.models.User;
-import main.java.utils.HttpSession;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

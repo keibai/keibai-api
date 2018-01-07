@@ -1,5 +1,9 @@
 package main.java.mocks;
 
+import main.java.utils.DefaultHttpSession;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,12 +14,13 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class HttpServletStubber {
     public HttpServletRequest servletRequest;
     public HttpServletResponse servletResponse;
+
+    public int status;
 
     private StringWriter stringWriter;
     private PrintWriter printWriter;
@@ -44,6 +49,23 @@ public class HttpServletStubber {
         if (printWriter != null) {
             return this;
         }
+
+        // Mock servlet status.
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Object[] args = invocationOnMock.getArguments();
+                status = (int) args[0];
+                return null;
+            }
+        }).when(servletResponse).setStatus(anyInt());
+        when(servletResponse.getStatus()).thenAnswer(new Answer<Integer>() {
+            @Override
+            public Integer answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return status;
+            }
+        });
+
         // Mock servlet writer.
         stringWriter = new StringWriter();
         printWriter = new PrintWriter(stringWriter);
@@ -70,7 +92,7 @@ public class HttpServletStubber {
      * @return
      */
     public HttpServletStubber authenticate(int userId) {
-        mockHttpSession.setAttribute(main.java.utils.HttpSession.USER_ID_KEY, userId);
+        mockHttpSession.setAttribute(DefaultHttpSession.USER_ID_KEY, userId);
 
         return this;
     }
@@ -80,7 +102,7 @@ public class HttpServletStubber {
      * @return
      */
     public int authenticated() {
-        Object object = this.mockHttpSession.getAttribute(main.java.utils.HttpSession.USER_ID_KEY);
+        Object object = this.mockHttpSession.getAttribute(DefaultHttpSession.USER_ID_KEY);
         return object == null ? -1 : (int) object;
     }
 

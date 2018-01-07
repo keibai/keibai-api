@@ -39,13 +39,6 @@ public class EventNewTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_event_with_wrong_auction_time_can_not_be_created() throws ServletException, DAOException, IOException {
-        Event attemptEvent = DummyGenerator.getDummyEvent();
-        attemptEvent.auctionTime = 4;
-        common_event_error_test(attemptEvent, EventNew.AUCTION_TIME_ERROR);
-    }
-
-    @Test
     public void test_event_with_blank_location_can_not_be_created() throws ServletException, DAOException, IOException {
         Event attemptEvent = DummyGenerator.getDummyEvent();
         attemptEvent.location = "     ";
@@ -89,7 +82,6 @@ public class EventNewTest extends AbstractDBTest {
         Event outputEvent = new Gson().fromJson(stubber.gathered(), Event.class);
 
         assertEquals(attemptEvent.name, outputEvent.name);
-        assertEquals(attemptEvent.auctionTime, outputEvent.auctionTime);
         assertEquals(attemptEvent.auctionType, outputEvent.auctionType);
         assertEquals(attemptEvent.location, outputEvent.location);
         assertNotEquals(outputEvent.ownerId, 0);

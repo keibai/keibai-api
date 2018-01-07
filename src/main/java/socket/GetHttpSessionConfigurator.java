@@ -1,4 +1,4 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;
@@ -10,8 +10,7 @@ public class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurato
     public void modifyHandshake(ServerEndpointConfig config,
                                 HandshakeRequest request,
                                 HandshakeResponse response) {
-        HttpSession httpSession = (HttpSession)request.getHttpSession();
-        System.out.println(httpSession.getId());
-        config.getUserProperties().put(HttpSession.class.getName(),httpSession);
+        HttpSession httpSession = (HttpSession) request.getHttpSession();
+        config.getUserProperties().put(HttpSession.class.getName(), httpSession);
     }
 }

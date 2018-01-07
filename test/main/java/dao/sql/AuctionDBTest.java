@@ -1,11 +1,9 @@
 package main.java.dao.sql;
 
 import main.java.dao.*;
-import main.java.models.Auction;
+import main.java.models.*;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
-import main.java.models.Event;
-import main.java.models.User;
 import main.java.utils.ImpreciseDate;
 import org.junit.Test;
 
@@ -133,6 +131,124 @@ public class AuctionDBTest extends AbstractDBTest {
         Event dummyEvent = DBFeeder.createDummyEvent();
         List<Auction> auctionList = auctionDAO.getListByEventId(dummyEvent.id);
         assertEquals(0, auctionList.size());
+    }
+
+    @Test
+    public void test_returned_null_when_user_is_not_bidding_to_any_auction() throws Exception {
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.status = Auction.IN_PROGRESS;
+        dummyAuction.ownerId = dummyEvent.ownerId;
+        dummyAuction.eventId = dummyEvent.id;
+        Auction insertedAuction = auctionDAO.create(dummyAuction);
+
+        Auction retrievedAuction = auctionDAO.getAuctionWhereUserIsBidding(dummyEvent.ownerId);
+        assertNull(retrievedAuction);
+    }
+
+    @Test
+    public void test_returned_null_when_user_has_bidded_to_auction_but_auction_is_not_in_progress() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.status = Auction.FINISHED;
+        dummyAuction.ownerId = dummyEvent.ownerId;
+        dummyAuction.eventId = dummyEvent.id;
+        Auction insertedAuction = auctionDAO.create(dummyAuction);
+
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.ownerId = dummyEvent.ownerId;
+        dummyBid.auctionId = insertedAuction.id;
+        dummyBid.goodId = insertedGood.id;
+        Bid insertedBid = bidDAO.create(dummyBid);
+
+        Auction retrievedAuction = auctionDAO.getAuctionWhereUserIsBidding(dummyEvent.ownerId);
+        assertNull(retrievedAuction);
+    }
+
+    @Test
+    public void test_returned_auction_where_user_is_bidding() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.status = Auction.IN_PROGRESS;
+        dummyAuction.ownerId = dummyEvent.ownerId;
+        dummyAuction.eventId = dummyEvent.id;
+        Auction insertedAuction = auctionDAO.create(dummyAuction);
+
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.ownerId = dummyEvent.ownerId;
+        dummyBid.auctionId = insertedAuction.id;
+        dummyBid.goodId = insertedGood.id;
+        Bid insertedBid = bidDAO.create(dummyBid);
+
+        Auction retrievedAuction = auctionDAO.getAuctionWhereUserIsBidding(dummyEvent.ownerId);
+        assertNotNull(retrievedAuction);
+        assertEquals(insertedAuction.id, retrievedAuction.id);
+        assertEquals(insertedAuction.status, retrievedAuction.status);
+        assertEquals(insertedAuction.eventId, retrievedAuction.eventId);
+    }
+
+    @Test
+    public void test_returned_auction_where_user_is_bidding_when_user_has_bidded_in_more_auctions() throws Exception {
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.status = Auction.IN_PROGRESS;
+        dummyAuction.ownerId = dummyEvent.ownerId;
+        dummyAuction.eventId = dummyEvent.id;
+        Auction insertedAuction = auctionDAO.create(dummyAuction);
+
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = insertedAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
+        Bid dummyBid = DummyGenerator.getDummyBid();
+        dummyBid.ownerId = dummyEvent.ownerId;
+        dummyBid.auctionId = insertedAuction.id;
+        dummyBid.goodId = insertedGood.id;
+        Bid insertedBid = bidDAO.create(dummyBid);
+
+        Auction otherDummyAuction = DummyGenerator.getOtherDummyAuction();
+        otherDummyAuction.status = Auction.FINISHED;
+        otherDummyAuction.ownerId = dummyEvent.ownerId;
+        otherDummyAuction.eventId = dummyEvent.id;
+        Auction otherInsertedAuction = auctionDAO.create(otherDummyAuction);
+
+        Good otherDummyGood = DummyGenerator.getOtherDummyGood();
+        otherDummyGood.auctionId = otherInsertedAuction.id;
+        Good otherInsertedGood = goodDAO.create(otherDummyGood);
+
+        Bid otherDummyBid = DummyGenerator.getOtherDummyBid();
+        otherDummyBid.ownerId = dummyEvent.ownerId;
+        otherDummyBid.auctionId = otherInsertedAuction.id;
+        otherDummyBid.goodId = otherInsertedGood.id;
+        Bid otherInsertedBid = bidDAO.create(dummyBid);
+
+        Auction retrievedAuction = auctionDAO.getAuctionWhereUserIsBidding(dummyEvent.ownerId);
+        assertNotNull(retrievedAuction);
+        assertEquals(insertedAuction.id, retrievedAuction.id);
+        assertEquals(insertedAuction.status, retrievedAuction.status);
+        assertEquals(insertedAuction.eventId, retrievedAuction.eventId);
     }
 
     @Test

@@ -42,6 +42,15 @@ public class DBFeeder {
         return event;
     }
 
+    public static Event createDummyEvent(int userId) throws DAOException {
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = userId;
+
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        Event event = eventDAO.create(dummyEvent);
+        return event;
+    }
+
     public static Event createOtherDummyEvent(int ownerId) throws DAOException {
         Event dummyEvent = DummyGenerator.getDummyEvent();
         dummyEvent.ownerId = ownerId;
@@ -64,6 +73,21 @@ public class DBFeeder {
         return auction;
     }
 
+    public static Auction createDummyAuction(int eventId, int ownerId) throws DAOException {
+        return DBFeeder.createDummyAuction(eventId, ownerId, 0);
+    }
+
+    public static Auction createDummyAuction(int eventId, int ownerId, int winnerId) throws DAOException {
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.eventId = eventId;
+        dummyAuction.ownerId = ownerId;
+        dummyAuction.winnerId = winnerId;
+
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Auction auction = auctionDAO.create(dummyAuction);
+        return auction;
+    }
+
     public static Auction createOtherDummyAuction(int eventId, int ownerId) throws DAOException {
         Auction dummyAuction = DummyGenerator.getOtherDummyAuction();
         dummyAuction.eventId = eventId;
@@ -73,6 +97,24 @@ public class DBFeeder {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         Auction auction = auctionDAO.create(dummyAuction);
         return auction;
+    }
+
+    public static Good createDummyGood(int auctionId) throws DAOException {
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = auctionId;
+
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good good = goodDAO.create(dummyGood);
+        return good;
+    }
+
+    public static Good createOtherDummyGood(int auctionId) throws DAOException {
+        Good dummyGood = DummyGenerator.getOtherDummyGood();
+        dummyGood.auctionId = auctionId;
+
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good good = goodDAO.create(dummyGood);
+        return good;
     }
 
     public static Good createDummyGood() throws DAOException {
@@ -89,19 +131,26 @@ public class DBFeeder {
     public static Bid createDummyBid() throws DAOException {
         Auction dummyAuction = createDummyAuction();
 
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.auctionId = dummyAuction.id;
+        Good insertedGood = goodDAO.create(dummyGood);
+
         Bid dummyBid = DummyGenerator.getDummyBid();
         dummyBid.auctionId = dummyAuction.id;
         dummyBid.ownerId = dummyAuction.ownerId;
+        dummyBid.goodId = insertedGood.id;
 
         BidDAO bidDAO = BidDAOSQL.getInstance();
         Bid bid = bidDAO.create(dummyBid);
         return bid;
     }
 
-    public static Bid createOtherDummyBid(int auctionId, int ownerId) throws DAOException {
+    public static Bid createOtherDummyBid(int auctionId, int ownerId, int goodId) throws DAOException {
         Bid dummyBid = DummyGenerator.getOtherDummyBid();
         dummyBid.auctionId = auctionId;
         dummyBid.ownerId = ownerId;
+        dummyBid.goodId = goodId;
 
         BidDAO bidDAO = BidDAOSQL.getInstance();
         Bid bid = bidDAO.create(dummyBid);
