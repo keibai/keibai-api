@@ -47,8 +47,8 @@ public class BidWS implements WS {
     public static final String TYPE_AUCTION_NEW_CONNECTION = "AuctionNewConnection";
     public static final String TYPE_AUCTION_BID = "AuctionBid";
     public static final String TYPE_AUCTION_BIDDED = "AuctionBidded";
-    public static final String TYPE_AUCTION_START = "AuctionOpen";
-    public static final String TYPE_AUCTION_STARTED = "AuctionOpened";
+    public static final String TYPE_AUCTION_START = "AuctionStart";
+    public static final String TYPE_AUCTION_STARTED = "AuctionStarted";
     public static final String TYPE_AUCTION_CLOSE = "AuctionClose";
     public static final String TYPE_AUCTION_CLOSED = "AuctionClosed";
 
