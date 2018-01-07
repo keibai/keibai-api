@@ -2,7 +2,6 @@ package main.java.dao.sql;
 
 import main.java.dao.GoodDAO;
 import main.java.dao.DAOException;
-import main.java.dao.NotFoundException;
 import main.java.db.Source;
 import main.java.models.Good;
 
@@ -11,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
 
@@ -63,6 +64,27 @@ public class GoodDAOSQL extends SQLDAOAbstract<Good> implements GoodDAO {
             }
 
             return objectFromResultSet(resultSet);
+        } catch (NamingException|SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public List<Good> getListByAuctionId(int auctionId) throws DAOException {
+        try {
+            Connection connection = Source.getInstance().getConnection();
+            String query = "SELECT * FROM public.good WHERE \"auction\" = ?";
+
+            PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
+            statement.setInt(1, auctionId);
+            ResultSet resultSet = statement.executeQuery();
+
+            List<Good> goodList = new LinkedList<>();
+            while (resultSet.next()) {
+                goodList.add(objectFromResultSet(resultSet));
+            }
+
+            return goodList;
         } catch (NamingException|SQLException e) {
             throw new DAOException(e);
         }
