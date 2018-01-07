@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
+import main.java.dao.GoodDAO;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.dao.sql.GoodDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -102,6 +104,43 @@ public class GoodNewTest extends AbstractDBTest {
 
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
         assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+    }
+
+    @Test
+    public void test_good_creation_fails_if_english_auction_and_has_already_good() throws Exception {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        User auctionOwner = DBFeeder.createDummyUser();
+        User eventOwner = DBFeeder.createOtherDummyUser();
+
+        Event dummyEvent = DummyGenerator.getDummyEvent();
+        dummyEvent.ownerId = eventOwner.id;
+        dummyEvent.auctionType = Event.ENGLISH;
+        Event dbEvent = eventDAO.create(dummyEvent);
+
+        Auction dummyAuction = DummyGenerator.getDummyAuction();
+        dummyAuction.ownerId = auctionOwner.id;
+        dummyAuction.eventId = dbEvent.id;
+        dummyAuction.winnerId = 0;
+        Auction dbAuction = auctionDAO.create(dummyAuction);
+
+        Good good = DummyGenerator.getDummyGood();
+        good.auctionId = dbAuction.id;
+        goodDAO.create(good);
+
+        Good attemptGood = DummyGenerator.getOtherDummyGood();
+        attemptGood.auctionId = dbAuction.id;
+        String attemptGoodJson = new Gson().toJson(attemptGood);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(auctionOwner.id);
+        stubber.body(attemptGoodJson).listen();
+        new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        assertEquals(GoodNew.WRONG_NUMBER_OF_GOODS, error.error);
     }
 
     @Test
