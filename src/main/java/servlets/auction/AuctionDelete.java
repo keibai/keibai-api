@@ -72,7 +72,7 @@ public class AuctionDelete extends HttpServlet {
         }
 
         if (!dbAucion.status.equals(Auction.PENDING)) {
-            jsonResponse.error(WRONG_STATUS);
+            httpResponse.error(WRONG_STATUS);
             return;
         }
 

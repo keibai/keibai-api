@@ -31,19 +31,13 @@ public class AuctionAcceptTest extends AbstractDBTest {
         User dummyUser = DBFeeder.createDummyUser();
         Event dummyEvent = DBFeeder.createDummyEvent();
 
-        Auction wrongAuction = new Auction();
-        wrongAuction.id = 0;
-        wrongAuction.status = Auction.PENDING;
-
-        String wrongAuctionJson = new Gson().toJson(wrongAuction);
-
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.parameter("id", "0").listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonCommon.INVALID_REQUEST, error.error);
+        assertEquals(AuctionAccept.AUCTION_NOT_EXIST, error.error);
     }
 
     @Test
