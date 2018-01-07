@@ -249,7 +249,7 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     @Test
-    public void should_not_create_bid_if_auction_is_not_in_progress() throws Exception {
+    public void should_not_create_bid_if_auction_is_not_in_progress() throws DAOException {
         Auction auction = successfulSubscription();
 
         Good good = DBFeeder.createDummyGood(auction.id);
@@ -266,6 +266,30 @@ public class BidWSTest extends AbstractDBTest {
 
         BodyWS replyBody = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.AUCTION_NOT_IN_PROGRESS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_not_create_bid_if_good_does_not_exist() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id + 1; // Definitely a non-existing good.
+        attemptBid.amount = 1.0;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBid);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.GOOD_DOES_NOT_EXIST), replyBody.json);
         assertEquals(400, replyBody.status);
     }
 
