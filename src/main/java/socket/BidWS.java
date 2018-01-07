@@ -333,6 +333,14 @@ public class BidWS implements WS {
             return;
         }
 
+        dbAuction.maxBid = dbBid.amount;
+        try {
+            auctionDAO.update(dbAuction);
+        } catch (DAOException e) {
+            Logger.error("Update auction", dbAuction.toString(), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
 
         String json = new Gson().toJson(dbBid);
         sender.reply(session, body, BodyWSCommon.ok(json));

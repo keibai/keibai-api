@@ -489,6 +489,11 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(user.id, dbBid1.ownerId);
         assertEquals(1000, dbBid1.amount, 0);
         assertEquals(200, replyBody1.status);
+
+        Auction updatedAuction = auctionDAO.getById(auction.id);
+        assertEquals(dbBid1.amount, updatedAuction.maxBid, 0.0000001);
+        assertEquals(dbAuction.startingPrice, updatedAuction.startingPrice, 0.0000001);
+        assertNotEquals(updatedAuction.startingPrice, updatedAuction.maxBid);
     }
 
     @Test
@@ -537,6 +542,11 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(user.id, dbBid2.ownerId);
         assertEquals(2000, dbBid2.amount, 0);
         assertEquals(200, replyBody2.status);
+
+        Auction updatedAuction = auctionDAO.getById(auction.id);
+        assertEquals(dbBid2.amount, updatedAuction.maxBid, 0.0000001);
+        assertEquals(dbAuction.startingPrice, updatedAuction.startingPrice, 0.0000001);
+        assertNotEquals(updatedAuction.startingPrice, updatedAuction.maxBid);
     }
 
     @Test
