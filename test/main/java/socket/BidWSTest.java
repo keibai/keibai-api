@@ -1015,12 +1015,17 @@ public class BidWSTest extends AbstractDBTest {
 
         Auction auction = successfulSubscription();
 
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 1000;
+        userDAO.update(dbUser);
+
         Auction dbAuction = auctionDAO.getById(auction.id);
         dbAuction.status = Auction.IN_PROGRESS;
         auctionDAO.update(dbAuction);
 
         Event dbEvent = eventDAO.getById(dbAuction.eventId);
         dbEvent.status = Event.IN_PROGRESS;
+        dbEvent.ownerId = user.id;
         eventDAO.update(dbEvent);
 
         BodyWS requestBody = new BodyWS();
@@ -1039,10 +1044,97 @@ public class BidWSTest extends AbstractDBTest {
         // No more auctions set as pending -> event has to be set as finished.
         Event newDbEvent = eventDAO.getById(dbEvent.id);
         assertEquals(Event.FINISHED, newDbEvent.status);
+
+        // User credit has to remain the same.
+        User newDbUser = userDAO.getById(user.id);
+        assertEquals(dbUser.credit, newDbUser.credit, 0);
     }
 
     @Test
     public void english_auction_closes_with_bids() throws DAOException {
+        // Bid twice (1. dbUser, 2. altUser)
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.ownerId = user.id;
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(auction.eventId);
+        dbEvent.ownerId = user.id;
+        eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 2000;
+        userDAO.update(dbUser);
+
+        User altUser = DBFeeder.createOtherDummyUser();
+        altUser.credit = 2000;
+        userDAO.update(altUser);
+
+        // User bids @ 1000.
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "first-bid";
+        requestBody.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody1 = mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+
+        // Alt user authenticates.
+        mockHttpSession.setUserId(altUser.id);
+
+        // Alt user bids @ 2000.
+        Bid attemptBid2 = DummyGenerator.getDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = good.id;
+        attemptBid2.amount = 2000;
+        BodyWS requestBody2 = new BodyWS();
+        requestBody2.type = BidWS.TYPE_AUCTION_BID;
+        requestBody2.nonce = "second-bid";
+        requestBody2.json = new Gson().toJson(attemptBid2);
+        bidWS.onMessage(mockSession, requestBody2);
+
+        BodyWS replyBody2 = mockSender.newObjLastReply;
+        Bid dbBid2 = new Gson().fromJson(replyBody2.json, Bid.class);
+        assertEquals(altUser.id, dbBid2.ownerId);
+        assertEquals(2000, dbBid2.amount, 0);
+        assertEquals(200, replyBody2.status);
+
+        // User authenticates back.
+        mockHttpSession.setUserId(dbUser.id);
+
+        // Close auction (event owner: user).
+        BodyWS requestCloseBody = new BodyWS();
+        requestCloseBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestCloseBody.nonce = "any";
+        requestCloseBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestCloseBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(auction.id, replyAuction.id);
+        assertEquals(Auction.FINISHED, replyAuction.status);
+        assertNotNull(replyAuction.endingTime);
+        assertEquals(200, replyBody.status);
+
+        // English auction specifics.
+        User newDbUser = userDAO.getById(user.id);
+        User newAltUser = userDAO.getById(altUser.id);
+        assertEquals(altUser.id, replyAuction.winnerId);
+        assertEquals(2000, altUser.credit, 0);
+        assertEquals(0, newAltUser.credit, 0);
+        assertEquals(2000, dbUser.credit, 0);
+        assertEquals(2000 + 2000 - 40, newDbUser.credit, 0); // Item was from user. 2000 initial + (2000 max bid - (2% + 2% fees)). <-- Since he was the event owner he gets a 2% fees back.
 
     }
 

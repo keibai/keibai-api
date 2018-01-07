@@ -556,9 +556,10 @@ public class BidWS implements WS {
          2. Auction ending time will be set.
          3 English. Auction winner(s) will be determined:
            3.0. If no bids, no auction winner. Skip step.
-           3.1. Auction winner(s) will be set.
-           3.2. MAX_BIDDER owner will be deduced MAX_BID from their credit.
-           3.3. Auction winners(s) will be credited a (1 - HOUSE_FEE) * MAX_BID.
+           3.1. Auction winner will be set.
+           3.2. Auction winner (MAX_BIDDER) will be deduced MAX_BID from their credit.
+           3.3. Good owner will be credited a (1 - HOUSE_FEE + 1 - EVENT_OWNER_FEE) * MAX_BID.
+           3.4. Event owner will be credited a EVENT_OWNER_FEE * MAX_BID.
          4. If all event auctions were set as FINISHED, event will be set finished too.
          */
 
