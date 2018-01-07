@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 public class BidWSTest extends AbstractDBTest {
 
     UserDAO userDAO = UserDAOSQL.getInstance();
+    EventDAO eventDAO = EventDAOSQL.getInstance();
     AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
     GoodDAO goodDAO = GoodDAOSQL.getInstance();
     BidDAO bidDAO = BidDAOSQL.getInstance();
@@ -50,7 +51,9 @@ public class BidWSTest extends AbstractDBTest {
         bidWS.onOpen(mockSession, mockHttpSession);
     }
 
-    /* AuctionSubscribe */
+    /**
+     * TYPE_AUCTION_SUBSCRIBE
+     */
 
     @Test
     public void should_not_subscribe_if_not_authenticated() {
@@ -154,7 +157,9 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(0.0, sendUser.credit, 0);
     }
 
-    /* AuctionBid */
+    /**
+     * TYPE_AUCTION_BID
+     */
 
     @Test
     public void should_not_create_bid_when_not_authenticated() {
@@ -693,6 +698,192 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(JsonCommon.error(BidWS.HAS_BIDDED_IN_IN_PROGRESS_AUCTION_TRYING_TO_BID_ANOTHER), replyBody2.json);
         assertEquals(400, replyBody2.status);
     }
+
+    /**
+     * TYPE_AUCTION_START
+     */
+
+    @Test
+    public void cannot_start_if_unauthenticated() {
+        Auction auction = successfulSubscription();
+
+        // Deauthenticate user first.
+        mockHttpSession.setUserId(-1);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.unauthorized(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_start_if_invalid_json() {
+        Auction auction = successfulSubscription();
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = "{";
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.invalidRequest(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_accept_if_not_subscribed_to_that_auction() {
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.SUBSCRIPTION_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_not_accepted_can_not_be_started() throws DAOException {
+        Auction auction = successfulSubscription();
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.PENDING;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.WRONG_AUCTION_STATUS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_cannot_be_started_if_user_is_not_the_owner() throws Exception {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.ownerId = altUser.id;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.unauthorized(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_with_finished_event_can_not_be_started() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.status = Event.FINISHED;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.EVENT_FINISHED), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_successfully_started() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.status = Event.OPENED;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(dbAuction.id, replyAuction.id);
+        assertNotNull(replyAuction.startTime);
+        assertEquals(Auction.IN_PROGRESS, replyAuction.status);
+        assertEquals(200, replyBody.status);
+
+        Event newDbEvent = eventDAO.getById(dbEvent.id);
+        assertEquals(Event.IN_PROGRESS, newDbEvent.status);
+    }
+
+    @Test
+    public void auction_start_should_be_broadcasted_to_auction_subscribers() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.status = Event.OPENED;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(200, replyBody.status);
+
+        assertEquals(1, mockSender.sessionsLastListSend.size());
+        assertEquals(mockSession, mockSender.sessionsLastListSend.get(0));
+        BodyWS broadcastBody = mockSender.objLastListSend;
+        Auction broadcastAuction = new Gson().fromJson(broadcastBody.json, Auction.class);
+        assertEquals(BidWS.TYPE_AUCTION_STARTED, broadcastBody.type);
+        assertEquals(broadcastAuction.id, dbAuction.id);
+        assertEquals(broadcastAuction.status, Auction.IN_PROGRESS);
+    }
+
+    /**
+     * TYPE_AUCTION_END
+     */
 
     private Auction successfulSubscription() {
         Auction requestAuction = new Auction();
