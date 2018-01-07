@@ -13,6 +13,9 @@ public class BodyWSTest {
                 ",",
                 "123,123",
                 "abc,abc",
+                "123,123,123",
+                "abc,abc,abc",
+                "abc,abc,abc," // status should be numeric.
         };
         for (String invalidEntry: INVALID) {
             BodyWS body = BodyWS.fromString(invalidEntry);
@@ -23,9 +26,9 @@ public class BodyWSTest {
     @Test
     public void valid_should_decode_as_BodyWS() {
         String[][] VALID = new String[][]{
-                new String[]{",,", "", "", ""},
-                new String[]{"123,123,{}", "123", "123", "{}"},
-                new String[]{"abc,def,{ id: 1, amount: 1 }", "abc", "def", "{ id: 1, amount: 1 }"},
+                new String[]{",,200,", "", "", ""},
+                new String[]{"123,123,400,{}", "123", "123", "{}"},
+                new String[]{"abc,def,500,{ id: 1, amount: 1 }", "abc", "def", "{ id: 1, amount: 1 }"},
         };
         for (String[] validEntry: VALID) {
             BodyWS body = BodyWS.fromString(validEntry[0]);
@@ -41,6 +44,18 @@ public class BodyWSTest {
         body.type = "abc";
         body.nonce = "123";
         body.json = "{ id: 1, amount: 1 }";
-        assertEquals("abc,123,{ id: 1, amount: 1 }", body.toString());
+        assertEquals("abc,123,200,{ id: 1, amount: 1 }", body.toString());
+    }
+
+    @Test
+    public void BodyWS_status_code_should_be_200_by_default() {
+        BodyWS body = new BodyWS();
+        assertEquals(200, body.status);
+
+        String bodyText = body.toString();
+        assertEquals("null," + body.nonce + ",200,null", bodyText);
+
+        BodyWS recoveredBody = BodyWS.fromString(bodyText);
+        assertEquals(200, recoveredBody.status);
     }
 }

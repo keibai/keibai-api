@@ -1,7 +1,6 @@
 package main.java.servlets.auction;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 
 @WebServlet(name = "AuctionAccept", urlPatterns = "/auctions/accept")
 public class AuctionAccept extends HttpServlet {
@@ -29,25 +27,25 @@ public class AuctionAccept extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
-        HttpSession session = new HttpSession(request);
+        HttpResponse httpResponse = new HttpResponse(response);
+        DefaultHttpSession session = new DefaultHttpSession(request);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
         String param = request.getParameter("id");
         if (param == null) {
-            jsonResponse.error(ID_NONE);
+            httpResponse.error(ID_NONE);
             return;
         }
 
         if (!Validator.isNumber(param)) {
-            jsonResponse.error(ID_INVALID);
+            httpResponse.error(ID_INVALID);
             return;
         }
 
@@ -58,18 +56,18 @@ public class AuctionAccept extends HttpServlet {
         try {
             storedAuction = auctionDAO.getById(auctionId);
         } catch (DAOException e) {
-            Logger.error("Get auction by ID in update auction status: AuctionID", param, e.toString());
-            jsonResponse.internalServerError();
+            Logger.error("Get auction by ID in update auction status: AuctionID " + auctionId, e.toString());
+            httpResponse.internalServerError();
             return;
         }
 
         if (storedAuction == null) {
-            jsonResponse.error(AUCTION_NOT_EXIST);
+            httpResponse.error(AUCTION_NOT_EXIST);
             return;
         }
 
         if (!storedAuction.status.equals(Auction.PENDING)) {
-            jsonResponse.error(INVALID_STATUS);
+            httpResponse.error(INVALID_STATUS);
             return;
         }
 
@@ -79,12 +77,12 @@ public class AuctionAccept extends HttpServlet {
             storedEvent = eventDAO.getById(storedAuction.eventId);
         } catch (DAOException e) {
             Logger.error("Get event by ID in update auction status: EventID " + storedAuction.eventId, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         if (storedEvent.ownerId != userId) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -96,10 +94,10 @@ public class AuctionAccept extends HttpServlet {
             dbAuction = auctionDAO.update(storedAuction);
         } catch (DAOException e) {
             Logger.error("Create auction in update auctionStatus", storedAuction.toString(), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbAuction));
+        httpResponse.response(new Gson().toJson(dbAuction));
     }
 }

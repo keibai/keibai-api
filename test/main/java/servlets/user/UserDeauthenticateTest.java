@@ -3,10 +3,10 @@ package main.java.servlets.user;
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.HttpServletStubber;
-import main.java.models.User;
 import main.java.models.meta.Msg;
 import main.java.utils.DBFeeder;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
+import main.java.utils.JsonCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -22,7 +22,7 @@ public class UserDeauthenticateTest extends AbstractDBTest {
         Msg outputMsg = new Gson().fromJson(stubber.gathered(), Msg.class);
 
         assertEquals(-1, stubber.authenticated());
-        assertEquals(JsonResponse.OK, outputMsg.msg);
+        assertEquals(JsonCommon.OK, outputMsg.msg);
     }
 
     @Test
@@ -33,7 +33,7 @@ public class UserDeauthenticateTest extends AbstractDBTest {
         Msg outputMsg = new Gson().fromJson(stubber.gathered(), Msg.class);
 
         assertEquals(-1, stubber.authenticated());
-        assertEquals(JsonResponse.OK, outputMsg.msg);
+        assertEquals(JsonCommon.OK, outputMsg.msg);
     }
 
 }

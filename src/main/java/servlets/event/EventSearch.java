@@ -5,7 +5,7 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.models.Event;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
 
@@ -25,18 +25,18 @@ public class EventSearch extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
         String param = request.getParameter("id");
 
         if (param == null || param.trim().isEmpty()) {
-            jsonResponse.error(ID_NONE_ERROR);
+            httpResponse.error(ID_NONE_ERROR);
             return;
         }
 
         if (!Validator.isNumber(param)) {
-            jsonResponse.error(ID_ERROR);
+            httpResponse.error(ID_ERROR);
             return;
         }
 
@@ -50,10 +50,10 @@ public class EventSearch extends HttpServlet {
         }
 
         if (retrievedEvent == null) {
-            jsonResponse.error(EVENT_NOT_FOUND_ERROR);
+            httpResponse.error(EVENT_NOT_FOUND_ERROR);
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(retrievedEvent));
+        httpResponse.response(new Gson().toJson(retrievedEvent));
     }
 }

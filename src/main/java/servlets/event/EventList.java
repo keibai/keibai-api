@@ -5,7 +5,7 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.models.Event;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 
 import javax.servlet.ServletException;
@@ -20,7 +20,7 @@ import java.util.List;
 public class EventList extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
         List<Event> dbEvents;
@@ -31,6 +31,6 @@ public class EventList extends HttpServlet {
             return;
         }
 
-        jsonResponse.response(new Gson().toJson(dbEvents.toArray()));
+        httpResponse.response(new Gson().toJson(dbEvents.toArray()));
     }
 }

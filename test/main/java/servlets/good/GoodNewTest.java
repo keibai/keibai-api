@@ -15,7 +15,8 @@ import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
+import main.java.utils.JsonCommon;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
@@ -101,7 +102,7 @@ public class GoodNewTest extends AbstractDBTest {
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test

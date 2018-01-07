@@ -2,19 +2,14 @@ package main.java.servlets.auction;
 
 import com.google.gson.Gson;
 import main.java.dao.AuctionDAO;
-import main.java.dao.EventDAO;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.AuctionDAOSQL;
-import main.java.dao.sql.EventDAOSQL;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.models.meta.Error;
-import main.java.utils.DBFeeder;
-import main.java.utils.DummyGenerator;
-import main.java.utils.ImpreciseDate;
-import main.java.utils.JsonResponse;
+import main.java.utils.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -28,7 +23,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test
@@ -48,7 +43,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(AuctionAccept.AUCTION_NOT_EXIST, error.error);
+        assertEquals(JsonCommon.INVALID_REQUEST, error.error);
     }
 
     @Test
@@ -96,7 +91,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test

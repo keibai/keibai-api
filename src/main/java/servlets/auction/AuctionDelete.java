@@ -9,8 +9,8 @@ import main.java.dao.sql.EventDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.meta.Msg;
-import main.java.utils.HttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.DefaultHttpSession;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
 
@@ -33,25 +33,25 @@ public class AuctionDelete extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
-        HttpSession session = new HttpSession(request);
+        HttpResponse httpResponse = new HttpResponse(response);
+        DefaultHttpSession session = new DefaultHttpSession(request);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
         String param = request.getParameter("id");
         if (param == null) {
-            jsonResponse.error(ID_NONE);
+            httpResponse.error(ID_NONE);
             return;
         }
 
         if (!Validator.isNumber(param)) {
-            jsonResponse.error(ID_INVALID);
+            httpResponse.error(ID_INVALID);
             return;
         }
 
@@ -62,12 +62,12 @@ public class AuctionDelete extends HttpServlet {
             dbAucion = auctionDAO.getById(auctionId);
         } catch (DAOException e) {
             Logger.error("Retrieve auction in delete auction", param, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         if (dbAucion == null) {
-            jsonResponse.error(AUCTION_NOT_FOUND);
+            httpResponse.error(AUCTION_NOT_FOUND);
             return;
         }
 
@@ -81,12 +81,12 @@ public class AuctionDelete extends HttpServlet {
             dbEvent = eventDAO.getById(dbAucion.eventId);
         } catch (DAOException e) {
             Logger.error("Retrieve event in delete auction", String.valueOf(dbAucion.eventId), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         if (dbEvent.ownerId != userId) {
-            jsonResponse.unauthorized();
+            httpResponse.unauthorized();
             return;
         }
 
@@ -95,17 +95,17 @@ public class AuctionDelete extends HttpServlet {
             deleted = auctionDAO.delete(dbAucion.id);
         } catch (DAOException e) {
             Logger.error("Delete auction", String.valueOf(dbAucion.id), e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
         if (!deleted) {
-            jsonResponse.error(CAN_NOT_DELETE);
+            httpResponse.error(CAN_NOT_DELETE);
             return;
         }
 
         Msg msg = new Msg();
         msg.msg = DELETED;
-        jsonResponse.response(new Gson().toJson(msg));
+        httpResponse.response(new Gson().toJson(msg));
     }
 }
