@@ -29,6 +29,7 @@ public class AuctionDelete extends HttpServlet {
     public static final String ID_INVALID = "Invalid ID";
     public static final String CAN_NOT_DELETE = "Can not delete auction";
     public static final String DELETED = "Deleted";
+    public static final String WRONG_STATUS = "Can not delete a non-pending auction";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -67,6 +68,11 @@ public class AuctionDelete extends HttpServlet {
 
         if (dbAucion == null) {
             httpResponse.error(AUCTION_NOT_FOUND);
+            return;
+        }
+
+        if (!dbAucion.status.equals(Auction.PENDING)) {
+            httpResponse.error(WRONG_STATUS);
             return;
         }
 

@@ -1,21 +1,12 @@
 package main.java.socket;
 
 import com.google.gson.Gson;
-import main.java.dao.AuctionDAO;
-import main.java.dao.BidDAO;
-import main.java.dao.DAOException;
-import main.java.dao.UserDAO;
-import main.java.dao.sql.AbstractDBTest;
-import main.java.dao.sql.AuctionDAOSQL;
-import main.java.dao.sql.BidDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
+import main.java.dao.*;
+import main.java.dao.sql.*;
 import main.java.mocks.MockHttpSession;
 import main.java.mocks.MockSession;
 import main.java.mocks.MockWSSender;
-import main.java.models.Auction;
-import main.java.models.Bid;
-import main.java.models.Event;
-import main.java.models.User;
+import main.java.models.*;
 import main.java.models.meta.BodyWS;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
@@ -29,6 +20,7 @@ public class BidWSTest extends AbstractDBTest {
 
     UserDAO userDAO = UserDAOSQL.getInstance();
     AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+    GoodDAO goodDAO = GoodDAOSQL.getInstance();
     BidDAO bidDAO = BidDAOSQL.getInstance();
 
     MockSession mockSession;
@@ -252,11 +244,14 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     @Test
-    public void should_not_create_bid_if_auction_is_not_in_progress() {
+    public void should_not_create_bid_if_auction_is_not_in_progress() throws Exception {
         Auction auction = successfulSubscription();
+
+        Good good = DBFeeder.createDummyGood(auction.id);
 
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id;
         attemptBid.amount = 1.0;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -276,8 +271,11 @@ public class BidWSTest extends AbstractDBTest {
         dbAuction.status = Auction.IN_PROGRESS;
         auctionDAO.update(dbAuction);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id;
         attemptBid.amount = dbAuction.startingPrice - 0.01;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -301,8 +299,11 @@ public class BidWSTest extends AbstractDBTest {
         dbUser.credit = dbAuction.startingPrice - 0.01;
         userDAO.update(dbUser);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id;
         attemptBid.amount = dbAuction.startingPrice;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -322,6 +323,8 @@ public class BidWSTest extends AbstractDBTest {
         dbAuction.status = Auction.IN_PROGRESS;
         auctionDAO.update(dbAuction);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         User dbUser = userDAO.getById(user.id);
         dbUser.credit = 2000;
         userDAO.update(dbUser);
@@ -329,6 +332,7 @@ public class BidWSTest extends AbstractDBTest {
         // First bid @ 2000.
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
         attemptBid1.amount = 2000;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -345,6 +349,7 @@ public class BidWSTest extends AbstractDBTest {
         // Second bid @ 1000.
         Bid attemptBid2 = DummyGenerator.getDummyBid();
         attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = good.id;
         attemptBid2.amount = 1000;
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
@@ -364,6 +369,8 @@ public class BidWSTest extends AbstractDBTest {
         dbAuction.status = Auction.IN_PROGRESS;
         auctionDAO.update(dbAuction);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         User dbUser = userDAO.getById(user.id);
         dbUser.credit = 2000;
         userDAO.update(dbUser);
@@ -375,6 +382,7 @@ public class BidWSTest extends AbstractDBTest {
         // User bids @ 1000.
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -394,6 +402,7 @@ public class BidWSTest extends AbstractDBTest {
         // Alt user bids @ 1000.
         Bid attemptBid2 = DummyGenerator.getDummyBid();
         attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = good.id;
         attemptBid2.amount = 1000;
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
@@ -408,6 +417,7 @@ public class BidWSTest extends AbstractDBTest {
         // Alt user bids @ 2000.
         Bid attemptBid3 = DummyGenerator.getDummyBid();
         attemptBid3.auctionId = auction.id;
+        attemptBid3.goodId = good.id;
         attemptBid3.amount = 2000;
         BodyWS requestBody3 = new BodyWS();
         requestBody3.type = BidWS.TYPE_AUCTION_BID;
@@ -433,8 +443,11 @@ public class BidWSTest extends AbstractDBTest {
         dbUser.credit = 1000;
         userDAO.update(dbUser);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -460,9 +473,12 @@ public class BidWSTest extends AbstractDBTest {
         dbUser.credit = 2000;
         userDAO.update(dbUser);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         // First bid @ 1000.
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
         BodyWS requestBody1 = new BodyWS();
         requestBody1.type = BidWS.TYPE_AUCTION_BID;
@@ -479,6 +495,7 @@ public class BidWSTest extends AbstractDBTest {
         // Second bid @ 2000.
         Bid attemptBid2 = DummyGenerator.getDummyBid();
         attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = good.id;
         attemptBid2.amount = 2000;
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
@@ -532,8 +549,11 @@ public class BidWSTest extends AbstractDBTest {
         dbUser.credit = 1000;
         userDAO.update(dbUser);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id;
         attemptBid.amount = 1000;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -597,8 +617,11 @@ public class BidWSTest extends AbstractDBTest {
         dbUser.credit = 1000;
         userDAO.update(dbUser);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id;
         attemptBid.amount = 1000;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -627,8 +650,11 @@ public class BidWSTest extends AbstractDBTest {
         dbUser.credit = 9999;
         userDAO.update(dbUser);
 
+        Good good = DBFeeder.createDummyGood(auction.id);
+
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -651,8 +677,11 @@ public class BidWSTest extends AbstractDBTest {
 
         successfulSubscription(dbAltAuction);
 
+        Good altGood = DBFeeder.createOtherDummyGood(auction.id);
+
         Bid attemptBid2 = DummyGenerator.getDummyBid();
         attemptBid2.auctionId = dbAltAuction.id;
+        attemptBid2.goodId = altGood.id;
         attemptBid2.amount = 1000;
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;

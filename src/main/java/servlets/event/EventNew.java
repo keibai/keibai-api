@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
-import main.java.dao.UserDAO;
 import main.java.dao.sql.EventDAOSQL;
-import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Event;
 import main.java.utils.HttpRequest;
 import main.java.utils.DefaultHttpSession;
@@ -34,7 +32,6 @@ public class EventNew extends HttpServlet {
         HttpResponse httpResponse = new HttpResponse(response);
         DefaultHttpSession session = new DefaultHttpSession(request);
         EventDAO eventDAO = EventDAOSQL.getInstance();
-        UserDAO userDAO = UserDAOSQL.getInstance();
 
         int userId = session.userId();
         if (userId == -1) {
@@ -59,10 +56,6 @@ public class EventNew extends HttpServlet {
             httpResponse.error(NAME_ERROR);
             return;
         }
-        if (unsafeEvent.auctionTime < 10) {
-            httpResponse.error(AUCTION_TIME_ERROR);
-            return;
-        }
         if (unsafeEvent.location == null || unsafeEvent.location.trim().isEmpty()) {
             httpResponse.error(LOCATION_ERROR);
             return;
@@ -78,7 +71,6 @@ public class EventNew extends HttpServlet {
 
         Event newEvent = new Event();
         newEvent.name = unsafeEvent.name;
-        newEvent.auctionTime = unsafeEvent.auctionTime;
         newEvent.location = unsafeEvent.location;
         newEvent.auctionType = unsafeEvent.auctionType;
         newEvent.category = unsafeEvent.category;

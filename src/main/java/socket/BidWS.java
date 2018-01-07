@@ -2,15 +2,14 @@ package main.java.socket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import main.java.dao.AuctionDAO;
-import main.java.dao.BidDAO;
-import main.java.dao.DAOException;
-import main.java.dao.UserDAO;
+import main.java.dao.*;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.BidDAOSQL;
+import main.java.dao.sql.GoodDAOSQL;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.Auction;
 import main.java.models.Bid;
+import main.java.models.Good;
 import main.java.models.User;
 import main.java.models.meta.BodyWS;
 import main.java.utils.HttpSession;
@@ -29,10 +28,12 @@ public class BidWS implements WS {
 
     public static final String INVALID_AMOUNT_ERROR = "Invalid amount";
     public static final String AUCTION_ID_ERROR = "Missing auction ID.";
+    public static final String GOOD_ID_ERROR = "Missing good ID.";
     public static final String SUBSCRIPTION_ERROR = "User not found inside the auction.";
     public static final String NO_CREDIT = "Not enough credit.";
     public static final String LOW_BID_STARTING_PRICE = "Bid cannot be lower than initial starting price";
     public static final String AUCTION_DOES_NOT_EXIST = "Auction does not exist";
+    public static final String GOOD_DOES_NOT_EXIST = "Good does not exist";
     public static final String AUCTION_NOT_IN_PROGRESS = "Auction is not in progress";
     public static final String LOW_BID_HIGHER_BID = "You cannot bid lower than the highest bid.";
     public static final String HAS_BIDDED_IN_IN_PROGRESS_AUCTION_TRYING_TO_BID_ANOTHER = "You are currently bidding in another auction.";
@@ -153,6 +154,7 @@ public class BidWS implements WS {
         BidDAO bidDAO = BidDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
 
         int userId = httpSession.userId();
         if (userId == -1) {
@@ -191,6 +193,12 @@ public class BidWS implements WS {
             return;
         }
 
+        if (unsafeBid.goodId == 0) {
+            String json = JsonCommon.error(GOOD_ID_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
         User dbUser;
         try {
             dbUser = userDAO.getById(userId);
@@ -217,6 +225,21 @@ public class BidWS implements WS {
 
         if (!dbAuction.status.equals(Auction.IN_PROGRESS)) {
             String json = JsonCommon.error(AUCTION_NOT_IN_PROGRESS);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        Good dbGood;
+        try {
+            dbGood = goodDAO.getById(unsafeBid.goodId);
+        } catch (DAOException e) {
+            Logger.error("Get good by ID", String.valueOf(unsafeBid.goodId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
+        if (dbGood == null) {
+            String json = JsonCommon.error(GOOD_DOES_NOT_EXIST);
             sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
@@ -273,6 +296,7 @@ public class BidWS implements WS {
         Bid newBid = new Bid();
         newBid.amount = unsafeBid.amount;
         newBid.auctionId = unsafeBid.auctionId;
+        newBid.goodId = unsafeBid.goodId;
         newBid.ownerId = this.httpSession.userId();
 
         Bid dbBid;

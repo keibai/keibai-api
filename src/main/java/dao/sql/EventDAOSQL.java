@@ -17,7 +17,6 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
 
     private static final String DB_ID = "id";
     private static final String DB_NAME = "name";
-    private static final String DB_AUCTION_TIME = "auction_time";
     private static final String DB_LOCATION = "location";
     private static final String DB_AUCTION_TYPE = "auction_type";
     private static final String DB_CATEGORY = "category";
@@ -42,17 +41,16 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
     public Event create(Event event) throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "INSERT INTO public.event (name, auction_time, location, auction_type, category, owner, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO public.event (name, location, auction_type, category, owner, status) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, event.name);
-            statement.setInt(2, event.auctionTime);
-            statement.setString(3, event.location);
-            statement.setString(4, event.auctionType);
-            statement.setString(5, event.category);
-            statement.setInt(6, event.ownerId);
-            statement.setString(7, event.status);
+            statement.setString(2, event.location);
+            statement.setString(3, event.auctionType);
+            statement.setString(4, event.category);
+            statement.setInt(5, event.ownerId);
+            statement.setString(6, event.status);
             statement.executeUpdate();
             return recentlyUpdated(statement);
         } catch (NamingException|SQLException e) {
@@ -103,20 +101,19 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
         try {
             Connection connection = Source.getInstance().getConnection();
             String query = "UPDATE public.event " +
-                    "SET name = ?, auction_time = ?, " +
+                    "SET name = ?, " +
                     "location = ?, auction_type = ?, category = ?, " +
                     "owner = ?, status = ? " +
                     "WHERE id = ?";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             statement.setString(1, event.name);
-            statement.setInt(2, event.auctionTime);
-            statement.setString(3, event.location);
-            statement.setString(4, event.auctionType);
-            statement.setString(5, event.category);
-            statement.setInt(6, event.ownerId);
-            statement.setString(7, event.status);
-            statement.setInt(8, event.id);
+            statement.setString(2, event.location);
+            statement.setString(3, event.auctionType);
+            statement.setString(4, event.category);
+            statement.setInt(5, event.ownerId);
+            statement.setString(6, event.status);
+            statement.setInt(7, event.id);
             statement.executeUpdate();
 
             return recentlyUpdated(statement);
@@ -145,7 +142,6 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
         Event event = new Event();
         event.id = resultSet.getInt(DB_ID);
         event.name = resultSet.getString(DB_NAME);
-        event.auctionTime = resultSet.getInt(DB_AUCTION_TIME);
         event.location = resultSet.getString(DB_LOCATION);
         event.auctionType = resultSet.getString(DB_AUCTION_TYPE);
         event.category = resultSet.getString(DB_CATEGORY);
