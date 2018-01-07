@@ -60,9 +60,8 @@ public class CoreWS {
     @OnError
     public void onError(Session session, Throwable throwable) {
         Logger.error("Socket error", throwable.toString());
-        throwable.printStackTrace();
         for (WS listener: listeners) {
-            listener.onClose(session);
+            listener.onError(session, throwable);
         }
     }
 }
