@@ -919,6 +919,337 @@ public class BidWSTest extends AbstractDBTest {
      * TYPE_AUCTION_END
      */
 
+    @Test
+    public void cannot_close_if_unauthenticated() {
+        Auction auction = successfulSubscription();
+
+        // Deauthenticate user first.
+        mockHttpSession.setUserId(-1);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.unauthorized(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_close_if_invalid_json() {
+        Auction auction = successfulSubscription();
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = "{";
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.invalidRequest(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_close_if_not_subscribed_to_that_auction() {
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.SUBSCRIPTION_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_not_in_progress_can_not_be_closed() throws DAOException {
+        Auction auction = successfulSubscription();
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.PENDING;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.WRONG_AUCTION_STATUS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_cannot_be_closed_if_user_is_not_the_owner() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.ownerId = altUser.id;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.unauthorized(), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void auction_closes_with_no_bids() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 1000;
+        userDAO.update(dbUser);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.status = Event.IN_PROGRESS;
+        dbEvent.ownerId = user.id;
+        eventDAO.update(dbEvent);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(auction.id, replyAuction.id);
+        assertEquals(Auction.FINISHED, replyAuction.status);
+        assertNotNull(replyAuction.endingTime);
+        assertEquals(200, replyBody.status);
+
+        // No more auctions set as pending -> event has to be set as finished.
+        Event newDbEvent = eventDAO.getById(dbEvent.id);
+        assertEquals(Event.FINISHED, newDbEvent.status);
+
+        // User credit has to remain the same.
+        User newDbUser = userDAO.getById(user.id);
+        assertEquals(dbUser.credit, newDbUser.credit, 0);
+    }
+
+    @Test
+    public void english_auction_closes_with_bids() throws DAOException {
+        // Bid twice (1. dbUser, 2. altUser)
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.ownerId = user.id;
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.ownerId = user.id;
+        dbEvent.status = Event.IN_PROGRESS;
+        eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+
+        User dbUser = userDAO.getById(user.id);
+        dbUser.credit = 2000;
+        userDAO.update(dbUser);
+
+        User altUser = DBFeeder.createOtherDummyUser();
+        altUser.credit = 2000;
+        userDAO.update(altUser);
+
+        // User bids @ 1000.
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 1000;
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "first-bid";
+        requestBody.json = new Gson().toJson(attemptBid1);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody1 = mockSender.newObjLastReply;
+        Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
+        assertEquals(user.id, dbBid1.ownerId);
+        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(200, replyBody1.status);
+
+        // Alt user authenticates.
+        mockHttpSession.setUserId(altUser.id);
+
+        // Alt user bids @ 2000.
+        Bid attemptBid2 = DummyGenerator.getDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = good.id;
+        attemptBid2.amount = 2000;
+        BodyWS requestBody2 = new BodyWS();
+        requestBody2.type = BidWS.TYPE_AUCTION_BID;
+        requestBody2.nonce = "second-bid";
+        requestBody2.json = new Gson().toJson(attemptBid2);
+        bidWS.onMessage(mockSession, requestBody2);
+
+        BodyWS replyBody2 = mockSender.newObjLastReply;
+        Bid dbBid2 = new Gson().fromJson(replyBody2.json, Bid.class);
+        assertEquals(altUser.id, dbBid2.ownerId);
+        assertEquals(2000, dbBid2.amount, 0);
+        assertEquals(200, replyBody2.status);
+
+        // User authenticates back.
+        mockHttpSession.setUserId(dbUser.id);
+
+        // Close auction (event owner: user).
+        BodyWS requestCloseBody = new BodyWS();
+        requestCloseBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestCloseBody.nonce = "any";
+        requestCloseBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestCloseBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(auction.id, replyAuction.id);
+        assertEquals(Auction.FINISHED, replyAuction.status);
+        assertNotNull(replyAuction.endingTime);
+        assertEquals(200, replyBody.status);
+
+        // English auction specifics.
+        User newDbUser = userDAO.getById(user.id);
+        User newAltUser = userDAO.getById(altUser.id);
+        assertEquals(altUser.id, replyAuction.winnerId);
+        assertEquals(2000, altUser.credit, 0);
+        assertEquals(0, newAltUser.credit, 0);
+        assertEquals(2000, dbUser.credit, 0);
+        assertEquals(2000 + 2000 - 40, newDbUser.credit, 0); // Item was from user. 2000 initial + (2000 max bid - (2% + 2% fees)). <-- Since he was the event owner he gets a 2% fees back.
+
+    }
+
+    @Test
+    public void auction_closes_with_another_auction_finished() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.status = Event.IN_PROGRESS;
+        eventDAO.update(dbEvent);
+
+        // Create alt auction and assign it to the same event. We won't be using it but it'll be there.
+        Auction altAuction = DBFeeder.createOtherDummyAuction(dbEvent.id, dbAuction.ownerId);
+        altAuction.status = Auction.FINISHED;
+        auctionDAO.update(altAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(auction.id, replyAuction.id);
+        assertEquals(Auction.FINISHED, replyAuction.status);
+        assertNotNull(replyAuction.endingTime);
+        assertEquals(200, replyBody.status);
+
+        // No more auctions set as pending -> event has to be set as finished.
+        Event newDbEvent = eventDAO.getById(dbEvent.id);
+        assertEquals(Event.FINISHED, newDbEvent.status);
+    }
+
+    @Test
+    public void auction_closes_but_there_is_another_auction_left() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.status = Event.IN_PROGRESS;
+        eventDAO.update(dbEvent);
+
+        // Create alt auction and assign it to the same event. We won't be using it but it'll be there.
+        Auction altAuction = DBFeeder.createOtherDummyAuction(dbEvent.id, dbAuction.ownerId);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(auction.id, replyAuction.id);
+        assertEquals(Auction.FINISHED, replyAuction.status);
+        assertNotNull(replyAuction.endingTime);
+        assertEquals(200, replyBody.status);
+
+        // More auctions -> event shouldn't be set as finished.
+        Event newDbEvent = eventDAO.getById(dbEvent.id);
+        assertEquals(Event.IN_PROGRESS, newDbEvent.status);
+    }
+
+    @Test
+    public void auction_closes_is_broadcasted() throws DAOException {
+        User altUser = DBFeeder.createOtherDummyUser();
+
+        Auction auction = successfulSubscription();
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.status = Event.IN_PROGRESS;
+        eventDAO.update(dbEvent);
+
+        // Create alt auction and assign it to the same event. We won't be using it but it'll be there.
+        Auction altAuction = DummyGenerator.getOtherDummyAuction();
+        altAuction.eventId = dbEvent.id;
+        altAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(altAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CLOSE;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(200, replyBody.status);
+
+        // Should be broadcasted
+        assertEquals(1, mockSender.sessionsLastListSend.size());
+        assertEquals(mockSession, mockSender.sessionsLastListSend.get(0));
+        BodyWS broadcastBody = mockSender.objLastListSend;
+        Auction broadcastAuction = new Gson().fromJson(broadcastBody.json, Auction.class);
+        assertEquals(BidWS.TYPE_AUCTION_CLOSED, broadcastBody.type);
+        assertEquals(broadcastAuction.id, dbAuction.id);
+        assertEquals(broadcastAuction.status, Auction.FINISHED);
+    }
+
     private Auction successfulSubscription() {
         Auction requestAuction = new Auction();
         requestAuction.id = auction.id;
