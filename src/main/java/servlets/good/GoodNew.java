@@ -91,7 +91,7 @@ public class GoodNew extends HttpServlet {
             event = eventDAO.getById(auction.eventId);
         } catch (DAOException e) {
             Logger.error("Get event by ID " + auction.eventId, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
@@ -102,11 +102,11 @@ public class GoodNew extends HttpServlet {
                 auctionGoods = goodDAO.getListByAuctionId(auction.id);
             } catch (DAOException e) {
                 Logger.error("Get list of goods by auction ID " + auction.id, e.toString());
-                jsonResponse.internalServerError();
+                httpResponse.internalServerError();
                 return;
             }
             if (auctionGoods.size() != 0) {
-                jsonResponse.error(WRONG_NUMBER_OF_GOODS);
+                httpResponse.error(WRONG_NUMBER_OF_GOODS);
                 return;
             }
         }
