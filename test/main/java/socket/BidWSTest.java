@@ -1059,8 +1059,9 @@ public class BidWSTest extends AbstractDBTest {
         dbAuction.status = Auction.IN_PROGRESS;
         auctionDAO.update(dbAuction);
 
-        Event dbEvent = eventDAO.getById(auction.eventId);
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
         dbEvent.ownerId = user.id;
+        dbEvent.status = Event.IN_PROGRESS;
         eventDAO.update(dbEvent);
 
         Good good = DBFeeder.createDummyGood(auction.id);
@@ -1153,8 +1154,7 @@ public class BidWSTest extends AbstractDBTest {
         eventDAO.update(dbEvent);
 
         // Create alt auction and assign it to the same event. We won't be using it but it'll be there.
-        Auction altAuction = DummyGenerator.getOtherDummyAuction();
-        altAuction.eventId = dbEvent.id;
+        Auction altAuction = DBFeeder.createOtherDummyAuction(dbEvent.id, dbAuction.ownerId);
         altAuction.status = Auction.FINISHED;
         auctionDAO.update(altAuction);
 
@@ -1191,10 +1191,7 @@ public class BidWSTest extends AbstractDBTest {
         eventDAO.update(dbEvent);
 
         // Create alt auction and assign it to the same event. We won't be using it but it'll be there.
-        Auction altAuction = DummyGenerator.getOtherDummyAuction();
-        altAuction.eventId = dbEvent.id;
-        altAuction.status = Auction.ACCEPTED;
-        auctionDAO.update(altAuction);
+        Auction altAuction = DBFeeder.createOtherDummyAuction(dbEvent.id, dbAuction.ownerId);
 
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_CLOSE;

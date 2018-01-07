@@ -2,6 +2,7 @@ package main.java.socket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import main.java.ProjectVariables;
 import main.java.dao.*;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.BidDAOSQL;
@@ -480,6 +481,8 @@ public class BidWS implements WS {
     public void onAuctionClose(BodyWS body) {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
 
         int userId = httpSession.userId();
         if (userId == -1) {
@@ -558,7 +561,7 @@ public class BidWS implements WS {
            3.0. If no bids, no auction winner. Skip step.
            3.1. Auction winner will be set.
            3.2. Auction winner (MAX_BIDDER) will be deduced MAX_BID from their credit.
-           3.3. Good owner will be credited a (1 - HOUSE_FEE + 1 - EVENT_OWNER_FEE) * MAX_BID.
+           3.3. Good owner will be credited a (1 - HOUSE_FEE - EVENT_OWNER_FEE) * MAX_BID.
            3.4. Event owner will be credited a EVENT_OWNER_FEE * MAX_BID.
          4. If all event auctions were set as FINISHED, event will be set finished too.
          */
@@ -572,6 +575,77 @@ public class BidWS implements WS {
         switch (dbEvent.auctionType) {
             case Event.ENGLISH: {
                 // 3.
+                List<Bid> auctionBids;
+
+                try {
+                    // 3.0.
+                    auctionBids = bidDAO.getListByAuctionId(dbAuction.id);
+                } catch (DAOException e) {
+                    Logger.error("Retrieve list of bids on auction close", dbAuction.toString(), e.toString());
+                    sender.reply(session, body, BodyWSCommon.internalServerError());
+                    return;
+                }
+
+                if (auctionBids.size() > 0) {
+                    // 3.1.
+                    Bid maxBid = Collections.max(auctionBids);
+                    dbAuction.winnerId = maxBid.ownerId;
+
+                    // 3.2.
+                    User winnerUser;
+                    try {
+                        winnerUser = userDAO.getById(maxBid.ownerId);
+                    } catch (DAOException e) {
+                        Logger.error("Retrieve winner of auction on auction close", maxBid.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+                    winnerUser.credit -= maxBid.amount;
+                    try {
+                        userDAO.update(winnerUser);
+                    } catch (DAOException e) {
+                        Logger.error("Update winner of auction on auction close", winnerUser.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+
+                    // 3.3.
+                    User goodOwner;
+                    try {
+                        goodOwner = userDAO.getById(maxBid.goodId);
+                    } catch (DAOException e) {
+                        Logger.error("Retrieve owner of good on auction close", maxBid.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+                    goodOwner.credit += (1 - ProjectVariables.EVENT_OWNER_FEE - ProjectVariables.HOUSE_FEE) * maxBid.amount;
+                    try {
+                        userDAO.update(goodOwner);
+                    } catch (DAOException e) {
+                        Logger.error("Update owner of good on auction close", goodOwner.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+
+                    // 3.4.
+                    User eventOwner;
+                    try {
+                        eventOwner = userDAO.getById(dbEvent.ownerId);
+                    } catch (DAOException e) {
+                        Logger.error("Retrieve owner of event on auction close", dbEvent.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+                    eventOwner.credit += ProjectVariables.EVENT_OWNER_FEE * maxBid.amount;
+                    try {
+                        userDAO.update(eventOwner);
+                    } catch (DAOException e) {
+                        Logger.error("Update owner of event on auction close", eventOwner.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+                }
+
                 break;
             }
             case Event.COMBINATORIAL: {
@@ -581,6 +655,39 @@ public class BidWS implements WS {
         }
 
         // 4.
+        try {
+            dbAuction = auctionDAO.update(dbAuction);
+        } catch (DAOException e) {
+            Logger.error("Update auction on auction close", dbAuction.toString(), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
+        List<Auction> eventAuctionList;
+        try {
+            eventAuctionList = auctionDAO.getListByEventId(dbEvent.id);
+        } catch (DAOException e) {
+            Logger.error("Retrieve list of auctions on auction close", dbEvent.toString(), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+        boolean hasAllAuctionsFinished = true;
+        for (Auction a: eventAuctionList) {
+            if (!a.status.equals(Auction.FINISHED)) {
+                hasAllAuctionsFinished = false;
+                break;
+            }
+        }
+        if (hasAllAuctionsFinished) {
+            dbEvent.status = Event.FINISHED;
+            try {
+                eventDAO.update(dbEvent);
+            } catch (DAOException e) {
+                Logger.error("Update event on auction close", dbEvent.toString(), e.toString());
+                sender.reply(session, body, BodyWSCommon.internalServerError());
+                return;
+            }
+        }
 
         String jsonAuction = new Gson().toJson(dbAuction);
         sender.reply(session, body, BodyWSCommon.ok(jsonAuction));
