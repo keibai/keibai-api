@@ -11,7 +11,8 @@ import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
 import main.java.utils.ImpreciseDate;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
+import main.java.utils.JsonCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -25,7 +26,7 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
         new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test
@@ -38,7 +39,7 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
         new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.INVALID_REQUEST, error.error);
+        assertEquals(JsonCommon.INVALID_REQUEST, error.error);
     }
 
     @Test
@@ -58,7 +59,7 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
         new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.INVALID_REQUEST, error.error);
+        assertEquals(JsonCommon.INVALID_REQUEST, error.error);
     }
 
     @Test
@@ -116,7 +117,7 @@ public class AuctionUpdateStatusTest extends AbstractDBTest {
         new AuctionUpdateStatus().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test

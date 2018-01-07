@@ -5,10 +5,7 @@ import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.User;
 import main.java.models.meta.Error;
-import main.java.utils.DBFeeder;
-import main.java.utils.DummyGenerator;
-import main.java.utils.ImpreciseDate;
-import main.java.utils.JsonResponse;
+import main.java.utils.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -25,7 +22,7 @@ public class UserUpdateCreditTest extends AbstractDBTest {
         new UserUpdateCredit().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.INVALID_REQUEST, error.error);
+        assertEquals(JsonCommon.INVALID_REQUEST, error.error);
     }
 
     @Test

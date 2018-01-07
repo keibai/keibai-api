@@ -7,7 +7,8 @@ import main.java.mocks.HttpServletStubber;
 import main.java.models.Bid;
 import main.java.models.meta.Error;
 import main.java.utils.DBFeeder;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
+import main.java.utils.JsonCommon;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -25,7 +26,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test
@@ -36,7 +37,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test

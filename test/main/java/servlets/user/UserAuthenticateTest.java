@@ -4,11 +4,9 @@ import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.meta.Error;
-import main.java.models.meta.Msg;
 import main.java.models.User;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
-import main.java.utils.JsonResponse;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -51,6 +49,7 @@ public class UserAuthenticateTest extends AbstractDBTest {
         new UserAuthenticate().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
+        assertEquals(400, stubber.servletResponse.getStatus());
         assertEquals(UserAuthenticate.PASSWORD_INVALID, error.error);
     }
 

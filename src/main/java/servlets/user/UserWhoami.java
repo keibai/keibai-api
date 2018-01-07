@@ -5,8 +5,8 @@ import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
-import main.java.utils.HttpSession;
-import main.java.utils.JsonResponse;
+import main.java.utils.DefaultHttpSession;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 
 import javax.servlet.ServletException;
@@ -19,12 +19,12 @@ import java.io.IOException;
 @WebServlet(name = "UserWhoami", urlPatterns = {"/users/whoami" })
 public class UserWhoami extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
-        HttpSession session = new HttpSession(request);
+        DefaultHttpSession session = new DefaultHttpSession(request);
 
         if (session.userId() == -1) {
-            new JsonResponse(response).empty();
+            new HttpResponse(response).empty();
             return;
         }
 
@@ -37,6 +37,6 @@ public class UserWhoami extends HttpServlet {
         }
 
         dbUser.password = null;
-        jsonResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new Gson().toJson(dbUser));
     }
 }

@@ -1,4 +1,4 @@
-package main.java.servlets.socket;
+package main.java.socket;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder;

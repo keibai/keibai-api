@@ -11,7 +11,8 @@ import main.java.models.User;
 import main.java.models.meta.Error;
 import main.java.models.meta.Msg;
 import main.java.utils.DBFeeder;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
+import main.java.utils.JsonCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -25,7 +26,7 @@ public class AuctionDeleteTest extends AbstractDBTest {
         new AuctionDelete().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test
@@ -81,7 +82,7 @@ public class AuctionDeleteTest extends AbstractDBTest {
         new AuctionDelete().doPost(stubber.servletRequest, stubber.servletResponse);
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
 
-        assertEquals(JsonResponse.UNAUTHORIZED, error.error);
+        assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
     @Test

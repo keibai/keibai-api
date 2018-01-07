@@ -5,7 +5,7 @@ import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.models.User;
-import main.java.utils.JsonResponse;
+import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
 
@@ -24,17 +24,17 @@ public class UserSearch extends HttpServlet {
     public static final String USER_NOT_FOUND = "User does not exist.";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JsonResponse jsonResponse = new JsonResponse(response);
+        HttpResponse httpResponse = new HttpResponse(response);
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         // Retrieve & validate params
         String unsafeIdParam = request.getParameter("id");
         if (unsafeIdParam == null) {
-            jsonResponse.error(ID_NONE);
+            httpResponse.error(ID_NONE);
             return;
         }
         if (!Validator.isNumber(unsafeIdParam)) {
-            jsonResponse.error(ID_INVALID);
+            httpResponse.error(ID_INVALID);
             return;
         }
         int id = Integer.parseInt(unsafeIdParam);
@@ -43,12 +43,12 @@ public class UserSearch extends HttpServlet {
         try {
             dbUser = userDAO.getById(id);
             if (dbUser == null) {
-                jsonResponse.error(USER_NOT_FOUND);
+                httpResponse.error(USER_NOT_FOUND);
                 return;
             }
         } catch (DAOException e) {
             Logger.error("Retrieve user", unsafeIdParam, e.toString());
-            jsonResponse.internalServerError();
+            httpResponse.internalServerError();
             return;
         }
 
@@ -56,6 +56,6 @@ public class UserSearch extends HttpServlet {
         dbUser.password = null;
         dbUser.credit = 0.0;
 
-        jsonResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new Gson().toJson(dbUser));
     }
 }
