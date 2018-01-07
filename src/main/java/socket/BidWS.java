@@ -612,7 +612,7 @@ public class BidWS implements WS {
                     // 3.3.
                     User goodOwner;
                     try {
-                        goodOwner = userDAO.getById(maxBid.goodId);
+                        goodOwner = userDAO.getById(dbAuction.ownerId);
                     } catch (DAOException e) {
                         Logger.error("Retrieve owner of good on auction close", maxBid.toString(), e.toString());
                         sender.reply(session, body, BodyWSCommon.internalServerError());

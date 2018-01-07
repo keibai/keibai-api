@@ -9,22 +9,31 @@ public class DBFeeder {
 
     public static User createDummyUser() throws DAOException {
         User dummyUser = DummyGenerator.getDummyUser();
-        // Hash password like if he had really signed up.
-        dummyUser.password = new PasswordAuthentication().hash(dummyUser.password.toCharArray());
-
-        UserDAO userDAO = UserDAOSQL.getInstance();
-        User user = userDAO.create(dummyUser);
-        return user;
+        return createUser(dummyUser);
     }
 
     public static User createOtherDummyUser() throws DAOException {
-        User dummyUser = DummyGenerator.getOtherDummyUser();
+        User otherDummyUser = DummyGenerator.getOtherDummyUser();
+        return createUser(otherDummyUser);
+    }
+
+    public static User createThirdDummyUser() throws DAOException {
+        User thirdDummyUser = DummyGenerator.getThirdDummyUser();
+        return createUser(thirdDummyUser);
+    }
+
+    public static User createFourthDummyUser() throws DAOException {
+        User fourthDummyUser = DummyGenerator.getFourthDummyUser();
+        return createUser(fourthDummyUser);
+    }
+
+    private static User createUser(User user) throws DAOException {
         // Hash password like if he had really signed up.
-        dummyUser.password = new PasswordAuthentication().hash(dummyUser.password.toCharArray());
+        user.password = new PasswordAuthentication().hash(user.password.toCharArray());
 
         UserDAO userDAO = UserDAOSQL.getInstance();
-        User user = userDAO.create(dummyUser);
-        return user;
+        User dbUser = userDAO.create(user);
+        return dbUser;
     }
 
     public static Event createDummyEvent() throws DAOException {

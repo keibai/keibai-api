@@ -96,6 +96,16 @@ public class DummyGenerator {
     public static final String TEST_USER_OTHER_EMAIL = "TestOtherEmail";
     public static final String TEST_USER_OTHER_PASSWORD = "TestOtherPassword";
 
+    public static final String TEST_USER_THIRD_NAME = "TestThirdName";
+    public static final String TEST_USER_THIRD_LAST_NAME = "TestThirdLastName";
+    public static final String TEST_USER_THIRD_EMAIL = "TestThirdEmail";
+    public static final String TEST_USER_THIRD_PASSWORD = "TestThirdPassword";
+
+    public static final String TEST_USER_FOURTH_NAME = "TestFourthName";
+    public static final String TEST_USER_FOURTH_LAST_NAME = "TestFourthLastName";
+    public static final String TEST_USER_FOURTH_EMAIL = "TestFourthEmail";
+    public static final String TEST_USER_FOURTH_PASSWORD = "TestFourthPassword";
+
     public static User getDummyUser() {
         User user = new User();
         user.name = TEST_USER_NAME;
@@ -111,6 +121,24 @@ public class DummyGenerator {
         user.lastName = TEST_USER_OTHER_LAST_NAME;
         user.email = TEST_USER_OTHER_EMAIL;
         user.password = TEST_USER_OTHER_PASSWORD;
+        return user;
+    }
+
+    public static User getThirdDummyUser() {
+        User user = new User();
+        user.name = TEST_USER_THIRD_NAME;
+        user.lastName = TEST_USER_THIRD_LAST_NAME;
+        user.email = TEST_USER_THIRD_EMAIL;
+        user.password = TEST_USER_THIRD_PASSWORD;
+        return user;
+    }
+
+    public static User getFourthDummyUser() {
+        User user = new User();
+        user.name = TEST_USER_FOURTH_NAME;
+        user.lastName = TEST_USER_FOURTH_LAST_NAME;
+        user.email = TEST_USER_FOURTH_EMAIL;
+        user.password = TEST_USER_FOURTH_PASSWORD;
         return user;
     }
 
