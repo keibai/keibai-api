@@ -59,11 +59,6 @@ public class AuctionNew extends HttpServlet {
             return;
         }
 
-        if (unsafeAuction.startingPrice <= 0) {
-            httpResponse.error(AUCTION_STARTING_PRICE_ERROR);
-            return;
-        }
-
         Event event;
         try {
             event = eventDAO.getById(unsafeAuction.eventId);
@@ -83,9 +78,14 @@ public class AuctionNew extends HttpServlet {
             return;
         }
 
+        if (event.auctionType.equals(Event.ENGLISH) && unsafeAuction.startingPrice <= 0) {
+            httpResponse.error(AUCTION_STARTING_PRICE_ERROR);
+            return;
+        }
+
         Auction newAuction = new Auction();
         newAuction.name = unsafeAuction.name;
-        newAuction.startingPrice = unsafeAuction.startingPrice;
+        newAuction.startingPrice = event.auctionType.equals(Event.COMBINATORIAL) ? 1.0 : unsafeAuction.startingPrice;
         newAuction.eventId = unsafeAuction.eventId;
         newAuction.ownerId = userId;
         newAuction.status = Auction.PENDING;

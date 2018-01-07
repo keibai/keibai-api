@@ -43,9 +43,18 @@ public class AuctionNewTest extends AbstractDBTest {
     }
 
     @Test
-    public void test_auction_with_non_positive_starting_price_can_not_be_created() throws ServletException, DAOException, IOException {
+    public void test_english_auction_with_non_positive_starting_price_can_not_be_created() throws ServletException, DAOException, IOException {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        dummyEvent.status = Event.OPENED;
+        dummyEvent.auctionType = Event.ENGLISH;
+        Event event = eventDAO.update(dummyEvent);
+
         Auction attemptAuction = DummyGenerator.getDummyAuction();
-        attemptAuction.startingPrice=-6.9;
+        attemptAuction.eventId = event.id;
+        attemptAuction.startTime = null;
+        attemptAuction.startingPrice = 0;
         common_auction_error_test(attemptAuction, AuctionNew.AUCTION_STARTING_PRICE_ERROR);
     }
 
@@ -168,6 +177,63 @@ public class AuctionNewTest extends AbstractDBTest {
 
         Error error = new Gson().fromJson(stubber.gathered(), Error.class);
         assertEquals(AuctionNew.EVENT_NOT_OPENED, error.error);
+    }
+
+    @Test
+    public void combinatorial_auction_without_price_is_created() throws Exception {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        dummyEvent.status = Event.OPENED;
+        dummyEvent.auctionType = Event.COMBINATORIAL;
+        Event event = eventDAO.update(dummyEvent);
+
+        Auction attemptAuction = DummyGenerator.getDummyAuction();
+        attemptAuction.eventId = dummyEvent.id;
+        attemptAuction.startTime = null;
+        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(event.ownerId);
+        stubber.body(attemptAuctionJson).listen();
+        new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+
+        assertEquals(attemptAuction.name, outputAuction.name);
+        assertEquals(1.0, outputAuction.startingPrice, 0.01);
+        assertEquals(attemptAuction.startTime, outputAuction.startTime);
+        assertEquals(event.ownerId, outputAuction.ownerId);
+        assertEquals(Auction.PENDING, outputAuction.status);
+    }
+
+    @Test
+    public void combinatorial_auction_price_is_always_1() throws Exception {
+        EventDAO eventDAO = EventDAOSQL.getInstance();
+
+        Event dummyEvent = DBFeeder.createDummyEvent();
+        dummyEvent.status = Event.OPENED;
+        dummyEvent.auctionType = Event.COMBINATORIAL;
+        Event event = eventDAO.update(dummyEvent);
+
+        Auction attemptAuction = DummyGenerator.getDummyAuction();
+        attemptAuction.eventId = dummyEvent.id;
+        attemptAuction.startTime = null;
+        attemptAuction.startingPrice = 10000;
+        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+
+        HttpServletStubber stubber = new HttpServletStubber();
+        stubber.authenticate(event.ownerId);
+        stubber.body(attemptAuctionJson).listen();
+        new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
+
+        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+
+        assertEquals(attemptAuction.name, outputAuction.name);
+        assertEquals(1.0, outputAuction.startingPrice, 0.01);
+        assertEquals(attemptAuction.startTime, outputAuction.startTime);
+        assertEquals(event.ownerId, outputAuction.ownerId);
+        assertEquals(Auction.PENDING, outputAuction.status);
     }
 
 }
