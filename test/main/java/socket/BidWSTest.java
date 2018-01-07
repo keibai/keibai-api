@@ -203,7 +203,7 @@ public class BidWSTest extends AbstractDBTest {
 
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
-        attemptBid.amount = 0.0;
+        attemptBid.amount = 0.005; // Min is 0.01
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
@@ -477,7 +477,7 @@ public class BidWSTest extends AbstractDBTest {
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
-        attemptBid1.amount = 1000;
+        attemptBid1.amount = 500.005; // Last decimal will be truncated.
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first";
@@ -487,7 +487,7 @@ public class BidWSTest extends AbstractDBTest {
         BodyWS replyBody1 = mockSender.newObjLastReply;
         Bid dbBid1 = new Gson().fromJson(replyBody1.json, Bid.class);
         assertEquals(user.id, dbBid1.ownerId);
-        assertEquals(1000, dbBid1.amount, 0);
+        assertEquals(500, dbBid1.amount, 0);
         assertEquals(200, replyBody1.status);
 
         Auction updatedAuction = auctionDAO.getById(auction.id);
