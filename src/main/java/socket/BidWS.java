@@ -21,10 +21,7 @@ import main.java.utils.Logger;
 
 import javax.websocket.Session;
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -45,6 +42,9 @@ public class BidWS implements WS {
     public static final String SOME_AUCTION_PENDING = "Review pending auctions first.";
     public static final String EVENT_FINISHED = "Can not start an auction on a finished event.";
     public static final String EVENT_NOT_IN_PROGRESS = "Cannot close an event which is not in progress.";
+    public static final String DIFFERENT_AMOUNTS = "Bids contain different amounts";
+    public static final String DIFFERENT_AUCTIONS = "Bids contain different auctions";
+    public static final String USER_ALREADY_BIDDED = "Can only bid once in a combinatorial auction";
 
     public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
     public static final String TYPE_AUCTION_NEW_CONNECTION = "AuctionNewConnection";
@@ -56,6 +56,7 @@ public class BidWS implements WS {
     public static final String TYPE_AUCTION_CLOSED = "AuctionClosed";
 
     private static final Map<Integer, Set<BidWS>> connected = new ConcurrentHashMap<>(); // Auction id <-> Sockets
+
     private int subscribed = -1; // Auction on which the current user is subscribed to.
 
     Session session;
@@ -232,6 +233,7 @@ public class BidWS implements WS {
                 onEnglishAuctionBid(body, firstBid, dbAuction, userId);
                 break;
             case Event.COMBINATORIAL:
+                onCombinatorialAuctionBid(body, unsafeBids, dbAuction, userId);
                 break;
         }
     }
@@ -370,6 +372,148 @@ public class BidWS implements WS {
             return;
         }
 
+        String json = new Gson().toJson(dbBid);
+        sender.reply(session, body, BodyWSCommon.ok(json));
+
+        // Broadcast bid to everyone in the auction.
+        auctionBidded(dbBid);
+    }
+
+    private void onCombinatorialAuctionBid(BodyWS body, Bid[] unsafeBids, Auction dbAuction, int userId) {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+
+        List<Bid> unsafeBidsList = new ArrayList<>(Arrays.asList(unsafeBids));
+
+        // 1. All bids must have the same auction ID and amount.
+        double commonAmount = Math.floor(unsafeBids[0].amount * 100) / 100;
+        int commonAuctionId = unsafeBids[0].auctionId;
+        Set<Integer> differentGoods = new HashSet<>();
+        for (Bid unsafeBid: unsafeBidsList) {
+            unsafeBid.amount = Math.floor(unsafeBid.amount * 100) / 100;
+            if (unsafeBid.amount <= 0.1) {
+                String json = JsonCommon.error(INVALID_AMOUNT_ERROR);
+                sender.reply(session, body, BodyWSCommon.error(json));
+                return;
+            }
+            if (Double.compare(commonAmount, unsafeBid.amount) != 0) {
+                String json = JsonCommon.error(DIFFERENT_AMOUNTS);
+                sender.reply(session, body, BodyWSCommon.error(json));
+                return;
+            }
+            if (commonAuctionId != unsafeBid.auctionId) {
+                String json = JsonCommon.error(DIFFERENT_AUCTIONS);
+                sender.reply(session, body, BodyWSCommon.error(json));
+                return;
+            }
+            if (unsafeBid.goodId == 0) {
+                String json = JsonCommon.error(GOOD_ID_ERROR);
+                sender.reply(session, body, BodyWSCommon.error(json));
+                return;
+            }
+            // 1.1. Remove duplicated bids to the same good
+            if (differentGoods.contains(unsafeBid.goodId)) {
+                unsafeBidsList.remove(unsafeBid);
+            } else {
+                differentGoods.add(unsafeBid.goodId);
+                //1.2. Check good exists
+                Good dbGood;
+                try {
+                    dbGood = goodDAO.getById(unsafeBid.goodId);
+                } catch (DAOException e) {
+                    Logger.error("Get good by ID", String.valueOf(unsafeBid.goodId), e.toString());
+                    sender.reply(session, body, BodyWSCommon.internalServerError());
+                    return;
+                }
+                if (dbGood == null) {
+                    String json = JsonCommon.error(GOOD_DOES_NOT_EXIST);
+                    sender.reply(session, body, BodyWSCommon.error(json));
+                    return;
+                }
+            }
+        }
+
+        // 2. Check auction. At this point commonAuctionId == dbAuction.id
+        if (commonAuctionId == 0) {
+            String json = JsonCommon.error(AUCTION_ID_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        if (commonAuctionId != subscribed) {
+            String json = JsonCommon.error(SUBSCRIPTION_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        if (!dbAuction.status.equals(Auction.IN_PROGRESS)) {
+            String json = JsonCommon.error(AUCTION_NOT_IN_PROGRESS);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        // 3. User checks
+        User dbUser;
+        try {
+            dbUser = userDAO.getById(userId);
+        } catch (DAOException e) {
+            Logger.error("Bid get user by ID at combinatorial auction", String.valueOf(userId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
+        // 3.1. User hasn't any bid on this auction
+        Set<Bid> userBids;
+        try {
+            userBids = new HashSet<>(bidDAO.getListByOwnerId(userId));
+        } catch (DAOException e) {
+            Logger.error("Bid get user bids at combinatorial auction", String.valueOf(userId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+        Set<Bid> auctionBids;
+        try {
+            auctionBids = new HashSet<>(bidDAO.getListByAuctionId(commonAuctionId));
+        } catch (DAOException e) {
+            Logger.error("Bid get auction bids at combinatorial auction", String.valueOf(commonAuctionId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+        userBids.retainAll(auctionBids);
+        if (userBids.size() != 0) {
+            String json = JsonCommon.error(USER_ALREADY_BIDDED);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        // 3.2. User has enough credit
+        if (dbUser.credit < commonAmount) {
+            String json = JsonCommon.error(NO_CREDIT);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        // Al checks passed ( @zurfyx likes this part ;) )
+        Bid dbBid = null;
+        for (Bid unsafeBid: unsafeBidsList) {
+            Bid newBid = new Bid();
+            newBid.amount = unsafeBid.amount;
+            newBid.auctionId = unsafeBid.auctionId;
+            newBid.goodId = unsafeBid.goodId;
+            newBid.ownerId = this.httpSession.userId();
+
+            try {
+                dbBid = bidDAO.create(newBid);
+            } catch (DAOException e) {
+                Logger.error("Create bid", newBid.toString(), e.toString());
+                sender.reply(session, body, BodyWSCommon.internalServerError());
+                return;
+            }
+        }
+
+        // In this case we protect the bid amount
+        dbBid.amount = 0.0;
         String json = new Gson().toJson(dbBid);
         sender.reply(session, body, BodyWSCommon.ok(json));
 
