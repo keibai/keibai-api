@@ -8,6 +8,7 @@ import main.java.mocks.MockSession;
 import main.java.mocks.MockWSSender;
 import main.java.models.*;
 import main.java.models.meta.BodyWS;
+import main.java.models.meta.Msg;
 import main.java.utils.DBFeeder;
 import main.java.utils.DummyGenerator;
 import main.java.utils.JsonCommon;
@@ -155,6 +156,70 @@ public class BidWSTest extends AbstractDBTest {
         assertEquals(user.name, sendUser.name);
         assertEquals(null, sendUser.password);
         assertEquals(0.0, sendUser.credit, 0);
+    }
+
+    /**
+     * TYPE_AUCTION_SUBSCRIBERS_ONCE
+     */
+
+    @Test
+    public void should_not_return_subscribers_if_not_subscribed() {
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CONNECTIONS_ONCE;
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.SUBSCRIPTION_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void should_return_subscribers() {
+        successfulSubscription();
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_CONNECTIONS_ONCE;
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Msg replyMsg = new Gson().fromJson(replyBody.json, Msg.class);
+        assertEquals(200, replyBody.status);
+        assertEquals(1, (int) Integer.valueOf(replyMsg.msg));
+    }
+
+    @Test
+    public void should_notify_on_disconnection() throws DAOException {
+        successfulSubscription();
+        mockHttpSession.setUserId(user.id);
+
+        // Alt mocks.
+        User altUser = DBFeeder.createOtherDummyUser();
+        MockSession altMockSession = new MockSession();
+        MockHttpSession altMockHttpSession = new MockHttpSession();
+        altMockHttpSession.setUserId(altUser.id);
+        MockWSSender<BodyWS> altMockSender = new MockWSSender<>();
+        BidWS altBidWS = new BidWS();
+        altBidWS.sender = altMockSender;
+        altBidWS.onOpen(altMockSession, altMockHttpSession);
+
+        // Alt subscription.
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_SUBSCRIBE;
+        requestBody.nonce = "alt-successful-subscription";
+        requestBody.status = 200;
+        requestBody.json = new Gson().toJson(auction);
+        altBidWS.onMessage(altMockSession, requestBody);
+
+        // Alt close connection.
+        altBidWS.onClose(altMockSession);
+
+        BodyWS altSendBody = altMockSender.objLastListSend;
+        User altSendUser = new Gson().fromJson(altSendBody.json, User.class);
+        BodyWS sendBody = mockSender.objLastListSend;
+        assertEquals(BidWS.TYPE_AUCTION_NEW_DISCONNECTION, altSendBody.type);
+        assertEquals(altUser.id, altSendUser.id);
+        assertEquals(1, mockSender.sessionsLastListSend.size());
+        assertEquals(BidWS.TYPE_AUCTION_NEW_CONNECTION, sendBody.type);
     }
 
     /**
