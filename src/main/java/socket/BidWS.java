@@ -179,10 +179,8 @@ public class BidWS implements WS {
      */
 
     protected void onAuctionBid(BodyWS body) {
-        BidDAO bidDAO = BidDAOSQL.getInstance();
-        UserDAO userDAO = UserDAOSQL.getInstance();
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
-        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
 
         int userId = httpSession.userId();
         if (userId == -1) {
@@ -190,18 +188,59 @@ public class BidWS implements WS {
             return;
         }
 
-        Bid unsafeBid;
+        Bid[] unsafeBids;
         try {
-            unsafeBid = new Gson().fromJson(body.json, Bid.class);
+            unsafeBids = new Gson().fromJson(body.json, Bid[].class);
         } catch (JsonSyntaxException e) {
             sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
         }
 
-        if (unsafeBid == null) {
+        if (unsafeBids == null || unsafeBids.length == 0) {
             sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
         }
+
+        Bid firstBid = unsafeBids[0];
+
+        Auction dbAuction;
+        try {
+            dbAuction = auctionDAO.getById(firstBid.auctionId);
+        } catch (DAOException e) {
+            Logger.error("Get auction by ID", String.valueOf(firstBid.auctionId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
+        if (dbAuction == null) {
+            String json = JsonCommon.error(AUCTION_DOES_NOT_EXIST);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        Event dbEvent;
+        try {
+            dbEvent = eventDAO.getById(dbAuction.eventId);
+        } catch (DAOException e) {
+            Logger.error("Get event by ID", String.valueOf(dbAuction.eventId), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
+        switch (dbEvent.auctionType) {
+            case Event.ENGLISH:
+                onEnglishAuctionBid(body, firstBid, dbAuction, userId);
+                break;
+            case Event.COMBINATORIAL:
+                break;
+        }
+    }
+
+    private void onEnglishAuctionBid(BodyWS body, Bid unsafeBid, Auction dbAuction, int userId) {
+        BidDAO bidDAO = BidDAOSQL.getInstance();
+        UserDAO userDAO = UserDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
 
         unsafeBid.amount = Math.floor(unsafeBid.amount * 100) / 100;
         if (unsafeBid.amount <= 0.1) {
@@ -234,21 +273,6 @@ public class BidWS implements WS {
         } catch (DAOException e) {
             Logger.error("Bid get user by ID", String.valueOf(userId), e.toString());
             sender.reply(session, body, BodyWSCommon.internalServerError());
-            return;
-        }
-
-        Auction dbAuction;
-        try {
-            dbAuction = auctionDAO.getById(unsafeBid.auctionId);
-        } catch (DAOException e) {
-            Logger.error("Get auction by ID", String.valueOf(unsafeBid.auctionId), e.toString());
-            sender.reply(session, body, BodyWSCommon.internalServerError());
-            return;
-        }
-
-        if (dbAuction == null) {
-            String json = JsonCommon.error(AUCTION_DOES_NOT_EXIST);
-            sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
 

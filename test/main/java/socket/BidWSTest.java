@@ -204,10 +204,11 @@ public class BidWSTest extends AbstractDBTest {
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.auctionId = auction.id;
         attemptBid.amount = 0.005; // Min is 0.01
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -216,31 +217,15 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     @Test
-    public void should_not_create_bid_without_auction() {
-        Auction auction = successfulSubscription();
-
-        Bid attemptBid = DummyGenerator.getDummyBid();
-        attemptBid.amount = 1.0;
-        BodyWS requestBody = new BodyWS();
-        requestBody.type = BidWS.TYPE_AUCTION_BID;
-        requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
-        bidWS.onMessage(mockSession, requestBody);
-
-        BodyWS replyBody = mockSender.newObjLastReply;
-        assertEquals(JsonCommon.error(BidWS.AUCTION_ID_ERROR), replyBody.json);
-        assertEquals(400, replyBody.status);
-    }
-
-    @Test
     public void should_not_create_bid_if_not_subscribed_to_the_auction() {
         Bid attemptBid = DummyGenerator.getDummyBid();
         attemptBid.amount = 1.0;
         attemptBid.auctionId = auction.id;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -258,10 +243,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid.auctionId = auction.id;
         attemptBid.goodId = good.id;
         attemptBid.amount = 1.0;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -282,10 +268,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid.auctionId = auction.id;
         attemptBid.goodId = good.id + 1; // Definitely a non-existing good.
         attemptBid.amount = 1.0;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -306,10 +293,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid.auctionId = auction.id;
         attemptBid.goodId = good.id;
         attemptBid.amount = dbAuction.startingPrice - 0.01;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -334,10 +322,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid.auctionId = auction.id;
         attemptBid.goodId = good.id;
         attemptBid.amount = dbAuction.startingPrice;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -363,10 +352,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 2000;
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first";
-        requestBody.json = new Gson().toJson(attemptBid1);
+        requestBody.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -380,10 +370,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid2.auctionId = auction.id;
         attemptBid2.goodId = good.id;
         attemptBid2.amount = 1000;
+        Bid[] attemptBids2 = new Bid[] {attemptBid2};
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
         requestBody2.nonce = "second";
-        requestBody2.json = new Gson().toJson(attemptBid2);
+        requestBody2.json = new Gson().toJson(attemptBids2);
         bidWS.onMessage(mockSession, requestBody2);
 
         BodyWS replyBody2 = mockSender.newObjLastReply;
@@ -413,10 +404,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first";
-        requestBody.json = new Gson().toJson(attemptBid1);
+        requestBody.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -433,10 +425,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid2.auctionId = auction.id;
         attemptBid2.goodId = good.id;
         attemptBid2.amount = 1000;
+        Bid[] attemptBids2 = new Bid[] {attemptBid2};
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
         requestBody2.nonce = "second";
-        requestBody2.json = new Gson().toJson(attemptBid2);
+        requestBody2.json = new Gson().toJson(attemptBids2);
         bidWS.onMessage(mockSession, requestBody2);
 
         BodyWS replyBody2 = mockSender.newObjLastReply;
@@ -448,10 +441,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid3.auctionId = auction.id;
         attemptBid3.goodId = good.id;
         attemptBid3.amount = 2000;
+        Bid[] attemptBids3 = new Bid[] {attemptBid3};
         BodyWS requestBody3 = new BodyWS();
         requestBody3.type = BidWS.TYPE_AUCTION_BID;
         requestBody3.nonce = "third";
-        requestBody3.json = new Gson().toJson(attemptBid3);
+        requestBody3.json = new Gson().toJson(attemptBids3);
         bidWS.onMessage(mockSession, requestBody3);
 
         BodyWS replyBody3 = mockSender.newObjLastReply;
@@ -478,10 +472,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 500.005; // Last decimal will be truncated.
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first";
-        requestBody.json = new Gson().toJson(attemptBid1);
+        requestBody.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -514,10 +509,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody1 = new BodyWS();
         requestBody1.type = BidWS.TYPE_AUCTION_BID;
         requestBody1.nonce = "first";
-        requestBody1.json = new Gson().toJson(attemptBid1);
+        requestBody1.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody1);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -531,10 +527,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid2.auctionId = auction.id;
         attemptBid2.goodId = good.id;
         attemptBid2.amount = 2000;
+        Bid[] attemptBids2 = new Bid[] {attemptBid2};
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
         requestBody2.nonce = "second";
-        requestBody2.json = new Gson().toJson(attemptBid2);
+        requestBody2.json = new Gson().toJson(attemptBids2);
         bidWS.onMessage(mockSession, requestBody2);
 
         BodyWS replyBody2 = mockSender.newObjLastReply;
@@ -594,10 +591,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid.auctionId = auction.id;
         attemptBid.goodId = good.id;
         attemptBid.amount = 1000;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -662,10 +660,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid.auctionId = auction.id;
         attemptBid.goodId = good.id;
         attemptBid.amount = 1000;
+        Bid[] attemptBids = new Bid[] {attemptBid};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "any";
-        requestBody.json = new Gson().toJson(attemptBid);
+        requestBody.json = new Gson().toJson(attemptBids);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody = mockSender.newObjLastReply;
@@ -695,10 +694,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first";
-        requestBody.json = new Gson().toJson(attemptBid1);
+        requestBody.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -722,10 +722,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid2.auctionId = dbAltAuction.id;
         attemptBid2.goodId = altGood.id;
         attemptBid2.amount = 1000;
+        Bid[] attemptBids2 = new Bid[] {attemptBid2};
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
         requestBody2.nonce = "second";
-        requestBody2.json = new Gson().toJson(attemptBid2);
+        requestBody2.json = new Gson().toJson(attemptBids2);
         bidWS.onMessage(mockSession, requestBody2);
 
         BodyWS replyBody2 = mockSender.newObjLastReply;
@@ -1147,10 +1148,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first-bid";
-        requestBody.json = new Gson().toJson(attemptBid1);
+        requestBody.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -1167,10 +1169,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid2.auctionId = auction.id;
         attemptBid2.goodId = good.id;
         attemptBid2.amount = 2000;
+        Bid[] attemptBids2 = new Bid[] {attemptBid2};
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
         requestBody2.nonce = "second-bid";
-        requestBody2.json = new Gson().toJson(attemptBid2);
+        requestBody2.json = new Gson().toJson(attemptBids2);
         bidWS.onMessage(mockSession, requestBody2);
 
         BodyWS replyBody2 = mockSender.newObjLastReply;
@@ -1240,10 +1243,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good.id;
         attemptBid1.amount = 1000;
+        Bid[] attemptBids1 = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
         requestBody.nonce = "first-bid";
-        requestBody.json = new Gson().toJson(attemptBid1);
+        requestBody.json = new Gson().toJson(attemptBids1);
         bidWS.onMessage(mockSession, requestBody);
 
         BodyWS replyBody1 = mockSender.newObjLastReply;
@@ -1260,10 +1264,11 @@ public class BidWSTest extends AbstractDBTest {
         attemptBid2.auctionId = auction.id;
         attemptBid2.goodId = good.id;
         attemptBid2.amount = 2000;
+        Bid[] attemptBids2 = new Bid[] {attemptBid2};
         BodyWS requestBody2 = new BodyWS();
         requestBody2.type = BidWS.TYPE_AUCTION_BID;
         requestBody2.nonce = "second-bid";
-        requestBody2.json = new Gson().toJson(attemptBid2);
+        requestBody2.json = new Gson().toJson(attemptBids2);
         bidWS.onMessage(mockSession, requestBody2);
 
         BodyWS replyBody2 = mockSender.newObjLastReply;
