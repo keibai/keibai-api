@@ -494,6 +494,13 @@ public class BidWS implements WS {
             return;
         }
 
+        // 3.3. Bid amount is enough to bid for the auction
+        if (commonAmount < dbAuction.startingPrice) {
+            String json = JsonCommon.error(LOW_BID_STARTING_PRICE);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
         // Al checks passed ( @zurfyx likes this part ;) )
         Bid dbBid = null;
         for (Bid unsafeBid: unsafeBidsList) {
