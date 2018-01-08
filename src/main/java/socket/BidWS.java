@@ -202,7 +202,8 @@ public class BidWS implements WS {
             return;
         }
 
-        if (unsafeBid.amount <= 0.0) {
+        unsafeBid.amount = Math.floor(unsafeBid.amount * 100) / 100;
+        if (unsafeBid.amount <= 0.1) {
             String json = JsonCommon.error(INVALID_AMOUNT_ERROR);
             sender.reply(session, body, BodyWSCommon.error(json));
             return;
