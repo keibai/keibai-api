@@ -42,6 +42,7 @@ public class BidWS implements WS {
     public static final String LOW_BID_HIGHER_BID = "You cannot bid lower than the highest bid.";
     public static final String HAS_BIDDED_IN_IN_PROGRESS_AUCTION_TRYING_TO_BID_ANOTHER = "You are currently bidding in another auction.";
     public static final String WRONG_AUCTION_STATUS = "Wrong auction status.";
+    public static final String SOME_AUCTION_PENDING = "Review pending auctions first.";
     public static final String EVENT_FINISHED = "Can not start an auction on a finished event.";
     public static final String EVENT_NOT_IN_PROGRESS = "Cannot close an event which is not in progress.";
 
@@ -434,6 +435,23 @@ public class BidWS implements WS {
 
         if (dbEvent.status.equals(Event.FINISHED)) {
             String json = JsonCommon.error(EVENT_FINISHED);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
+
+        // Can't start if not all auctions are set as ACCEPTED.
+        List<Auction> dbEventAuctions;
+        try {
+            dbEventAuctions = auctionDAO.getListByEventId(dbEvent.id);
+        } catch (DAOException e) {
+            Logger.error("Get event auctions", String.valueOf(dbEvent.id), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
+        List<Auction> unacceptedAuctions = dbEventAuctions.stream().filter(auction -> !auction.status.equals(Auction.ACCEPTED)).collect(Collectors.toList());
+        if (unacceptedAuctions.size() > 0) {
+            String json = JsonCommon.error(SOME_AUCTION_PENDING);
             sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
