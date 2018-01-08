@@ -828,7 +828,7 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     @Test
-    public void auction_with_finished_event_can_not_be_started() throws DAOException {
+    public void cannot_start_auction_with_finished_event() throws DAOException {
         User altUser = DBFeeder.createOtherDummyUser();
 
         Auction auction = successfulSubscription();
@@ -853,9 +853,77 @@ public class BidWSTest extends AbstractDBTest {
     }
 
     @Test
+    public void cannot_start_auction_if_not_all_auctions_have_been_accepted() throws DAOException {
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.status = Event.OPENED;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        // Create alt auction to simulate not accepted auction in the same event.
+        User altUser = DBFeeder.createOtherDummyUser();
+        Auction altAuction = DBFeeder.createDummyAuction(dbAuction.eventId, altUser.id);
+        altAuction.status = Auction.PENDING;
+        auctionDAO.update(altAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.SOME_AUCTION_PENDING), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
     public void auction_successfully_started() throws DAOException {
         User altUser = DBFeeder.createOtherDummyUser();
 
+        Auction auction = successfulSubscription();
+
+        Event dbEvent = eventDAO.getById(event.id);
+        dbEvent.status = Event.OPENED;
+        eventDAO.update(dbEvent);
+
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_START;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(auction);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Auction replyAuction = new Gson().fromJson(replyBody.json, Auction.class);
+        assertEquals(dbAuction.id, replyAuction.id);
+        assertNotNull(replyAuction.startTime);
+        assertEquals(Auction.IN_PROGRESS, replyAuction.status);
+        assertEquals(200, replyBody.status);
+
+        Event newDbEvent = eventDAO.getById(dbEvent.id);
+        assertEquals(Event.IN_PROGRESS, newDbEvent.status);
+    }
+
+    @Test
+    public void auction_successfully_started_if_other_events_have_pending_auctions() throws DAOException {
+        // Create alternative event & auction.
+        Event dbEvent2 = DBFeeder.createOtherDummyEvent(user.id);
+        dbEvent2.status = Event.OPENED;
+        eventDAO.update(dbEvent2);
+
+        Auction dbAuction2 = DBFeeder.createOtherDummyAuction(dbEvent2.id, user.id);
+        dbAuction2.status = Auction.PENDING;
+        auctionDAO.update(dbAuction2);
+
+        // Execute auctions over "auction".
         Auction auction = successfulSubscription();
 
         Event dbEvent = eventDAO.getById(event.id);
