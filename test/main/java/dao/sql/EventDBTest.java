@@ -81,8 +81,8 @@ public class EventDBTest extends AbstractDBTest {
         Event insertedOtherEvent = eventDAO.create(eventOther);
 
         List<Event> expectedEventList = new LinkedList<Event>() {{
-            add(insertedEvent);
             add(insertedOtherEvent);
+            add(insertedEvent);
         }};
 
         List<Event> outputEventList = eventDAO.getList();
