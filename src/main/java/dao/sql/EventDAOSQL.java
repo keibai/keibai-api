@@ -81,7 +81,7 @@ public class EventDAOSQL extends SQLDAOAbstract<Event> implements EventDAO {
     public List<Event> getList() throws DAOException {
         try {
             Connection connection = Source.getInstance().getConnection();
-            String query = "SELECT * FROM public.event";
+            String query = "SELECT * FROM public.event ORDER BY \"event\".id DESC";
 
             PreparedStatement statement = connection.prepareStatement(query, new String[] { "id" });
             ResultSet resultSet = statement.executeQuery();
