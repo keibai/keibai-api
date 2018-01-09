@@ -3,6 +3,8 @@ package main.java.socket;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import main.java.ProjectVariables;
+import main.java.combinatorial.KAuctionSolver;
+import main.java.combinatorial.KBid;
 import main.java.dao.*;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.BidDAOSQL;
@@ -22,10 +24,7 @@ import main.java.utils.Logger;
 
 import javax.websocket.Session;
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -511,6 +510,7 @@ public class BidWS implements WS {
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
         EventDAO eventDAO = EventDAOSQL.getInstance();
         BidDAO bidDAO = BidDAOSQL.getInstance();
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
         UserDAO userDAO = UserDAOSQL.getInstance();
 
         int userId = httpSession.userId();
@@ -586,13 +586,14 @@ public class BidWS implements WS {
 
          1. Auction will set as FINISHED.
          2. Auction ending time will be set.
-         3 English. Auction winner(s) will be determined:
+         3. If all event auctions were set as FINISHED, event will be set finished too.
+         4 English. Auction winner(s) will be determined:
            3.0. If no bids, no auction winner. Skip step.
            3.1. Auction winner will be set.
            3.2. Auction winner (MAX_BIDDER) will be deduced MAX_BID from their credit.
            3.3. Good owner will be credited a (1 - HOUSE_FEE - EVENT_OWNER_FEE) * MAX_BID.
            3.4. Event owner will be credited a EVENT_OWNER_FEE * MAX_BID.
-         4. If all event auctions were set as FINISHED, event will be set finished too.
+
          */
 
         // 1.
@@ -678,7 +679,63 @@ public class BidWS implements WS {
                 break;
             }
             case Event.COMBINATORIAL: {
-                // TODO: Combinatorial auctions solver will be called here
+                // 3.
+                List<Bid> auctionBids;
+
+                try {
+                    // 3.0.
+                    auctionBids = bidDAO.getListByAuctionId(dbAuction.id);
+                } catch (DAOException e) {
+                    Logger.error("Retrieve list of bids on auction close", dbAuction.toString(), e.toString());
+                    sender.reply(session, body, BodyWSCommon.internalServerError());
+                    return;
+                }
+
+                Map<Integer, List<Integer>> goodIds = new HashMap<>(); // User, Good ID
+                Map<Integer, Double> valueGoods = new HashMap<>(); // User, Good value
+                for (Bid bid: auctionBids) {
+                    int bidUserId = bid.ownerId;
+                    int bidGoodId = bid.goodId;
+                    double bidValueGood = bid.amount;
+
+                    if (!goodIds.containsKey(bidUserId)) {
+                        goodIds.put(bidUserId, new ArrayList<>());
+                    }
+                    goodIds.get(bidUserId).add(bidGoodId);
+
+                    valueGoods.put(bidUserId, bidValueGood);
+                }
+
+                List<KBid> kBids = new ArrayList<>();
+                for (Map.Entry<Integer, List<Integer>> entry: goodIds.entrySet()) {
+                    Integer entryUserId = entry.getKey();
+                    int[] entryGoodIds = entry.getValue().stream().mapToInt(i->i).toArray();
+                    Double entryAmountDouble = valueGoods.get(entryUserId);
+                    int entryAmount = entryAmountDouble.intValue();
+                    KBid kBid = new KBid(entryUserId, entryAmount, entryGoodIds);
+                    kBids.add(kBid);
+                }
+
+                List<Good> dbGoods;
+                try {
+                    dbGoods = goodDAO.getListByAuctionId(dbAuction.id);
+                } catch (DAOException e) {
+                    Logger.error("Get goods by auction ID", String.valueOf(dbAuction.id), e.toString());
+                    return;
+                }
+                KBid[] kBidsArr = kBids.toArray(new KBid[kBids.size()]);
+                KAuctionSolver kAuctionSolver = new KAuctionSolver(dbGoods.size(), kBidsArr);
+                List<KBid> kBidWinners = kAuctionSolver.solve();
+
+                String winners = "";
+                String separator = "";
+                for (KBid kBidWinner: kBidWinners) {
+                    winners += separator + kBidWinner.id;
+                    separator = ",";
+                }
+
+                dbAuction.combinatorialWinners = winners;
+
                 break;
             }
         }
