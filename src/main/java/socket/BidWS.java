@@ -15,6 +15,7 @@ import main.java.models.Good;
 import main.java.models.Event;
 import main.java.models.User;
 import main.java.models.meta.BodyWS;
+import main.java.models.meta.Msg;
 import main.java.utils.HttpSession;
 import main.java.utils.JsonCommon;
 import main.java.utils.Logger;
@@ -47,7 +48,9 @@ public class BidWS implements WS {
     public static final String USER_ALREADY_BIDDED = "Can only bid once in a combinatorial auction";
 
     public static final String TYPE_AUCTION_SUBSCRIBE = "AuctionSubscribe";
+    public static final String TYPE_AUCTION_CONNECTIONS_ONCE = "AuctionConnectionOnce";
     public static final String TYPE_AUCTION_NEW_CONNECTION = "AuctionNewConnection";
+    public static final String TYPE_AUCTION_NEW_DISCONNECTION = "AuctionNewDisconnection";
     public static final String TYPE_AUCTION_BID = "AuctionBid";
     public static final String TYPE_AUCTION_BIDDED = "AuctionBidded";
     public static final String TYPE_AUCTION_START = "AuctionStart";
@@ -74,6 +77,10 @@ public class BidWS implements WS {
         switch(body.type) {
             case TYPE_AUCTION_SUBSCRIBE: {
                 onAuctionSubscribe(body);
+                break;
+            }
+            case TYPE_AUCTION_CONNECTIONS_ONCE: {
+                onAuctionSubscribersOnce(body);
                 break;
             }
             case TYPE_AUCTION_BID: {
@@ -161,18 +168,21 @@ public class BidWS implements WS {
         newConnection(dbAuction.id, dbUser);
     }
 
-    protected void newConnection(int auctionId, User user) {
-        User broadcastUser = user.clone();
-        broadcastUser.password = null;
-        broadcastUser.credit = 0.0;
+    /**
+     * TYPE_AUCTION_CONNECTIONS_ONCE
+     */
 
-        BodyWS body = new BodyWS();
-        body.type = TYPE_AUCTION_NEW_CONNECTION;
-        body.status = 200;
-        body.json = new Gson().toJson(broadcastUser);
+    protected void onAuctionSubscribersOnce(BodyWS body) {
+        if (subscribed == -1) {
+            String json = JsonCommon.error(SUBSCRIPTION_ERROR);
+            sender.reply(session, body, BodyWSCommon.error(json));
+            return;
+        }
 
-        List<Session> sessions = connected.get(auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
-        sender.send(sessions, body);
+        Msg subscribers = new Msg();
+        subscribers.msg = String.valueOf(connected.get(subscribed).size());
+        String json = new Gson().toJson(subscribers);
+        sender.reply(session, body, BodyWSCommon.ok(json));
     }
 
     /**
@@ -904,8 +914,34 @@ public class BidWS implements WS {
         if (!connected.containsKey(subscribed)) {
             return;
         }
+
+        User idOnlyUser = new User();
+        idOnlyUser.id = httpSession.userId();
         connected.get(subscribed).remove(this);
+        newDisconnection(subscribed, idOnlyUser);
         subscribed = -1;
+    }
+
+    private void connectionBroadcast(String bodyType, int auctionId, User user) {
+        User broadcastUser = user.clone();
+        broadcastUser.password = null;
+        broadcastUser.credit = 0.0;
+
+        BodyWS body = new BodyWS();
+        body.type = bodyType;
+        body.status = 200;
+        body.json = new Gson().toJson(broadcastUser);
+
+        List<Session> sessions = connected.get(auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
+        sender.send(sessions, body);
+    }
+
+    protected void newConnection(int auctionId, User user) {
+        connectionBroadcast(TYPE_AUCTION_NEW_CONNECTION, auctionId, user);
+    }
+
+    protected void newDisconnection(int auctionId, User user) {
+        connectionBroadcast(TYPE_AUCTION_NEW_DISCONNECTION, auctionId, user);
     }
 
     @Override

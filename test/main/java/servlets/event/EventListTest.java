@@ -34,8 +34,8 @@ public class EventListTest extends AbstractDBTest {
         Event otherEvent = DBFeeder.createOtherDummyEvent(dummyUser.id);
 
         List<Event> expectedEventList = new LinkedList<Event>() {{
-            add(event);
             add(otherEvent);
+            add(event);
         }};
 
         HttpServletStubber stubber = new HttpServletStubber();
