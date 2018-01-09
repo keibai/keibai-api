@@ -14,6 +14,8 @@ import main.java.utils.JsonCommon;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.jws.soap.SOAPBinding;
+
 import static org.junit.Assert.*;
 
 public class BidWSTest extends AbstractDBTest {
@@ -161,6 +163,7 @@ public class BidWSTest extends AbstractDBTest {
      * TYPE_AUCTION_BID
      */
 
+    /* ENGLISH */
     @Test
     public void should_not_create_bid_when_not_authenticated() {
         Auction auction = successfulSubscription();
@@ -732,6 +735,391 @@ public class BidWSTest extends AbstractDBTest {
         BodyWS replyBody2 = mockSender.newObjLastReply;
         assertEquals(JsonCommon.error(BidWS.HAS_BIDDED_IN_IN_PROGRESS_AUCTION_TRYING_TO_BID_ANOTHER), replyBody2.json);
         assertEquals(400, replyBody2.status);
+    }
+
+    /* COMBINATORIAL */
+    @Test
+    public void cannot_create_combinatorial_bid_if_bids_amount_less_than_1() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+
+        Bid attemptBid = DummyGenerator.getDummyBid();
+        attemptBid.auctionId = auction.id;
+        attemptBid.goodId = good.id;
+        attemptBid.amount = 0.1;
+        Bid[] attemptBids = new Bid[] {attemptBid};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.INVALID_AMOUNT_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_bids_have_different_amounts() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 10;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.DIFFERENT_AMOUNTS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_bids_have_different_auction_ids() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Auction otherAuction = DBFeeder.createOtherDummyAuction(dbEvent.id, dbAuction.ownerId);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = otherAuction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.DIFFERENT_AUCTIONS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_some_good_id_is_0() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = 0;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.GOOD_ID_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_some_good_does_not_exist() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = 1234;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.GOOD_DOES_NOT_EXIST), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_auction_does_not_exist() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = 1234;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = 1234;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.AUCTION_DOES_NOT_EXIST), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_auction_not_subscribed() throws DAOException {
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.SUBSCRIPTION_ERROR), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_auction_not_in_progress() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.ACCEPTED;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.AUCTION_NOT_IN_PROGRESS), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_user_already_bidded() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid pastBid = DBFeeder.createOtherDummyBid(dbAuction.id, user.id, good.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.USER_ALREADY_BIDDED), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void cannot_create_combinatorial_bid_if_user_has_not_enough_credit() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        User user = userDAO.getById(this.user.id);
+        user.credit = 50;
+        user = userDAO.update(user);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        assertEquals(JsonCommon.error(BidWS.NO_CREDIT), replyBody.json);
+        assertEquals(400, replyBody.status);
+    }
+
+    @Test
+    public void combinatorial_bid_successfully_created() throws DAOException {
+        Auction auction = successfulSubscription();
+        Auction dbAuction = auctionDAO.getById(auction.id);
+        dbAuction.status = Auction.IN_PROGRESS;
+        auctionDAO.update(dbAuction);
+
+        Event dbEvent = eventDAO.getById(dbAuction.eventId);
+        dbEvent.auctionType = Event.COMBINATORIAL;
+        dbEvent = eventDAO.update(dbEvent);
+
+        User user = userDAO.getById(this.user.id);
+        user.credit = 200;
+        user = userDAO.update(user);
+
+        Good good = DBFeeder.createDummyGood(auction.id);
+        Good otherGood = DBFeeder.createOtherDummyGood(auction.id);
+
+        Bid attemptBid1 = DummyGenerator.getDummyBid();
+        attemptBid1.auctionId = auction.id;
+        attemptBid1.goodId = good.id;
+        attemptBid1.amount = 100;
+        Bid attemptBid2 = DummyGenerator.getOtherDummyBid();
+        attemptBid2.auctionId = auction.id;
+        attemptBid2.goodId = otherGood.id;
+        attemptBid2.amount = 100;
+        Bid[] attemptBids = new Bid[] {attemptBid1, attemptBid2};
+        BodyWS requestBody = new BodyWS();
+        requestBody.type = BidWS.TYPE_AUCTION_BID;
+        requestBody.nonce = "any";
+        requestBody.json = new Gson().toJson(attemptBids);
+        bidWS.onMessage(mockSession, requestBody);
+
+        BodyWS replyBody = mockSender.newObjLastReply;
+        Bid replyBid = new Gson().fromJson(replyBody.json, Bid.class);
+        assertEquals(0, replyBid.amount, 0.0000001);
+        assertEquals(attemptBid2.goodId, replyBid.goodId);
+        assertEquals(attemptBid2.auctionId, replyBid.auctionId);
+        assertEquals(user.id, replyBid.auctionId);
+        assertNotNull(replyBid.createdAt);
+        assertEquals(200, replyBody.status);
     }
 
     /**

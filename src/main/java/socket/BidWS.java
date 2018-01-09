@@ -392,7 +392,7 @@ public class BidWS implements WS {
         Set<Integer> differentGoods = new HashSet<>();
         for (Bid unsafeBid: unsafeBidsList) {
             unsafeBid.amount = Math.floor(unsafeBid.amount * 100) / 100;
-            if (unsafeBid.amount <= 0.1) {
+            if (unsafeBid.amount <= 1.0) {
                 String json = JsonCommon.error(INVALID_AMOUNT_ERROR);
                 sender.reply(session, body, BodyWSCommon.error(json));
                 return;
@@ -490,13 +490,6 @@ public class BidWS implements WS {
         // 3.2. User has enough credit
         if (dbUser.credit < commonAmount) {
             String json = JsonCommon.error(NO_CREDIT);
-            sender.reply(session, body, BodyWSCommon.error(json));
-            return;
-        }
-
-        // 3.3. Bid amount is enough to bid for the auction
-        if (commonAmount < dbAuction.startingPrice) {
-            String json = JsonCommon.error(LOW_BID_STARTING_PRICE);
             sender.reply(session, body, BodyWSCommon.error(json));
             return;
         }
