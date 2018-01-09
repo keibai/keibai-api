@@ -1,10 +1,17 @@
 package main.java.servlets.bid;
 
 import com.google.gson.Gson;
+import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.BidDAO;
+import main.java.dao.EventDAO;
+import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.BidDAOSQL;
+import main.java.dao.sql.EventDAOSQL;
+import main.java.models.Auction;
 import main.java.models.Bid;
+import main.java.models.Event;
+import main.java.utils.DefaultHttpSession;
 import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
 import main.java.utils.Validator;
@@ -26,7 +33,10 @@ public class BidSearch extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpResponse httpResponse = new HttpResponse(response);
+        DefaultHttpSession session = new DefaultHttpSession(request);
         BidDAO bidDAO = BidDAOSQL.getInstance();
+        AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        EventDAO eventDAO = EventDAOSQL.getInstance();
 
         String param = request.getParameter("id");
 
@@ -41,19 +51,40 @@ public class BidSearch extends HttpServlet {
         }
 
         int bidId = Integer.parseInt(param);
-        Bid retrievedBid;
+        Bid dbBid;
         try {
-            retrievedBid = bidDAO.getById(bidId);
+            dbBid = bidDAO.getById(bidId);
         } catch (DAOException e) {
-            Logger.error("Get bid by ID " + bidId, e.toString());
+            Logger.error("Get bid by ID", String.valueOf(bidId), e.toString());
             return;
         }
 
-        if (retrievedBid == null) {
+        if (dbBid == null) {
             httpResponse.error(BID_NOT_FOUND_ERROR);
             return;
         }
 
-        httpResponse.response(new Gson().toJson(retrievedBid));
+        // Combinatorial bids require hiding amount.
+        Auction dbAuction;
+        try {
+            dbAuction = auctionDAO.getById(dbBid.auctionId);
+        } catch (DAOException e) {
+            Logger.error("Get auction by bid ID", String.valueOf(dbBid.id), e.toString());
+            return;
+        }
+
+        Event dbEvent;
+        try {
+            dbEvent = eventDAO.getById(dbAuction.eventId);
+        } catch (DAOException e) {
+            Logger.error("Get event by auction ID", String.valueOf(dbBid.id), String.valueOf(dbBid.auctionId), String.valueOf(dbAuction.eventId), e.toString());
+            return;
+        }
+
+        if (dbEvent.auctionType.equals(Event.COMBINATORIAL) && dbBid.ownerId != session.userId()) {
+            dbBid.amount = 0.0;
+        }
+
+        httpResponse.response(new Gson().toJson(dbBid));
     }
 }
