@@ -602,20 +602,20 @@ public class BidWS implements WS {
         // 2.
         dbAuction.endingTime = new Timestamp(System.currentTimeMillis());
 
+        // 3.
+        List<Bid> auctionBids;
+
+        try {
+            // 3.0.
+            auctionBids = bidDAO.getListByAuctionId(dbAuction.id);
+        } catch (DAOException e) {
+            Logger.error("Retrieve list of bids on auction close", dbAuction.toString(), e.toString());
+            sender.reply(session, body, BodyWSCommon.internalServerError());
+            return;
+        }
+
         switch (dbEvent.auctionType) {
             case Event.ENGLISH: {
-                // 3.
-                List<Bid> auctionBids;
-
-                try {
-                    // 3.0.
-                    auctionBids = bidDAO.getListByAuctionId(dbAuction.id);
-                } catch (DAOException e) {
-                    Logger.error("Retrieve list of bids on auction close", dbAuction.toString(), e.toString());
-                    sender.reply(session, body, BodyWSCommon.internalServerError());
-                    return;
-                }
-
                 if (auctionBids.size() > 0) {
                     // 3.1.
                     Bid maxBid = Collections.max(auctionBids);
@@ -679,62 +679,113 @@ public class BidWS implements WS {
                 break;
             }
             case Event.COMBINATORIAL: {
-                // 3.
-                List<Bid> auctionBids;
+                if (auctionBids.size() > 0) {
+                    Map<Integer, List<Integer>> goodIds = new HashMap<>(); // User, Good ID
+                    Map<Integer, Double> valueGoods = new HashMap<>(); // User, Good value
+                    for (Bid bid: auctionBids) {
+                        int bidUserId = bid.ownerId;
+                        int bidGoodId = bid.goodId;
+                        double bidValueGood = bid.amount;
 
-                try {
-                    // 3.0.
-                    auctionBids = bidDAO.getListByAuctionId(dbAuction.id);
-                } catch (DAOException e) {
-                    Logger.error("Retrieve list of bids on auction close", dbAuction.toString(), e.toString());
-                    sender.reply(session, body, BodyWSCommon.internalServerError());
-                    return;
-                }
+                        if (!goodIds.containsKey(bidUserId)) {
+                            goodIds.put(bidUserId, new ArrayList<>());
+                        }
+                        goodIds.get(bidUserId).add(bidGoodId);
 
-                Map<Integer, List<Integer>> goodIds = new HashMap<>(); // User, Good ID
-                Map<Integer, Double> valueGoods = new HashMap<>(); // User, Good value
-                for (Bid bid: auctionBids) {
-                    int bidUserId = bid.ownerId;
-                    int bidGoodId = bid.goodId;
-                    double bidValueGood = bid.amount;
-
-                    if (!goodIds.containsKey(bidUserId)) {
-                        goodIds.put(bidUserId, new ArrayList<>());
+                        valueGoods.put(bidUserId, bidValueGood);
                     }
-                    goodIds.get(bidUserId).add(bidGoodId);
 
-                    valueGoods.put(bidUserId, bidValueGood);
+                    List<KBid> kBids = new ArrayList<>();
+                    for (Map.Entry<Integer, List<Integer>> entry: goodIds.entrySet()) {
+                        Integer entryUserId = entry.getKey();
+                        int[] entryGoodIds = entry.getValue().stream().mapToInt(i->i).toArray();
+                        Double entryAmountDouble = valueGoods.get(entryUserId);
+                        int entryAmount = entryAmountDouble.intValue();
+                        KBid kBid = new KBid(entryUserId, entryAmount, entryGoodIds);
+                        kBids.add(kBid);
+                    }
+
+                    List<Good> dbGoods;
+                    try {
+                        dbGoods = goodDAO.getListByAuctionId(dbAuction.id);
+                    } catch (DAOException e) {
+                        Logger.error("Get goods by auction ID", String.valueOf(dbAuction.id), e.toString());
+                        return;
+                    }
+                    KBid[] kBidsArr = kBids.toArray(new KBid[kBids.size()]);
+                    KAuctionSolver kAuctionSolver = new KAuctionSolver(dbGoods.size(), kBidsArr);
+                    List<KBid> kBidWinners = kAuctionSolver.solve();
+
+                    // Retrieve good owner
+                    User goodOwner;
+                    try {
+                        goodOwner = userDAO.getById(dbAuction.ownerId);
+                    } catch (DAOException e) {
+                        Logger.error("Retrieve owner of good on auction close", dbAuction.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+
+                    // Retrieve event owner
+                    User eventOwner;
+                    try {
+                        eventOwner = userDAO.getById(dbEvent.ownerId);
+                    } catch (DAOException e) {
+                        Logger.error("Retrieve owner of event on auction close", dbEvent.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+
+                    // Iterate winner bids
+                    String winners = "";
+                    String separator = "";
+                    for (KBid winnerBid: kBidWinners) {
+                        // Discount credit to winners
+                        User winnerUser;
+                        try {
+                            winnerUser = userDAO.getById(winnerBid.id);
+                        } catch (DAOException e) {
+                            Logger.error("Retrieve winner of auction on auction close", winnerBid.toString(), e.toString());
+                            sender.reply(session, body, BodyWSCommon.internalServerError());
+                            return;
+                        }
+                        winnerUser.credit -= winnerBid.value;
+                        // Update winners credit
+                        try {
+                            userDAO.update(winnerUser);
+                        } catch (DAOException e) {
+                            Logger.error("Update winner of auction on auction close", winnerUser.toString(), e.toString());
+                            sender.reply(session, body, BodyWSCommon.internalServerError());
+                            return;
+                        }
+                        // Add credit to good owner
+                        goodOwner.credit += (1 - ProjectVariables.EVENT_OWNER_FEE - ProjectVariables.HOUSE_COMB_FEE) * winnerBid.value;
+                        // Add credit to event owner
+                        eventOwner.credit += ProjectVariables.EVENT_OWNER_FEE * winnerBid.value;
+                        // Change auction combinatorial winners
+                        winners += separator + winnerBid.id;
+                        separator = ",";
+                    }
+                    // Update good owner
+                    try {
+                        userDAO.update(goodOwner);
+                    } catch (DAOException e) {
+                        Logger.error("Update owner of good on auction close", goodOwner.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+
+                    // Update event owner
+                    try {
+                        userDAO.update(eventOwner);
+                    } catch (DAOException e) {
+                        Logger.error("Update owner of event on auction close", eventOwner.toString(), e.toString());
+                        sender.reply(session, body, BodyWSCommon.internalServerError());
+                        return;
+                    }
+
+                    dbAuction.combinatorialWinners = winners;
                 }
-
-                List<KBid> kBids = new ArrayList<>();
-                for (Map.Entry<Integer, List<Integer>> entry: goodIds.entrySet()) {
-                    Integer entryUserId = entry.getKey();
-                    int[] entryGoodIds = entry.getValue().stream().mapToInt(i->i).toArray();
-                    Double entryAmountDouble = valueGoods.get(entryUserId);
-                    int entryAmount = entryAmountDouble.intValue();
-                    KBid kBid = new KBid(entryUserId, entryAmount, entryGoodIds);
-                    kBids.add(kBid);
-                }
-
-                List<Good> dbGoods;
-                try {
-                    dbGoods = goodDAO.getListByAuctionId(dbAuction.id);
-                } catch (DAOException e) {
-                    Logger.error("Get goods by auction ID", String.valueOf(dbAuction.id), e.toString());
-                    return;
-                }
-                KBid[] kBidsArr = kBids.toArray(new KBid[kBids.size()]);
-                KAuctionSolver kAuctionSolver = new KAuctionSolver(dbGoods.size(), kBidsArr);
-                List<KBid> kBidWinners = kAuctionSolver.solve();
-
-                String winners = "";
-                String separator = "";
-                for (KBid kBidWinner: kBidWinners) {
-                    winners += separator + kBidWinner.id;
-                    separator = ",";
-                }
-
-                dbAuction.combinatorialWinners = winners;
 
                 break;
             }
