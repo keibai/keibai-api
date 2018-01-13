@@ -126,6 +126,26 @@ public class DBFeeder {
         return good;
     }
 
+    public static Good createThirdDummyGood(int auctionId) throws DAOException {
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.name = "Third good";
+        dummyGood.auctionId = auctionId;
+
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good good = goodDAO.create(dummyGood);
+        return good;
+    }
+
+    public static Good createFourthDummyGood(int auctionId) throws DAOException {
+        Good dummyGood = DummyGenerator.getDummyGood();
+        dummyGood.name = "Fourth good";
+        dummyGood.auctionId = auctionId;
+
+        GoodDAO goodDAO = GoodDAOSQL.getInstance();
+        Good good = goodDAO.create(dummyGood);
+        return good;
+    }
+
     public static Good createDummyGood() throws DAOException {
         Auction dummyAuction = createDummyAuction();
 
