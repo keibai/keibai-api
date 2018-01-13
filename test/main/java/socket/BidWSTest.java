@@ -1956,7 +1956,7 @@ public class BidWSTest extends AbstractDBTest {
         Bid attemptBid1 = DummyGenerator.getDummyBid();
         attemptBid1.auctionId = auction.id;
         attemptBid1.goodId = good1.id;
-        attemptBid1.amount = 100;
+        attemptBid1.amount = 10;
         Bid[] dbUserBids = new Bid[] {attemptBid1};
         BodyWS requestBody = new BodyWS();
         requestBody.type = BidWS.TYPE_AUCTION_BID;
@@ -2014,10 +2014,10 @@ public class BidWSTest extends AbstractDBTest {
         // Combinatorial auction specifics.
         User newDbUser = userDAO.getById(user.id);
         User newAltUser = userDAO.getById(altUser.id);
-        assertEquals(String.valueOf(dbUser.id), replyAuction.combinatorialWinners);
+        assertEquals(String.valueOf(altUser.id), replyAuction.combinatorialWinners);
         assertEquals(1900, newAltUser.credit, 0.00001);
         // Item was from user. 2000 initial + (100 winner bid - (3% + 1% fees)). <-- Since he was the event owner he gets a 1% fees back.
-        assertEquals(2000 + 100 - (100 * ProjectVariables.HOUSE_COMB_FEE), newDbUser.credit, 0.000001);
+        assertEquals(2000 + 100 * ProjectVariables.EVENT_OWNER_FEE, newDbUser.credit, 0.000001);
     }
 
     private Auction successfulSubscription() {

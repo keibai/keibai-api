@@ -8,6 +8,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class KAuctionSolver {
 
@@ -17,10 +18,10 @@ public class KAuctionSolver {
     private IntVar objective;
     private KBid[] bids;
 
-    public KAuctionSolver(int nGoods, KBid[] bids) {
+    public KAuctionSolver(KBid[] bids) {
         this.model = new Model();
         this.bids = bids;
-        this.createModel(nGoods);
+        this.createModel();
     }
 
     public List<KBid> solve() {
@@ -37,7 +38,7 @@ public class KAuctionSolver {
         return winnerBids;
     }
 
-    private void createModel(int nGoods) {
+    private void createModel() {
         selectedBids = new BoolVar[bids.length];
         selectedBidsWeights = new IntVar[bids.length];
 
@@ -56,11 +57,11 @@ public class KAuctionSolver {
         model.sum(selectedBidsWeights, "=", objective).post();
 
         // Subject to
-        List<List<Integer>> conflicts = KBid.getBidConflicts(nGoods, bids);
-        for (List<Integer> conflictingBids: conflicts) {
-            IntVar[] c = new IntVar[conflictingBids.size()];
-            for (int i = 0; i < conflictingBids.size(); i++) {
-                c[i] = selectedBids[conflictingBids.get(i)];
+        Map<Integer, List<Integer>> conflicts = KBid.getBidConflicts(bids);
+        for (Map.Entry<Integer, List<Integer>> conflictingBids: conflicts.entrySet()) {
+            IntVar[] c = new IntVar[conflictingBids.getValue().size()];
+            for (int i = 0; i < conflictingBids.getValue().size(); i++) {
+                c[i] = selectedBids[conflictingBids.getValue().get(i)];
             }
             model.sum(c, "<=", 1).post();
         }

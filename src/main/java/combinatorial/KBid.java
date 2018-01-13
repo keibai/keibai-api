@@ -1,8 +1,6 @@
 package main.java.combinatorial;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class KBid {
 
@@ -16,17 +14,15 @@ public class KBid {
         this.goodsIds = goodIds;
     }
 
-    public static List<List<Integer>> getBidConflicts(int nGoods, KBid[] bids) {
-        // Initialize list
-        // Outer list is the list of goods, inner list are list of conflicting bids for that good
-        List<List<Integer>> conflicts = new ArrayList<>(nGoods);
-        for (int g = 0; g < nGoods; g++) {
-            conflicts.add(new ArrayList<>());
-        }
+    public static Map<Integer, List<Integer>> getBidConflicts(KBid[] bids) {
+        // Map of goodId <-> list of conflicting bids
+        Map<Integer, List<Integer>> conflicts = new HashMap<>();
 
-        // Populate list
         for (int bid = 0; bid < bids.length; bid++) {
             for (int good: bids[bid].goodsIds) {
+                if (!conflicts.containsKey(good)) {
+                    conflicts.put(good, new ArrayList<>());
+                }
                 conflicts.get(good).add(bid);
             }
         }

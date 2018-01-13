@@ -876,15 +876,8 @@ public class BidWS implements WS {
                         kBids.add(kBid);
                     }
 
-                    List<Good> dbGoods;
-                    try {
-                        dbGoods = goodDAO.getListByAuctionId(dbAuction.id);
-                    } catch (DAOException e) {
-                        Logger.error("Get goods by auction ID", String.valueOf(dbAuction.id), e.toString());
-                        return;
-                    }
                     KBid[] kBidsArr = kBids.toArray(new KBid[kBids.size()]);
-                    KAuctionSolver kAuctionSolver = new KAuctionSolver(dbGoods.size(), kBidsArr);
+                    KAuctionSolver kAuctionSolver = new KAuctionSolver(kBidsArr);
                     List<KBid> kBidWinners = kAuctionSolver.solve();
 
                     // Retrieve good owner
