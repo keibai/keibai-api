@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.sql.AuctionDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
@@ -27,6 +28,7 @@ public class AuctionListByEventId extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpResponse httpResponse = new HttpResponse(response);
         AuctionDAO auctionDAO = AuctionDAOSQL.getInstance();
+        Gson gson = new BetterGson().newInstance();
 
         String param = request.getParameter("eventid");
         if (param == null) {
@@ -50,6 +52,6 @@ public class AuctionListByEventId extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbAuctions.toArray()));
+        httpResponse.response(gson.toJson(dbAuctions.toArray()));
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.User;
 import main.java.utils.*;
 
@@ -81,6 +82,6 @@ public class UserAuthenticate extends HttpServlet {
         // Hide password from output.
         dbUser.password = null;
 
-        httpResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbUser));
     }
 }

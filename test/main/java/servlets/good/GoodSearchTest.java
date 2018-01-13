@@ -2,6 +2,7 @@ package main.java.servlets.good;
 
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Good;
 import main.java.models.meta.Error;
@@ -18,7 +19,7 @@ public class GoodSearchTest extends AbstractDBTest {
         stubber.parameter("id", "1").listen();
         new GoodSearch().doGet(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(GoodSearch.GOOD_NOT_FOUND_ERROR, error.error);
     }
 
@@ -27,7 +28,7 @@ public class GoodSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "OMG").listen();
         new GoodSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(GoodSearch.ID_ERROR, error.error);
     }
@@ -37,7 +38,7 @@ public class GoodSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new GoodSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(GoodSearch.ID_NONE_ERROR, error.error);
     }
@@ -49,7 +50,7 @@ public class GoodSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", String.valueOf(dummyGood.id)).listen();
         new GoodSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Good outputGood = new Gson().fromJson(stubber.gathered(), Good.class);
+        Good outputGood = new BetterGson().newInstance().fromJson(stubber.gathered(), Good.class);
 
         assertEquals(dummyGood.id, outputGood.id);
         assertEquals(dummyGood.name, outputGood.name);

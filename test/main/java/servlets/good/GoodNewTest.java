@@ -9,6 +9,7 @@ import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.dao.sql.GoodDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -34,11 +35,11 @@ public class GoodNewTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
 
         Good attemptGood = DummyGenerator.getDummyGood();
-        String attemptGoodJson = new Gson().toJson(attemptGood);
+        String attemptGoodJson = new BetterGson().newInstance().toJson(attemptGood);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals("Unauthorized.", error.error);
     }
 
@@ -62,14 +63,14 @@ public class GoodNewTest extends AbstractDBTest {
 
         Good attemptGood = DummyGenerator.getDummyGood();
         attemptGood.auctionId = dummyAuction.id;
-        String attemptGoodJson = new Gson().toJson(attemptGood);
+        String attemptGoodJson = new BetterGson().newInstance().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyAuction.ownerId);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Good outputGood = new Gson().fromJson(stubber.gathered(), Good.class);
+        Good outputGood = new BetterGson().newInstance().fromJson(stubber.gathered(), Good.class);
 
         assertEquals(attemptGood.name, outputGood.name);
         assertEquals(attemptGood.image, outputGood.image);
@@ -96,14 +97,14 @@ public class GoodNewTest extends AbstractDBTest {
 
         Good attemptGood = DummyGenerator.getDummyGood();
         attemptGood.auctionId = dbAuction.id;
-        String attemptGoodJson = new Gson().toJson(attemptGood);
+        String attemptGoodJson = new BetterGson().newInstance().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(eventOwner.id);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
 
@@ -133,14 +134,14 @@ public class GoodNewTest extends AbstractDBTest {
 
         Good attemptGood = DummyGenerator.getOtherDummyGood();
         attemptGood.auctionId = dbAuction.id;
-        String attemptGoodJson = new Gson().toJson(attemptGood);
+        String attemptGoodJson = new BetterGson().newInstance().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(auctionOwner.id);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(GoodNew.WRONG_NUMBER_OF_GOODS, error.error);
     }
 
@@ -164,14 +165,14 @@ public class GoodNewTest extends AbstractDBTest {
 
         Good attemptGood = DummyGenerator.getDummyGood();
         attemptGood.auctionId = dbAuction.id;
-        String attemptGoodJson = new Gson().toJson(attemptGood);
+        String attemptGoodJson = new BetterGson().newInstance().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(auctionOwner.id);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Good outputGood = new Gson().fromJson(stubber.gathered(), Good.class);
+        Good outputGood = new BetterGson().newInstance().fromJson(stubber.gathered(), Good.class);
 
         assertEquals(attemptGood.name, outputGood.name);
         assertEquals(attemptGood.image, outputGood.image);
@@ -182,14 +183,14 @@ public class GoodNewTest extends AbstractDBTest {
         Auction dummyAuction = DBFeeder.createDummyAuction();
 
         attemptGood.auctionId = dummyAuction.id;
-        String attemptGoodJson = new Gson().toJson(attemptGood);
+        String attemptGoodJson = new BetterGson().newInstance().toJson(attemptGood);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyAuction.ownerId);
         stubber.body(attemptGoodJson).listen();
         new GoodNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(errorMsg, error.error);
     }
 

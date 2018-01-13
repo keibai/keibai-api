@@ -3,6 +3,7 @@ package main.java.servlets.event;
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.EventDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Event;
 import main.java.models.User;
@@ -22,7 +23,7 @@ public class EventListTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventList().doGet(stubber.servletRequest, stubber.servletResponse);
-        Event[] outputEvents = new Gson().fromJson(stubber.gathered(), Event[].class);
+        Event[] outputEvents = new BetterGson().newInstance().fromJson(stubber.gathered(), Event[].class);
 
         assertEquals(0, outputEvents.length);
     }
@@ -41,7 +42,7 @@ public class EventListTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventList().doGet(stubber.servletRequest, stubber.servletResponse);
-        Event[] modelList = new Gson().fromJson(stubber.gathered(), Event[].class);
+        Event[] modelList = new BetterGson().newInstance().fromJson(stubber.gathered(), Event[].class);
 
         EventDBTest.assertEventListEquals(expectedEventList, Arrays.asList(modelList));
     }

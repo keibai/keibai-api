@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.DAOException;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.UserDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.User;
 import main.java.utils.DefaultHttpSession;
 import main.java.utils.HttpResponse;
@@ -37,6 +38,6 @@ public class UserWhoami extends HttpServlet {
         }
 
         dbUser.password = null;
-        httpResponse.response(new Gson().toJson(dbUser));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbUser));
     }
 }

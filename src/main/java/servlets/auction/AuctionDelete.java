@@ -6,6 +6,7 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.meta.Msg;
@@ -106,6 +107,6 @@ public class AuctionDelete extends HttpServlet {
 
         Msg msg = new Msg();
         msg.msg = DELETED;
-        httpResponse.response(new Gson().toJson(msg));
+        httpResponse.response(new BetterGson().newInstance().toJson(msg));
     }
 }

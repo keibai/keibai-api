@@ -1,6 +1,7 @@
 package main.java.utils;
 
 import com.google.gson.Gson;
+import main.java.gson.BetterGson;
 import main.java.models.meta.Error;
 import main.java.models.meta.Msg;
 
@@ -42,12 +43,12 @@ public class JsonCommon {
     public static String msg(String msg) {
         Msg obj = new Msg();
         obj.msg = msg;
-        return new Gson().toJson(obj);
+        return new BetterGson().newInstance().toJson(obj);
     }
 
     public static String error(String errorMsg) {
         Error obj = new Error();
         obj.error = errorMsg;
-        return new Gson().toJson(obj);
+        return new BetterGson().newInstance().toJson(obj);
     }
 }

@@ -2,6 +2,7 @@ package main.java.servlets.event;
 
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Event;
 import main.java.models.meta.Error;
@@ -19,7 +20,7 @@ public class EventSearchTest extends AbstractDBTest {
         stubber.parameter("id", "1").listen();
         new EventSearch().doGet(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(EventSearch.EVENT_NOT_FOUND_ERROR, error.error);
     }
 
@@ -28,7 +29,7 @@ public class EventSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "OMG").listen();
         new EventSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(EventSearch.ID_ERROR, error.error);
     }
@@ -38,7 +39,7 @@ public class EventSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new EventSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(EventSearch.ID_NONE_ERROR, error.error);
     }
@@ -50,7 +51,7 @@ public class EventSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", String.valueOf(dummyEvent.id)).listen();
         new EventSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Event outputEvent = new Gson().fromJson(stubber.gathered(), Event.class);
+        Event outputEvent = new BetterGson().newInstance().fromJson(stubber.gathered(), Event.class);
 
         assertEquals(dummyEvent.id, outputEvent.id);
         assertEquals(dummyEvent.name, outputEvent.name);

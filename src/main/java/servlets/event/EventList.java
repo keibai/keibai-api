@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Event;
 import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
@@ -31,6 +32,6 @@ public class EventList extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbEvents.toArray()));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbEvents.toArray()));
     }
 }

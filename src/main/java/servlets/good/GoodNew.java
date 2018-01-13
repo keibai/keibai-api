@@ -9,6 +9,7 @@ import main.java.dao.DAOException;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
 import main.java.dao.sql.GoodDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.models.Good;
@@ -125,6 +126,6 @@ public class GoodNew extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbGood));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbGood));
     }
 }

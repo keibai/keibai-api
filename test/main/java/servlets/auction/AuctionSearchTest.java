@@ -2,6 +2,7 @@ package main.java.servlets.auction;
 
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.meta.Error;
@@ -17,7 +18,7 @@ public class AuctionSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "1").listen();
         new AuctionSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionSearch.AUCTION_NOT_FOUND, error.error);
     }
@@ -27,7 +28,7 @@ public class AuctionSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "OMG").listen();
         new AuctionSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionSearch.ID_INVALID, error.error);
     }
@@ -37,7 +38,7 @@ public class AuctionSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new AuctionSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionSearch.ID_NONE, error.error);
     }
@@ -49,7 +50,7 @@ public class AuctionSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
         new AuctionSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(dummyAuction.id, outputAuction.id);
         assertEquals(dummyAuction.name, outputAuction.name);

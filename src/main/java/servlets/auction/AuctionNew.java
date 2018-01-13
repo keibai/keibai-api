@@ -7,6 +7,7 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.models.Event;
 import main.java.utils.HttpRequest;
@@ -100,6 +101,6 @@ public class AuctionNew extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbAuction));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbAuction));
     }
 }

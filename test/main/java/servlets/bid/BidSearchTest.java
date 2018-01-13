@@ -2,6 +2,7 @@ package main.java.servlets.bid;
 
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Bid;
 import main.java.models.meta.Error;
@@ -19,7 +20,7 @@ public class BidSearchTest extends AbstractDBTest {
         stubber.parameter("id", "1").listen();
         new BidSearch().doGet(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(BidSearch.BID_NOT_FOUND_ERROR, error.error);
     }
 
@@ -28,7 +29,7 @@ public class BidSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "OMG").listen();
         new BidSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(BidSearch.ID_ERROR, error.error);
     }
@@ -38,7 +39,7 @@ public class BidSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new BidSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(BidSearch.ID_NONE_ERROR, error.error);
     }
@@ -50,7 +51,7 @@ public class BidSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", String.valueOf(dummyBid.id)).listen();
         new BidSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Bid outputBid = new Gson().fromJson(stubber.gathered(), Bid.class);
+        Bid outputBid = new BetterGson().newInstance().fromJson(stubber.gathered(), Bid.class);
 
         assertEquals(dummyBid.id, outputBid.id);
         assertEquals(dummyBid.amount, outputBid.amount, 0.01);
