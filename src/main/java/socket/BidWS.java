@@ -11,6 +11,7 @@ import main.java.dao.sql.BidDAOSQL;
 import main.java.dao.sql.GoodDAOSQL;
 import main.java.dao.sql.UserDAOSQL;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.models.Bid;
 import main.java.models.Good;
@@ -125,7 +126,7 @@ public class BidWS implements WS {
 
         Auction unsafeAuction;
         try {
-            unsafeAuction = new Gson().fromJson(body.json, Auction.class);
+            unsafeAuction = new BetterGson().newInstance().fromJson(body.json, Auction.class);
         } catch (JsonSyntaxException e) {
             sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
@@ -183,7 +184,7 @@ public class BidWS implements WS {
 
         Msg subscribers = new Msg();
         subscribers.msg = String.valueOf(connected.get(subscribed).size());
-        String json = new Gson().toJson(subscribers);
+        String json = new BetterGson().newInstance().toJson(subscribers);
         sender.reply(session, body, BodyWSCommon.ok(json));
     }
 
@@ -203,7 +204,7 @@ public class BidWS implements WS {
 
         Bid[] unsafeBids;
         try {
-            unsafeBids = new Gson().fromJson(body.json, Bid[].class);
+            unsafeBids = new BetterGson().newInstance().fromJson(body.json, Bid[].class);
         } catch (JsonSyntaxException e) {
             sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
@@ -384,7 +385,7 @@ public class BidWS implements WS {
             return;
         }
 
-        String json = new Gson().toJson(dbBid);
+        String json = new BetterGson().newInstance().toJson(dbBid);
         sender.reply(session, body, BodyWSCommon.ok(json));
 
         // Broadcast bid to everyone in the auction.
@@ -526,7 +527,7 @@ public class BidWS implements WS {
 
         // In this case we protect the bid amount
         dbBid.amount = 0.0;
-        String json = new Gson().toJson(dbBid);
+        String json = new BetterGson().newInstance().toJson(dbBid);
         sender.reply(session, body, BodyWSCommon.ok(json));
 
         // Broadcast bid to everyone in the auction.
@@ -536,7 +537,7 @@ public class BidWS implements WS {
     protected void auctionBidded(Bid newBid) {
         BodyWS body = new BodyWS();
         body.type = TYPE_AUCTION_BIDDED;
-        body.json = new Gson().toJson(newBid);
+        body.json = new BetterGson().newInstance().toJson(newBid);
 
         List<Session> sessions = connected.get(newBid.auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
         sender.send(sessions, body);
@@ -558,7 +559,7 @@ public class BidWS implements WS {
 
         Auction unsafeAuction;
         try {
-            unsafeAuction = new Gson().fromJson(body.json, Auction.class);
+            unsafeAuction = new BetterGson().newInstance().fromJson(body.json, Auction.class);
         } catch (JsonSyntaxException e) {
             sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
@@ -657,7 +658,7 @@ public class BidWS implements WS {
             return;
         }
 
-        String jsonAuction = new Gson().toJson(dbAuction);
+        String jsonAuction = new BetterGson().newInstance().toJson(dbAuction);
         sender.reply(session, body, BodyWSCommon.ok(jsonAuction));
 
         auctionStarted(dbAuction);
@@ -667,7 +668,7 @@ public class BidWS implements WS {
         BodyWS body = new BodyWS();
         body.type = TYPE_AUCTION_STARTED;
         body.status = 200;
-        body.json = new Gson().toJson(auction);
+        body.json = new BetterGson().newInstance().toJson(auction);
 
         List<Session> sessions = connected.get(auction.id).parallelStream().map(b -> b.session).collect(Collectors.toList());
         sender.send(sessions, body);
@@ -692,7 +693,7 @@ public class BidWS implements WS {
 
         Auction unsafeAuction;
         try {
-            unsafeAuction = new Gson().fromJson(body.json, Auction.class);
+            unsafeAuction = new BetterGson().newInstance().fromJson(body.json, Auction.class);
         } catch (JsonSyntaxException e) {
             sender.reply(session, body, BodyWSCommon.invalidRequest());
             return;
@@ -990,7 +991,7 @@ public class BidWS implements WS {
             }
         }
 
-        String jsonAuction = new Gson().toJson(dbAuction);
+        String jsonAuction = new BetterGson().newInstance().toJson(dbAuction);
         sender.reply(session, body, BodyWSCommon.ok(jsonAuction));
 
         auctionClosed(dbAuction);
@@ -1000,7 +1001,7 @@ public class BidWS implements WS {
         BodyWS body = new BodyWS();
         body.type = TYPE_AUCTION_CLOSED;
         body.status = 200;
-        body.json = new Gson().toJson(auction);
+        body.json = new BetterGson().newInstance().toJson(auction);
 
         List<Session> sessions = connected.get(auction.id).parallelStream().map(b -> b.session).collect(Collectors.toList());
         sender.send(sessions, body);
@@ -1034,7 +1035,7 @@ public class BidWS implements WS {
         BodyWS body = new BodyWS();
         body.type = bodyType;
         body.status = 200;
-        body.json = new Gson().toJson(broadcastUser);
+        body.json = new BetterGson().newInstance().toJson(broadcastUser);
 
         List<Session> sessions = connected.get(auctionId).parallelStream().map(b -> b.session).collect(Collectors.toList());
         sender.send(sessions, body);

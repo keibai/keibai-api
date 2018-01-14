@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.AuctionDAO;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.AuctionDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -21,7 +22,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
@@ -35,7 +36,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         stubber.authenticate(dummyUser.id);
         stubber.parameter("id", "0").listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionAccept.AUCTION_NOT_EXIST, error.error);
     }
@@ -55,7 +56,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         stubber.authenticate(dummyEvent.ownerId);
         stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionAccept.INVALID_STATUS, error.error);
     }
@@ -69,7 +70,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         stubber.authenticate(dummyUser.id);
         stubber.parameter("id", "2").listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionAccept.AUCTION_NOT_EXIST, error.error);
     }
@@ -83,7 +84,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         stubber.authenticate(dummyUser.id);
         stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
@@ -105,7 +106,7 @@ public class AuctionAcceptTest extends AbstractDBTest {
         stubber.authenticate(dummyEvent.ownerId);
         stubber.parameter("id", String.valueOf(dummyAuction.id)).listen();
         new AuctionAccept().doPost(stubber.servletRequest, stubber.servletResponse);
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(dummyAuction.id, outputAuction.id);
         assertEquals(dummyAuction.name, outputAuction.name);

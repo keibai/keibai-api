@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.DAOException;
 import main.java.dao.BidDAO;
 import main.java.dao.sql.BidDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Bid;
 import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
@@ -54,6 +55,6 @@ public class BidSearch extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(retrievedBid));
+        httpResponse.response(new BetterGson().newInstance().toJson(retrievedBid));
     }
 }

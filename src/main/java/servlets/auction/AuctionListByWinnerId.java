@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.AuctionDAO;
 import main.java.dao.DAOException;
 import main.java.dao.sql.AuctionDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.utils.HttpResponse;
 import main.java.utils.Logger;
@@ -50,6 +51,6 @@ public class AuctionListByWinnerId extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbAuctions.toArray()));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbAuctions.toArray()));
     }
 }

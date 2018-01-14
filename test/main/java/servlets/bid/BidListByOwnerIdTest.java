@@ -3,6 +3,7 @@ package main.java.servlets.bid;
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.BidDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Bid;
 import main.java.models.meta.Error;
@@ -24,7 +25,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
@@ -35,7 +36,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         stubber.authenticate(1);
         stubber.parameter("ownerid", "2").listen();
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonCommon.UNAUTHORIZED, error.error);
     }
@@ -46,7 +47,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         stubber.authenticate(1);
         stubber.listen();
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(BidListByOwnerId.ID_NONE, error.error);
     }
@@ -57,7 +58,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         stubber.authenticate(1);
         stubber.parameter("ownerid", "").listen();
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(BidListByOwnerId.ID_INVALID, error.error);
     }
@@ -68,7 +69,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         stubber.authenticate(1);
         stubber.parameter("ownerid", "OMGNaN").listen();
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(BidListByOwnerId.ID_INVALID, error.error);
     }
@@ -87,7 +88,7 @@ public class BidListByOwnerIdTest extends AbstractDBTest {
         stubber.authenticate(bid.ownerId);
         stubber.parameter("ownerid", String.valueOf(bid.ownerId)).listen();
         new BidListByOwnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Bid[] modelList = new Gson().fromJson(stubber.gathered(), Bid[].class);
+        Bid[] modelList = new BetterGson().newInstance().fromJson(stubber.gathered(), Bid[].class);
 
         BidDBTest.assertBidListEquals(expectedBidList, Arrays.asList(modelList));
     }

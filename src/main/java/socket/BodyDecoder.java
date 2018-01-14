@@ -12,7 +12,7 @@ public class BodyDecoder implements Decoder.Text<BodyWS> {
      * Decode the information sent through socket.
      * If it's not complete, an empty BodyWS will be returned.
      * A BodyWS json can be treated as follows:
-     * private Gson gson = new Gson();
+     * private Gson gson = new BetterGson().newInstance();
      * FooModel foo = gson.fromJson(body.json, FooModel.class)
      * @param s A <type>,<nonce>,<json> string.
      * @return

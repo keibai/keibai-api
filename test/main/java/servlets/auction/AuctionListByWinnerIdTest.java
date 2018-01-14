@@ -3,6 +3,7 @@ package main.java.servlets.auction;
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.AuctionDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.meta.Error;
@@ -22,7 +23,7 @@ public class AuctionListByWinnerIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new AuctionListByWinnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionListByWinnerId.ID_NONE, error.error);
     }
@@ -32,7 +33,7 @@ public class AuctionListByWinnerIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("winnerid", "").listen();
         new AuctionListByWinnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionListByWinnerId.ID_INVALID, error.error);
     }
@@ -42,7 +43,7 @@ public class AuctionListByWinnerIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("winnerid", "OMGNaN").listen();
         new AuctionListByWinnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(AuctionListByWinnerId.ID_INVALID, error.error);
     }
@@ -60,7 +61,7 @@ public class AuctionListByWinnerIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("winnerid", String.valueOf(auction.winnerId)).listen();
         new AuctionListByWinnerId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Auction[] modelList = new Gson().fromJson(stubber.gathered(), Auction[].class);
+        Auction[] modelList = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction[].class);
 
         AuctionDBTest.assertAuctionListEquals(expectedAuctionList, Arrays.asList(modelList));
     }

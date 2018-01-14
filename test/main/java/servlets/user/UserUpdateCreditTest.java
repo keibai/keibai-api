@@ -2,6 +2,7 @@ package main.java.servlets.user;
 
 import com.google.gson.Gson;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.User;
 import main.java.models.meta.Error;
@@ -20,7 +21,7 @@ public class UserUpdateCreditTest extends AbstractDBTest {
         stubber.authenticate(dummyUser.id);
         stubber.body("").listen();
         new UserUpdateCredit().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(JsonCommon.INVALID_REQUEST, error.error);
     }
@@ -32,13 +33,13 @@ public class UserUpdateCreditTest extends AbstractDBTest {
         User updatedUser = new User();
         updatedUser.id = dummyUser.id;
         updatedUser.credit = 2;
-        String updatedUserJson = new Gson().toJson(updatedUser);
+        String updatedUserJson = new BetterGson().newInstance().toJson(updatedUser);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(updatedUserJson).listen();
         new UserUpdateCredit().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(UserUpdateCredit.USER_NOT_EXIST, error.error);
     }
@@ -49,13 +50,13 @@ public class UserUpdateCreditTest extends AbstractDBTest {
         User updatedUser = new User();
         updatedUser.id = dummyUser.id;
         updatedUser.credit = -0.5;
-        String updatedUserJson = new Gson().toJson(updatedUser);
+        String updatedUserJson = new BetterGson().newInstance().toJson(updatedUser);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(updatedUserJson).listen();
         new UserUpdateCredit().doPost(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(UserUpdateCredit.INVALID_CREDIT_AMOUNT, error.error);
     }
@@ -69,13 +70,13 @@ public class UserUpdateCreditTest extends AbstractDBTest {
         User updatedUser = new User();
         updatedUser.id = dummyUser.id;
         updatedUser.credit = 2;
-        String updatedUserJson = new Gson().toJson(updatedUser);
+        String updatedUserJson = new BetterGson().newInstance().toJson(updatedUser);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(updatedUserJson).listen();
         new UserUpdateCredit().doPost(stubber.servletRequest, stubber.servletResponse);
-        User outputUser = new Gson().fromJson(stubber.gathered(), User.class);
+        User outputUser = new BetterGson().newInstance().fromJson(stubber.gathered(), User.class);
 
         assertEquals(dummyUser.id, outputUser.id);
         assertEquals(dummyUser.name, outputUser.name);

@@ -6,6 +6,7 @@ import main.java.dao.DAOException;
 import main.java.dao.GoodDAO;
 import main.java.dao.sql.AuctionDAOSQL;
 import main.java.dao.sql.GoodDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Auction;
 import main.java.models.Good;
 import main.java.utils.HttpResponse;
@@ -69,6 +70,6 @@ public class GoodListByAuctionId extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbGoods.toArray()));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbGoods.toArray()));
     }
 }

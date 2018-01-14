@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.models.Event;
 import main.java.utils.HttpRequest;
 import main.java.utils.DefaultHttpSession;
@@ -86,6 +87,6 @@ public class EventNew extends HttpServlet {
             return;
         }
 
-        httpResponse.response(new Gson().toJson(dbEvent));
+        httpResponse.response(new BetterGson().newInstance().toJson(dbEvent));
     }
 }

@@ -3,6 +3,7 @@ package main.java.servlets.event;
 import com.google.gson.Gson;
 import main.java.dao.DAOException;
 import main.java.dao.sql.AbstractDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.meta.Error;
 import main.java.models.Event;
@@ -23,11 +24,11 @@ public class EventNewTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
 
         Event attemptEvent = DummyGenerator.getDummyEvent();
-        String attemptEventJson = new Gson().toJson(attemptEvent);
+        String attemptEventJson = new BetterGson().newInstance().toJson(attemptEvent);
         stubber.body(attemptEventJson).listen();
         new EventNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals("Unauthorized.", error.error);
     }
 
@@ -72,14 +73,14 @@ public class EventNewTest extends AbstractDBTest {
 
         Event attemptEvent = DummyGenerator.getDummyEvent();
         attemptEvent.ownerId = dummyUser.id;
-        String attemptEventJson = new Gson().toJson(attemptEvent);
+        String attemptEventJson = new BetterGson().newInstance().toJson(attemptEvent);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(attemptEventJson).listen();
         new EventNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Event outputEvent = new Gson().fromJson(stubber.gathered(), Event.class);
+        Event outputEvent = new BetterGson().newInstance().fromJson(stubber.gathered(), Event.class);
 
         assertEquals(attemptEvent.name, outputEvent.name);
         assertEquals(attemptEvent.auctionType, outputEvent.auctionType);
@@ -94,14 +95,14 @@ public class EventNewTest extends AbstractDBTest {
         User dummyUser = DBFeeder.createDummyUser();
 
         attemptEvent.ownerId = dummyUser.id;
-        String attemptEventJson = new Gson().toJson(attemptEvent);
+        String attemptEventJson = new BetterGson().newInstance().toJson(attemptEvent);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(attemptEventJson).listen();
         new EventNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(errorMsg, error.error);
     }
 

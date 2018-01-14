@@ -5,6 +5,7 @@ import main.java.dao.DAOException;
 import main.java.dao.EventDAO;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.EventDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Event;
@@ -27,11 +28,11 @@ public class AuctionNewTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
 
         Auction attemptAuction = DummyGenerator.getDummyAuction();
-        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+        String attemptAuctionJson = new BetterGson().newInstance().toJson(attemptAuction);
         stubber.body(attemptAuctionJson).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals("Unauthorized.", error.error);
     }
 
@@ -68,14 +69,14 @@ public class AuctionNewTest extends AbstractDBTest {
         attemptAuction.eventId = dummyEvent.id;
         attemptAuction.startTime = null;
         attemptAuction.status = Auction.IN_PROGRESS; // Hack attempt.
-        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+        String attemptAuctionJson = new BetterGson().newInstance().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(attemptAuctionJson).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(Auction.PENDING, outputAuction.status);
     }
@@ -88,14 +89,14 @@ public class AuctionNewTest extends AbstractDBTest {
         Auction attemptAuction = DummyGenerator.getDummyAuction();
         attemptAuction.eventId = dummyEvent.id;
         attemptAuction.startTime = null;
-        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+        String attemptAuctionJson = new BetterGson().newInstance().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(attemptAuctionJson).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(attemptAuction.startingPrice, outputAuction.startingPrice, 0.01);
@@ -108,14 +109,14 @@ public class AuctionNewTest extends AbstractDBTest {
         User dummyUser = DBFeeder.createDummyUser();
 
         attemptAuction.ownerId = dummyUser.id;
-        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+        String attemptAuctionJson = new BetterGson().newInstance().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(dummyUser.id);
         stubber.body(attemptAuctionJson).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(errorMsg, error.error);
     }
 
@@ -132,9 +133,9 @@ public class AuctionNewTest extends AbstractDBTest {
         bodyAuction.eventId = dbEvent.id;
 
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.body(new Gson().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
+        stubber.body(new BetterGson().newInstance().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(bodyAuction.name, outputAuction.name);
         assertEquals(bodyAuction.startingPrice, outputAuction.startingPrice, 0.01);
@@ -152,10 +153,10 @@ public class AuctionNewTest extends AbstractDBTest {
         bodyAuction.eventId = 1;
 
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.body(new Gson().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
+        stubber.body(new BetterGson().newInstance().toJson(bodyAuction)).authenticate(dummyUser.id).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(AuctionNew.EVENT_NOT_EXIST_ERROR, error.error);
     }
 
@@ -172,10 +173,10 @@ public class AuctionNewTest extends AbstractDBTest {
         bodyAuction.ownerId = event.ownerId;
 
         HttpServletStubber stubber = new HttpServletStubber();
-        stubber.body(new Gson().toJson(bodyAuction)).authenticate(event.ownerId).listen();
+        stubber.body(new BetterGson().newInstance().toJson(bodyAuction)).authenticate(event.ownerId).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
         assertEquals(AuctionNew.EVENT_NOT_OPENED, error.error);
     }
 
@@ -191,14 +192,14 @@ public class AuctionNewTest extends AbstractDBTest {
         Auction attemptAuction = DummyGenerator.getDummyAuction();
         attemptAuction.eventId = dummyEvent.id;
         attemptAuction.startTime = null;
-        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+        String attemptAuctionJson = new BetterGson().newInstance().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(event.ownerId);
         stubber.body(attemptAuctionJson).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(1.0, outputAuction.startingPrice, 0.01);
@@ -220,14 +221,14 @@ public class AuctionNewTest extends AbstractDBTest {
         attemptAuction.eventId = dummyEvent.id;
         attemptAuction.startTime = null;
         attemptAuction.startingPrice = 10000;
-        String attemptAuctionJson = new Gson().toJson(attemptAuction);
+        String attemptAuctionJson = new BetterGson().newInstance().toJson(attemptAuction);
 
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.authenticate(event.ownerId);
         stubber.body(attemptAuctionJson).listen();
         new AuctionNew().doPost(stubber.servletRequest, stubber.servletResponse);
 
-        Auction outputAuction = new Gson().fromJson(stubber.gathered(), Auction.class);
+        Auction outputAuction = new BetterGson().newInstance().fromJson(stubber.gathered(), Auction.class);
 
         assertEquals(attemptAuction.name, outputAuction.name);
         assertEquals(1.0, outputAuction.startingPrice, 0.01);

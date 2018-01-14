@@ -6,11 +6,12 @@ import javax.websocket.EndpointConfig;
 
 
 import com.google.gson.Gson;
+import main.java.gson.BetterGson;
 import main.java.models.meta.BodyWS;
 
 public class BodyEncoder implements Encoder.Text<BodyWS> {
 
-    private static Gson gson = new Gson();
+    private static Gson gson = new BetterGson().newInstance();
 
     @Override
     public String encode(BodyWS body) throws EncodeException {

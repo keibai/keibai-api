@@ -5,6 +5,7 @@ import main.java.dao.GoodDAO;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.GoodDAOSQL;
 import main.java.dao.sql.GoodDBTest;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.Auction;
 import main.java.models.Good;
@@ -26,7 +27,7 @@ public class GoodListByAuctionIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new GoodListByAuctionId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(GoodListByAuctionId.ID_NONE, error.error);
     }
@@ -36,7 +37,7 @@ public class GoodListByAuctionIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("auctionid", "").listen();
         new GoodListByAuctionId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(GoodListByAuctionId.ID_INVALID, error.error);
     }
@@ -46,7 +47,7 @@ public class GoodListByAuctionIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("auctionid", "1").listen();
         new GoodListByAuctionId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(GoodListByAuctionId.AUCTION_NOT_EXIST, error.error);
     }
@@ -72,7 +73,7 @@ public class GoodListByAuctionIdTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("auctionid", String.valueOf(dummyAuction.id)).listen();
         new GoodListByAuctionId().doGet(stubber.servletRequest, stubber.servletResponse);
-        Good[] modelList = new Gson().fromJson(stubber.gathered(), Good[].class);
+        Good[] modelList = new BetterGson().newInstance().fromJson(stubber.gathered(), Good[].class);
 
         GoodDBTest.assertGoodListEquals(expectedGoodList, Arrays.asList(modelList));
 

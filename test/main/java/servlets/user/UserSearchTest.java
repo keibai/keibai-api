@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import main.java.dao.UserDAO;
 import main.java.dao.sql.AbstractDBTest;
 import main.java.dao.sql.UserDAOSQL;
+import main.java.gson.BetterGson;
 import main.java.mocks.HttpServletStubber;
 import main.java.models.User;
 import main.java.models.meta.Error;
@@ -20,7 +21,7 @@ public class UserSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "1").listen();
         new UserSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(UserSearch.USER_NOT_FOUND, error.error);
     }
@@ -30,7 +31,7 @@ public class UserSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", "OMG").listen();
         new UserSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(UserSearch.ID_INVALID, error.error);
     }
@@ -40,7 +41,7 @@ public class UserSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.listen();
         new UserSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        Error error = new Gson().fromJson(stubber.gathered(), Error.class);
+        Error error = new BetterGson().newInstance().fromJson(stubber.gathered(), Error.class);
 
         assertEquals(UserSearch.ID_NONE, error.error);
     }
@@ -52,7 +53,7 @@ public class UserSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", String.valueOf(dummyUser.id)).listen();
         new UserSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        User outputUser = new Gson().fromJson(stubber.gathered(), User.class);
+        User outputUser = new BetterGson().newInstance().fromJson(stubber.gathered(), User.class);
 
         assertEquals(dummyUser.id, outputUser.id);
         assertEquals(dummyUser.name, outputUser.name);
@@ -73,7 +74,7 @@ public class UserSearchTest extends AbstractDBTest {
         HttpServletStubber stubber = new HttpServletStubber();
         stubber.parameter("id", String.valueOf(dbUser.id)).listen();
         new UserSearch().doGet(stubber.servletRequest, stubber.servletResponse);
-        User outputUser = new Gson().fromJson(stubber.gathered(), User.class);
+        User outputUser = new BetterGson().newInstance().fromJson(stubber.gathered(), User.class);
 
         assertEquals(0.0, outputUser.credit, 0.01);
     }
